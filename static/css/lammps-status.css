@@ -1,0 +1,95 @@
+/* ------------------------------------------------------------------ *
+ *  LAMMPS test status site -- custom styles layered on top of
+ *  Bootstrap 5, following the design of the LAMMPS website
+ *  (static/css/newsite.css there).  Keep this small; prefer
+ *  Bootstrap utility classes in the generator markup.
+ * ------------------------------------------------------------------ */
+
+/* ---- Brand palette (from the LAMMPS website) ---------------------- */
+:root {
+  --lammps-blue: #1f6db5;
+  --lammps-blue-rgb: 31, 109, 181;
+  --lammps-gold: #f4b41a;
+  --lammps-gold-rgb: 244, 180, 26;
+
+  --lammps-accent: var(--lammps-blue);
+  --lammps-accent-rgb: var(--lammps-blue-rgb);
+
+  --bs-link-color: var(--lammps-accent);
+  --bs-link-color-rgb: var(--lammps-accent-rgb);
+  --bs-link-hover-color: #17527f;
+  --bs-link-hover-color-rgb: 23, 82, 127;
+
+  /* status colors for test outcomes (not brand colors; kept identical in
+     light and dark mode, validated for both surfaces) */
+  --status-good: #0ca30c;
+  --status-error: #ec835a;
+  --status-critical: #d03b3b;
+  --status-muted: #898781;
+}
+[data-bs-theme="dark"] {
+  --lammps-accent: #6ea8de;
+  --lammps-accent-rgb: 110, 168, 222;
+  --bs-link-hover-color: #9cc4ea;
+  --bs-link-hover-color-rgb: 156, 196, 234;
+}
+
+/* Rebrand Bootstrap's primary buttons to the LAMMPS blue. */
+.btn-primary, .btn-outline-primary {
+  --bs-btn-color: var(--lammps-accent);
+  --bs-btn-border-color: var(--lammps-blue);
+  --bs-btn-hover-bg: #1a5c9a;
+  --bs-btn-hover-border-color: #185490;
+  --bs-btn-active-bg: var(--lammps-blue);
+  --bs-btn-active-border-color: #154b80;
+}
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--lammps-blue);
+  --bs-btn-hover-color: #fff;
+}
+.btn-outline-primary {
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+
+/* Thin gold brand accent under the (always-dark) navbar. */
+.navbar { border-bottom: 3px solid var(--lammps-gold); }
+
+/* Light/dark toggle button: styled to match the navbar links. */
+.theme-toggle {
+  color: rgba(255, 255, 255, .7);
+  background: none;
+  border: 0;
+  padding: .25rem .5rem;
+  line-height: 1;
+  font-size: 1.15rem;
+}
+.theme-toggle:hover, .theme-toggle:focus-visible { color: #fff; }
+
+/* ---- Status site components --------------------------------------- */
+
+/* stat tiles inside the suite cards */
+.tile .num { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+.tile .lbl { color: var(--bs-secondary-color); font-size: .78rem; }
+
+/* test outcome chips: colored icon + regular-ink label */
+.status { white-space: nowrap; }
+.status .ico { font-weight: 700; }
+.st-passed  .ico { color: var(--status-good); }
+.st-failed  .ico { color: var(--status-critical); }
+.st-error   .ico { color: var(--status-error); }
+.st-skipped .ico { color: var(--status-muted); }
+.delta-bad  { color: var(--status-critical); font-weight: 600; }
+.delta-good { color: var(--status-good); font-weight: 600; }
+
+/* trend sparkline in the suite cards */
+.spark polyline { fill: none; stroke: var(--lammps-accent); stroke-width: 2; }
+.spark circle { fill: var(--lammps-accent); }
+
+/* numeric table columns */
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* per-test details column */
+td .msg { color: var(--bs-secondary-color); font-size: .85rem; }
+tr.hidden { display: none; }

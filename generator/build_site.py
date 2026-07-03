@@ -4,11 +4,17 @@ Generate the static LAMMPS test status website from the archived run data.
 
 Reads:  data/<suite>/<runid>/run.json   (see tools/rundata.py for the layout)
         data/external/*.json            (optional summaries, e.g. coverage)
+        static/                         (vendored Bootstrap, brand CSS, logo)
 Writes: _site/index.html                (dashboard)
         _site/runs/<suite-slug>/<runid>.html  (per-run detail pages)
         _site/api/summary.json          (machine readable snapshot)
+        _site/static/                   (copy of the static assets)
 
-Only the Python standard library is required.
+The page layout and styling follow the design of the LAMMPS website
+(www.lammps.org): Bootstrap 5 with the LAMMPS brand palette layered on
+top (static/css/lammps-status.css), a dark navbar with the gold accent,
+and a light/dark theme toggle. Only the Python standard library is
+required.
 
 Usage:  python3 generator/build_site.py [--datadir data] [--outdir _site]
 '''
@@ -18,94 +24,12 @@ import datetime
 import html
 import json
 import os
+import shutil
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools'))
+TOPDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+sys.path.append(os.path.join(TOPDIR, 'tools'))
 import rundata
-
-# ---------------------------------------------------------------- styling
-
-# palette: fixed status colors plus chart chrome, selected for light and dark
-CSS = '''
-:root {
-  --page:      #f9f9f7; --surface:   #fcfcfb; --ink:      #0b0b0b;
-  --ink-2:     #52514e; --muted:     #898781; --grid:     #e1e0d9;
-  --border:    rgba(11,11,11,0.10);
-  --good:      #0ca30c; --warning:   #fab219; --serious:  #ec835a;
-  --critical:  #d03b3b; --accent:    #2a78d6;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page:    #0d0d0d; --surface:   #1a1a19; --ink:      #ffffff;
-    --ink-2:   #c3c2b7; --muted:     #898781; --grid:     #2c2c2a;
-    --border:  rgba(255,255,255,0.10);
-    --accent:  #3987e5;
-  }
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--page); color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 15px; line-height: 1.45;
-}
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-header.page {
-  padding: 1.2rem 2rem 1rem; border-bottom: 1px solid var(--grid);
-  background: var(--surface);
-}
-header.page h1 { margin: 0 0 0.15rem; font-size: 1.35rem; }
-header.page .sub { color: var(--ink-2); font-size: 0.9rem; }
-main { max-width: 1080px; margin: 0 auto; padding: 1.2rem 2rem 3rem; }
-h2 { font-size: 1.1rem; margin: 2rem 0 0.8rem; }
-h2:first-child { margin-top: 0.8rem; }
-.cards { display: flex; flex-wrap: wrap; gap: 1rem; }
-.card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; padding: 1rem 1.2rem; flex: 1 1 300px; min-width: 300px;
-}
-.card h3 { margin: 0 0 0.4rem; font-size: 1rem; }
-.card .meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.5rem; }
-.tiles { display: flex; gap: 1.2rem; flex-wrap: wrap; margin: 0.5rem 0; }
-.tile .num { font-size: 1.45rem; font-weight: 600; }
-.tile .lbl { color: var(--ink-2); font-size: 0.75rem; }
-.status { white-space: nowrap; }
-.status .ico { font-weight: 700; }
-.st-passed  .ico { color: var(--good); }
-.st-failed  .ico { color: var(--critical); }
-.st-error   .ico { color: var(--serious); }
-.st-skipped .ico { color: var(--muted); }
-.delta-bad  { color: var(--critical); font-weight: 600; }
-.delta-good { color: var(--good); font-weight: 600; }
-table { border-collapse: collapse; width: 100%; background: var(--surface);
-        border: 1px solid var(--border); border-radius: 8px; }
-th, td { text-align: left; padding: 0.4rem 0.7rem; border-top: 1px solid var(--grid);
-         vertical-align: top; }
-thead th { border-top: none; color: var(--ink-2); font-size: 0.8rem;
-           font-weight: 600; }
-td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-td .msg { color: var(--ink-2); font-size: 0.85rem; }
-tr.hidden { display: none; }
-.filters { margin: 0.8rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap;
-           align-items: center; }
-.filters button {
-  background: var(--surface); color: var(--ink); border: 1px solid var(--border);
-  border-radius: 6px; padding: 0.25rem 0.7rem; cursor: pointer; font-size: 0.85rem;
-}
-.filters button.active { border-color: var(--accent); color: var(--accent);
-                         font-weight: 600; }
-.filters input {
-  background: var(--surface); color: var(--ink); border: 1px solid var(--border);
-  border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.85rem; min-width: 14rem;
-}
-.spark { display: block; margin-top: 0.4rem; }
-.spark polyline { fill: none; stroke: var(--accent); stroke-width: 2; }
-.spark circle { fill: var(--accent); }
-.props { font-size: 0.85rem; color: var(--ink-2); }
-.props td { padding: 0.15rem 0.7rem 0.15rem 0; border: none; }
-footer { max-width: 1080px; margin: 0 auto; padding: 0 2rem 2rem;
-         color: var(--muted); font-size: 0.8rem; }
-'''
 
 ICONS = {'passed': '&#10003;', 'failed': '&#10007;',
          'error': '&#9888;', 'skipped': '&#9675;'}
@@ -121,24 +45,78 @@ def status_chip(status):
             f' {esc(LABELS.get(status, status))}</span>')
 
 def page(title, body, root=''):
+    '''wrap page content in the site chrome (navbar, footer, theme toggle)'''
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    return f'''<!DOCTYPE html>
+    return f'''<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title>
-<style>{CSS}</style>
+<title>{esc(title)} &middot; LAMMPS Test Status</title>
+<script>
+  (function () {{
+    try {{
+      var t = localStorage.getItem('theme') ||
+              (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', t);
+    }} catch (e) {{}}
+  }})();
+</script>
+<link href="{root}static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="{root}static/css/lammps-status.css" rel="stylesheet">
 </head>
 <body>
-<header class="page">
-<h1><a href="{root}index.html" style="color:inherit">LAMMPS Test Status</a></h1>
-<div class="sub">{esc(title)}</div>
+<header>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid px-md-4">
+    <a class="navbar-brand py-0" href="{root}index.html">
+      <img src="{root}static/images/lammps-logo.png" alt="LAMMPS" height="32"
+           onerror="this.replaceWith(document.createTextNode('LAMMPS'))">
+    </a>
+    <span class="navbar-text text-white me-auto">Test Status</span>
+    <ul class="navbar-nav flex-row gap-3 me-3">
+      <li class="nav-item"><a class="nav-link" href="{root}index.html">Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="https://www.lammps.org/">lammps.org</a></li>
+      <li class="nav-item"><a class="nav-link" href="https://docs.lammps.org/">Docs</a></li>
+      <li class="nav-item"><a class="nav-link" href="https://github.com/lammps/lammps">GitHub</a></li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle"
+            aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
+  </div>
+</nav>
 </header>
-<main>
+<main class="py-4">
+<div class="container-fluid px-md-4">
+<h1 class="h4 mb-3">{esc(title)}</h1>
 {body}
+</div>
 </main>
-<footer>Generated {now} &middot; <a href="https://github.com/lammps/lammps">lammps/lammps</a></footer>
+<footer class="border-top py-4 text-body-secondary">
+  <div class="container-fluid px-md-4 d-flex flex-wrap justify-content-between gap-2 small">
+    <div>Aggregated results of the automated LAMMPS test runs.</div>
+    <div>Last updated: {now} &middot;
+      <a href="https://github.com/lammps/lammps-test-results">site source</a></div>
+  </div>
+</footer>
+<script src="{root}static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+  (function () {{
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    function sync() {{
+      var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+      btn.innerHTML = dark ? '&#9728;' : '&#9790;';
+    }}
+    btn.addEventListener('click', function () {{
+      var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+      var next = dark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      try {{ localStorage.setItem('theme', next); }} catch (e) {{}}
+      sync();
+    }});
+    sync();
+  }})();
+</script>
 </body>
 </html>
 '''
@@ -155,7 +133,7 @@ def tiles_html(counts):
     tiles = [('Tests', counts['tests'], ''), ('Passed', counts['passed'], 'st-passed'),
              ('Failed', counts['failed'], 'st-failed'), ('Errors', counts['error'], 'st-error'),
              ('Skipped', counts['skipped'], 'st-skipped')]
-    out = '<div class="tiles">'
+    out = '<div class="d-flex flex-wrap gap-4 my-2">'
     for label, num, cls in tiles:
         out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
                 f'<div class="lbl">{label}</div></div>')
@@ -173,16 +151,16 @@ def sparkline(history, width=220, height=36):
         y = height - 6 - (n / top) * (height - 12)
         pts.append((x, y, runid, n))
     poly = ' '.join(f'{x:.1f},{y:.1f}' for x, y, _, _ in pts)
-    svg = (f'<svg class="spark" width="{width}" height="{height}" role="img" '
+    svg = (f'<svg class="spark d-block mt-2" width="{width}" height="{height}" role="img" '
            f'aria-label="broken tests trend">')
     svg += f'<polyline points="{poly}"/>'
     for x, y, runid, n in pts:
         svg += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3">'
                 f'<title>{esc(runid)}: {n} broken</title></circle>')
-    return svg + '</svg><div class="meta">broken tests, last '\
-           f'{len(history)} runs</div>'
+    return (svg + '</svg><div class="text-body-secondary small">broken tests, last '
+            f'{len(history)} runs</div>')
 
-def diff_summary_html(diff, run_url=None):
+def diff_summary_html(diff):
     '''one-line rendering of a run-to-run comparison'''
     parts = []
     if diff['new_failures']:
@@ -205,19 +183,18 @@ def build_run_page(datadir, outdir, suite, runs, runid):
     counts = meta['counts']
     tests = run['tests']
 
-    body = f'<h2>{esc(suite_title(suite))} &mdash; {esc(runid)}</h2>'
-    body += tiles_html(counts)
+    body = tiles_html(counts)
 
     # metadata table
-    body += '<table class="props"><tbody>'
+    body += '<table class="table table-sm table-borderless w-auto small text-body-secondary mb-4"><tbody>'
     for key in ('sha', 'branch', 'run_url', 'generated'):
         if meta.get(key):
             value = esc(meta[key])
             if key == 'run_url':
                 value = f'<a href="{value}">{value}</a>'
-            body += f'<tr><td>{esc(key)}</td><td>{value}</td></tr>'
+            body += f'<tr><td class="pe-3">{esc(key)}</td><td>{value}</td></tr>'
     for key, value in meta.get('properties', {}).items():
-        body += f'<tr><td>{esc(key)}</td><td>{esc(value)}</td></tr>'
+        body += f'<tr><td class="pe-3">{esc(key)}</td><td>{esc(value)}</td></tr>'
     body += '</tbody></table>'
 
     # comparison with the previous run
@@ -225,7 +202,7 @@ def build_run_page(datadir, outdir, suite, runs, runid):
     if idx > 0:
         previous = rundata.load_run(datadir, suite, runs[idx - 1])
         diff = rundata.compare_runs(previous, run)
-        body += f'<h2>Changes vs {esc(runs[idx - 1])}</h2>'
+        body += f'<h2 class="h5 mt-4">Changes vs {esc(runs[idx - 1])}</h2>'
         body += f'<p>{diff_summary_html(diff)}</p>'
         for key, label in (('new_failures', 'New failures'), ('fixed', 'Fixed'),
                            ('new_tests', 'New tests'), ('removed_tests', 'Removed tests')):
@@ -233,7 +210,8 @@ def build_run_page(datadir, outdir, suite, runs, runid):
                 items = ''.join(f'<li><code>{esc(t)}</code></li>' for t in diff[key][:50])
                 more = (f'<li>... and {len(diff[key]) - 50} more</li>'
                         if len(diff[key]) > 50 else '')
-                body += f'<h3>{label} ({len(diff[key])})</h3><ul>{items}{more}</ul>'
+                body += (f'<h3 class="h6">{label} ({len(diff[key])})</h3>'
+                         f'<ul>{items}{more}</ul>')
 
     # last-ok information for currently broken tests
     broken = sorted(k for k, v in tests.items() if v['status'] in rundata.BAD)
@@ -243,32 +221,38 @@ def build_run_page(datadir, outdir, suite, runs, runid):
             lastok[test] = rundata.last_ok_run(datadir, suite, runs[:idx + 1], test)
 
     # the full result table with filters
-    body += '<h2>All tests</h2>'
-    body += '''<div class="filters">
-<button data-filter="all" class="active">All</button>
-<button data-filter="failed">Failed</button>
-<button data-filter="error">Errors</button>
-<button data-filter="skipped">Skipped</button>
-<button data-filter="passed">Passed</button>
-<input type="search" id="q" placeholder="filter by name ...">
+    body += '<h2 class="h5 mt-4">All tests</h2>'
+    body += '''<div class="d-flex flex-wrap gap-2 align-items-center my-3">
+<div class="btn-group btn-group-sm" role="group" aria-label="Status filter">
+<button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+<button type="button" class="btn btn-outline-primary" data-filter="failed">Failed</button>
+<button type="button" class="btn btn-outline-primary" data-filter="error">Errors</button>
+<button type="button" class="btn btn-outline-primary" data-filter="skipped">Skipped</button>
+<button type="button" class="btn btn-outline-primary" data-filter="passed">Passed</button>
+</div>
+<input type="search" id="q" class="form-control form-control-sm w-auto"
+       placeholder="filter by name ...">
 </div>'''
-    body += ('<table id="results"><thead><tr><th>Status</th><th>Test</th>'
+    body += ('<div class="table-responsive"><table id="results" '
+             'class="table table-striped table-hover align-middle">'
+             '<thead><tr><th>Status</th><th>Test</th>'
              '<th class="n">Time (s)</th><th>Details</th></tr></thead><tbody>')
     for key in sorted(tests):
         entry = tests[key]
         details = esc(entry['message'])
         if key in lastok and lastok[key]:
-            details += f' <span class="meta">(last OK: {esc(lastok[key])})</span>'
+            details += (f' <span class="text-body-secondary">'
+                        f'(last OK: {esc(lastok[key])})</span>')
         body += (f'<tr data-status="{esc(entry["status"])}">'
                  f'<td>{status_chip(entry["status"])}</td>'
                  f'<td><code>{esc(key)}</code></td>'
                  f'<td class="n">{entry["time"]:.1f}</td>'
                  f'<td><div class="msg">{details}</div></td></tr>')
-    body += '</tbody></table>'
+    body += '</tbody></table></div>'
     body += '''<script>
 (function() {
   var current = 'all';
-  var buttons = document.querySelectorAll('.filters button');
+  var buttons = document.querySelectorAll('[data-filter]');
   var query = document.getElementById('q');
   function apply() {
     var text = query.value.toLowerCase();
@@ -293,7 +277,7 @@ def build_run_page(datadir, outdir, suite, runs, runid):
     outfile = os.path.join(outdir, 'runs', suite_slug(suite), runid + '.html')
     os.makedirs(os.path.dirname(outfile), exist_ok=True)
     with open(outfile, 'w') as f:
-        f.write(page(f'{suite_title(suite)} - {runid}', body, root='../../'))
+        f.write(page(f'{suite_title(suite)} &mdash; {runid}', body, root='../../'))
 
 def run_link(suite, runid):
     return f'runs/{suite_slug(suite)}/{runid}.html'
@@ -304,11 +288,13 @@ def build_index(datadir, outdir, summary):
     # regression suites as cards
     regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
     if regression:
-        body += '<h2>Regression tests</h2><div class="cards">'
+        body += '<h2 class="h5 mt-2">Regression tests</h2><div class="row g-3">'
         for entry in regression:
             counts = entry['counts']
-            body += f'<div class="card"><h3><a href="{run_link(entry["suite"], entry["latest"])}">'
-            body += f'{esc(suite_title(entry["suite"]))}</a></h3>'
+            body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+            body += (f'<h3 class="h6 card-title">'
+                     f'<a href="{run_link(entry["suite"], entry["latest"])}">'
+                     f'{esc(suite_title(entry["suite"]))}</a></h3>')
             body += tiles_html(counts)
             if entry.get('diff'):
                 body += f'<div>{diff_summary_html(entry["diff"])}</div>'
@@ -318,15 +304,18 @@ def build_index(datadir, outdir, summary):
                 meta.append(f'commit {esc(entry["sha"][:10])}')
             meta.append(esc(entry['latest']))
             meta.append(f'{len(entry["history"])} archived run(s)')
-            body += f'<div class="meta">{" &middot; ".join(meta)}</div>'
-            body += '</div>'
+            body += (f'<div class="text-body-secondary small mt-2">'
+                     f'{" &middot; ".join(meta)}</div>')
+            body += '</div></div></div>'
         body += '</div>'
 
     # unit test matrix as a table
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
     if matrix:
-        body += '<h2>Unit tests (per platform / configuration)</h2>'
-        body += ('<table><thead><tr><th>Configuration</th><th>Status</th>'
+        body += '<h2 class="h5 mt-4">Unit tests (per platform / configuration)</h2>'
+        body += ('<div class="table-responsive"><table class="table table-striped '
+                 'table-hover align-middle">'
+                 '<thead><tr><th>Configuration</th><th>Status</th>'
                  '<th class="n">Tests</th><th class="n">Passed</th><th class="n">Failed</th>'
                  '<th class="n">Errors</th><th class="n">Skipped</th>'
                  '<th>Commit</th><th>Latest run</th><th>Last all-OK</th></tr></thead><tbody>')
@@ -346,38 +335,44 @@ def build_index(datadir, outdir, summary):
                      f'<td class="n">{counts["skipped"]}</td>'
                      f'<td>{sha}</td>'
                      f'<td>{esc(entry["latest"])}</td>'
-                     f'<td>{esc(entry["last_all_ok"]) if entry.get("last_all_ok") else "&mdash;"}</td></tr>')
-        body += '</tbody></table>'
+                     f'<td>{esc(entry["last_all_ok"]) if entry.get("last_all_ok") else "&mdash;"}'
+                     f'</td></tr>')
+        body += '</tbody></table></div>'
 
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
-    body += '<h2>Other reports</h2><div class="cards">'
+    body += '<h2 class="h5 mt-4">Other reports</h2><div class="row g-3">'
+    body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/coverage/">'
+             'Code coverage</a></h3>')
     if 'coverage' in external:
         cov = external['coverage']
-        body += ('<div class="card"><h3><a href="https://download.lammps.org/coverage/">'
-                 'Code coverage</a></h3><div class="tiles">')
+        body += '<div class="d-flex flex-wrap gap-4 my-2">'
         for label in ('line_percent', 'function_percent', 'branch_percent'):
             if label in cov:
                 body += (f'<div class="tile"><div class="num">{esc(cov[label])}%</div>'
                          f'<div class="lbl">{esc(label.split("_")[0])}</div></div>')
-        body += f'</div><div class="meta">{esc(cov.get("date", ""))}</div></div>'
+        body += (f'</div><div class="text-body-secondary small">'
+                 f'{esc(cov.get("date", ""))}</div>')
     else:
-        body += ('<div class="card"><h3><a href="https://download.lammps.org/coverage/">'
-                 'Code coverage</a></h3><div class="meta">summary not ingested yet;'
-                 ' see download.lammps.org/coverage</div></div>')
+        body += ('<div class="text-body-secondary small">summary not ingested yet;'
+                 ' see download.lammps.org/coverage</div>')
+    body += '</div></div></div>'
+    body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/analysis/">'
+             'Static analysis</a></h3>')
     if 'analysis' in external:
         ana = external['analysis']
-        body += ('<div class="card"><h3><a href="https://download.lammps.org/analysis/">'
-                 'Static analysis</a></h3><div class="tiles">')
+        body += '<div class="d-flex flex-wrap gap-4 my-2">'
         for label, num in ana.get('counts', {}).items():
             body += (f'<div class="tile"><div class="num">{num}</div>'
                      f'<div class="lbl">{esc(label)}</div></div>')
-        body += f'</div><div class="meta">{esc(ana.get("date", ""))}</div></div>'
+        body += (f'</div><div class="text-body-secondary small">'
+                 f'{esc(ana.get("date", ""))}</div>')
     else:
-        body += ('<div class="card"><h3><a href="https://download.lammps.org/analysis/">'
-                 'Static analysis</a></h3><div class="meta">summary not ingested yet;'
-                 ' see download.lammps.org/analysis</div></div>')
-    body += '</div>'
+        body += ('<div class="text-body-secondary small">summary not ingested yet;'
+                 ' see download.lammps.org/analysis</div>')
+    body += '</div></div></div></div>'
 
     with open(os.path.join(outdir, 'index.html'), 'w') as f:
         f.write(page('Dashboard', body))
@@ -426,6 +421,12 @@ if __name__ == "__main__":
             if name.endswith('.json'):
                 with open(os.path.join(extdir, name)) as f:
                     summary['external'][name[:-5]] = json.load(f)
+
+    # copy the static assets (vendored Bootstrap, brand CSS, logo)
+    staticdir = os.path.join(TOPDIR, 'static')
+    if os.path.isdir(staticdir):
+        shutil.copytree(staticdir, os.path.join(args.outdir, 'static'),
+                        dirs_exist_ok=True)
 
     os.makedirs(os.path.join(args.outdir, 'api'), exist_ok=True)
     build_index(args.datadir, args.outdir, summary)
