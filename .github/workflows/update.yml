@@ -62,12 +62,16 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      # updating an issue in another repository (e.g. lammps/lammps 5071 as set
+      # in the STATUS_ISSUE_REPO / STATUS_ISSUE_NUMBER repository variables)
+      # needs a token with issue write permission there in the ISSUE_TOKEN secret
       - name: Update status issue
         if: ${{ github.event_name != 'push' }}
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ISSUE_TOKEN || github.token }}
         run: |
           python3 tools/update_issue.py \
                  --repo "${{ vars.STATUS_ISSUE_REPO || github.repository }}" \
+                 --issue "${{ vars.STATUS_ISSUE_NUMBER || 0 }}" \
                  --site-url "${{ steps.deployment.outputs.page_url }}" \
                  --datadir data

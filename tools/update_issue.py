@@ -28,6 +28,9 @@ import rundata
 
 LABEL = 'test-status'
 TITLE = 'Automated test status (updated nightly)'
+# everything below this marker in the issue body is rewritten by this script;
+# any hand-written text above it is preserved
+MARKER = '<!-- test-status -->'
 
 def gh(args_list, check=True):
     result = subprocess.run(['gh'] + args_list, capture_output=True, text=True)
@@ -65,9 +68,9 @@ def collect(datadir):
 
 def build_body(snapshot, site_url):
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    body = (f"Current status of the automated LAMMPS test runs. Full details on the"
+    body = (f"{MARKER}\nCurrent status of the automated LAMMPS test runs. Full details on the"
             f" [test status website]({site_url}).\n\n"
-            f"This issue is updated in place (no notifications); a comment is posted"
+            f"This status table is updated in place (no notifications); a comment is posted"
             f" only when new failures appear or failures are fixed - subscribe to this"
             f" issue to be notified about regressions.\n\n")
     body += "| Suite | Tests | Passed | Failed | Errors | Skipped | Changes |\n"
@@ -132,6 +135,8 @@ def find_or_create_issue(repo):
 if __name__ == "__main__":
     parser = ArgumentParser(description="Update the rolling test status issue")
     parser.add_argument("--repo", required=True, help="Repository for the issue")
+    parser.add_argument("--issue", type=int, default=0,
+                        help="Issue number (default: find or create by label)")
     parser.add_argument("--site-url", required=True, help="URL of the status website")
     parser.add_argument("--datadir", default="data", help="Data directory")
     parser.add_argument("--dry-run", action='store_true', default=False,
@@ -153,7 +158,18 @@ if __name__ == "__main__":
         print(comment if comment else "(no comment - no new failures or fixes)")
         sys.exit(0)
 
-    number = find_or_create_issue(args.repo)
+    if args.issue:
+        number = args.issue
+    else:
+        number = find_or_create_issue(args.repo)
+
+    # preserve hand-written text above the marker in the existing issue body
+    old_body = gh(['issue', 'view', str(number), '--repo', args.repo,
+                   '--json', 'body', '--jq', '.body'], check=False)
+    preamble = old_body.split(MARKER, 1)[0].rstrip()
+    if preamble:
+        body = preamble + '\n\n' + body
+
     gh(['issue', 'edit', str(number), '--repo', args.repo, '--body', body])
     print(f"updated body of issue #{number}")
     if comment:
