@@ -187,6 +187,38 @@ def external_details(data):
         parts.append(esc(data['date']))
     return ' &middot; '.join(parts)
 
+# live GitHub Actions status badges, mirroring data/ci.yaml on the LAMMPS
+# website (update both when a workflow file is renamed)
+CI_REPO = 'lammps/lammps'
+CI_BRANCH = 'develop'
+CI_BADGES = (
+    ('Linux', 'unittest-linux.yml'),
+    ('Windows', 'compile-msvc.yml'),
+    ('macOS', 'unittest-macos.yml'),
+    ('Linux ARM64', 'unittest-arm64.yml'),
+    ('Linux single-FFT', 'unittest-single.yml'),
+    ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
+    ('Style check', 'style-check.yml'),
+    ('C++23', 'check-cpp23.yml'),
+    ('GNU make', 'check-gnu-make.yml'),
+    ('No VLA', 'check-vla.yml'),
+    ('CodeQL', 'codeql-analysis.yml'),
+)
+
+def ci_badges_html():
+    '''row of live workflow status badges served by GitHub; they reflect
+       the latest post-merge run at view time, complementing the archived
+       results below'''
+    out = '<div class="d-flex flex-wrap gap-2 my-2">'
+    for label, file in CI_BADGES:
+        out += (f'<a href="https://github.com/{CI_REPO}/actions/workflows/{file}'
+                f'?query=branch%3A{CI_BRANCH}" target="_blank" rel="noopener" '
+                f'title="{esc(label)} - {CI_BRANCH} branch">'
+                f'<img src="https://github.com/{CI_REPO}/actions/workflows/{file}'
+                f'/badge.svg?branch={CI_BRANCH}" alt="{esc(label)} build status" '
+                f'height="20" loading="lazy"></a>')
+    return out + '</div>'
+
 # ---------------------------------------------------------------- pages
 
 def build_run_page(datadir, outdir, suite, runs, runid):
@@ -296,7 +328,8 @@ def run_link(suite, runid):
     return f'runs/{suite_slug(suite)}/{runid}.html'
 
 def build_index(datadir, outdir, summary):
-    body = ''
+    body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
+    body += ci_badges_html()
 
     # regression suites as cards
     regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
@@ -389,7 +422,10 @@ def build_index(datadir, outdir, summary):
     body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     body += ('<h3 class="h6 card-title">'
              '<a href="https://scan.coverity.com/projects/lammps-lammps">'
-             'Coverity Scan</a></h3>')
+             'Coverity Scan</a> '
+             '<a href="https://scan.coverity.com/projects/lammps-lammps">'
+             '<img alt="Coverity Scan Build Status" height="18" loading="lazy" '
+             'src="https://scan.coverity.com/projects/33115/badge.svg"></a></h3>')
     if 'coverity' in external:
         cov = external['coverity']
         metrics = cov.get('metrics', {})
