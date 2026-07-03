@@ -1,0 +1,73 @@
+# Ingest new test results from lammps/lammps, rebuild the status website,
+# deploy it to GitHub Pages, and update the rolling status issue.
+name: "Update Test Status Site"
+
+on:
+  schedule:
+    - cron: '45 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # pull new post-merge artifacts from lammps/lammps (not on push events,
+      # those only rebuild the site after code or data changes)
+      - name: Ingest new results
+        id: ingest
+        if: ${{ github.event_name != 'push' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
+
+      - name: Commit new data
+        if: ${{ steps.ingest.outputs.new_data == 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "ingest new test results"
+          git push
+
+      - name: Build website
+        run: python3 generator/build_site.py --datadir data --outdir _site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Update status issue
+        if: ${{ github.event_name != 'push' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 tools/update_issue.py \
+                 --repo "${{ vars.STATUS_ISSUE_REPO || github.repository }}" \
+                 --site-url "${{ steps.deployment.outputs.page_url }}" \
+                 --datadir data
