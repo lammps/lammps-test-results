@@ -62,6 +62,8 @@ def page(title, body, root=''):
     }} catch (e) {{}}
   }})();
 </script>
+<link rel="shortcut icon" href="{root}static/favicon.ico">
+<link rel="apple-touch-icon" href="{root}static/apple-touch-icon.png">
 <link href="{root}static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
 <link href="{root}static/css/lammps-status.css" rel="stylesheet">
 </head>
