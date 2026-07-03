@@ -219,6 +219,39 @@ def ci_badges_html():
                 f'height="20" loading="lazy"></a>')
     return out + '</div>'
 
+def activity_card(activity):
+    '''dashboard card with repository activity: open work tiles and a
+       bar chart of weekly commit counts (last half year)'''
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += (f'<h3 class="h6 card-title"><a href="{esc(activity.get("url", ""))}">'
+            'Repository activity</a></h3>')
+    out += '<div class="d-flex flex-wrap gap-4 my-2">'
+    for label, key in (('open PRs', 'open_prs'), ('open issues', 'open_issues'),
+                       ('stars', 'stars'), ('forks', 'forks')):
+        if key in activity:
+            out += (f'<div class="tile"><div class="num">{activity[key]}</div>'
+                    f'<div class="lbl">{esc(label)}</div></div>')
+    out += '</div>'
+
+    weeks = activity.get('commits_per_week', [])[-26:]
+    if len(weeks) > 1:
+        width, height = 234, 48
+        top = max(max(n for _, n in weeks), 1)
+        barw = width // len(weeks)
+        svg = (f'<svg class="actbar d-block mt-2" width="{width}" height="{height}" '
+               f'role="img" aria-label="commits per week">')
+        for i, (day, n) in enumerate(weeks):
+            barh = round((n / top) * (height - 10))
+            svg += (f'<rect x="{i * barw}" y="{height - 2 - barh}" '
+                    f'width="{barw - 2}" height="{max(barh, 1)}" rx="1">'
+                    f'<title>week of {esc(day)}: {n} commits</title></rect>')
+        svg += (f'<line x1="0" y1="{height - 1}" x2="{width}" y2="{height - 1}"/>')
+        svg += '</svg>'
+        out += svg
+        out += (f'<div class="text-body-secondary small">commits per week, last '
+                f'{len(weeks)} weeks</div>')
+    return out + '</div></div></div>'
+
 # ---------------------------------------------------------------- pages
 
 def build_run_page(datadir, outdir, suite, runs, runid):
@@ -354,6 +387,8 @@ def build_index(datadir, outdir, summary):
             body += (f'<div class="text-body-secondary small mt-2">'
                      f'{" &middot; ".join(meta)}</div>')
             body += '</div></div></div>'
+        if 'activity' in summary.get('external', {}):
+            body += activity_card(summary['external']['activity'])
         body += '</div>'
 
     # unit test matrix as a table
