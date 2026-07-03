@@ -278,8 +278,9 @@ def build_run_page(datadir, outdir, suite, runs, runid):
 
     outfile = os.path.join(outdir, 'runs', suite_slug(suite), runid + '.html')
     os.makedirs(os.path.dirname(outfile), exist_ok=True)
+    emdash = '\u2014'
     with open(outfile, 'w') as f:
-        f.write(page(f'{suite_title(suite)} &mdash; {runid}', body, root='../../'))
+        f.write(page(f'{suite_title(suite)} {emdash} {runid}', body, root='../../'))
 
 def run_link(suite, runid):
     return f'runs/{suite_slug(suite)}/{runid}.html'
