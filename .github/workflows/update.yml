@@ -40,6 +40,7 @@ jobs:
         run: |
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
           python3 tools/scrape_coverity.py --output data/external/coverity.json
+          python3 tools/fetch_external.py --datadir data
 
       - name: Commit new data
         if: ${{ github.event_name != 'push' }}
