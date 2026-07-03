@@ -18,7 +18,9 @@ site; layout, data sources, and hosting location are still under discussion.
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
   rolling status issue (`tools/update_issue.py`).
 - Summaries of the server-side reports (code coverage, static analysis) can
-  be ingested as `data/external/*.json`.
+  be ingested as `data/external/*.json`; the publicly visible Coverity Scan
+  analysis metrics are scraped nightly from the project overview page
+  (`tools/scrape_coverity.py`).
 
 ## Notifications
 

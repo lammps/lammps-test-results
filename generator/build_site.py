@@ -375,6 +375,29 @@ def build_index(datadir, outdir, summary):
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/analysis</div>')
+    body += '</div></div></div>'
+    body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    body += ('<h3 class="h6 card-title">'
+             '<a href="https://scan.coverity.com/projects/lammps-lammps">'
+             'Coverity Scan</a></h3>')
+    if 'coverity' in external:
+        cov = external['coverity']
+        metrics = cov.get('metrics', {})
+        body += '<div class="d-flex flex-wrap gap-4 my-2">'
+        for label in ('Outstanding', 'Newly detected', 'Fixed', 'Defect Density'):
+            if label in metrics:
+                body += (f'<div class="tile"><div class="num">{esc(metrics[label])}</div>'
+                         f'<div class="lbl">{esc(label.lower())}</div></div>')
+        body += '</div><div class="text-body-secondary small">'
+        details = []
+        if metrics.get('Lines of Code Analyzed'):
+            details.append(f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed')
+        if cov.get('date'):
+            details.append(f'last analyzed {esc(cov["date"])}')
+        body += ' &middot; '.join(details) + '</div>'
+    else:
+        body += ('<div class="text-body-secondary small">summary not scraped yet;'
+                 ' see scan.coverity.com</div>')
     body += '</div></div></div></div>'
 
     with open(os.path.join(outdir, 'index.html'), 'w') as f:
