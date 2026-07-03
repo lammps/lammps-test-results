@@ -334,7 +334,8 @@ def build_index(datadir, outdir, summary):
     # regression suites as cards
     regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
     if regression:
-        body += '<h2 class="h5 mt-2">Regression tests</h2><div class="row g-3">'
+        body += '<hr class="my-4">'
+        body += '<h2 class="h5">Regression tests</h2><div class="row g-3">'
         for entry in regression:
             counts = entry['counts']
             body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
@@ -358,7 +359,8 @@ def build_index(datadir, outdir, summary):
     # unit test matrix as a table
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
     if matrix:
-        body += '<h2 class="h5 mt-4">Unit tests (per platform / configuration)</h2>'
+        body += '<hr class="my-4">'
+        body += '<h2 class="h5">Unit tests (per platform / configuration)</h2>'
         body += ('<div class="table-responsive"><table class="table table-striped '
                  'table-hover align-middle">'
                  '<thead><tr><th>Configuration</th><th>Status</th>'
@@ -387,7 +389,8 @@ def build_index(datadir, outdir, summary):
 
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
-    body += '<h2 class="h5 mt-4">Other reports</h2><div class="row g-3">'
+    body += '<hr class="my-4">'
+    body += '<h2 class="h5">Other reports</h2><div class="row g-3">'
     body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/coverage/">'
              'Code coverage</a></h3>')
