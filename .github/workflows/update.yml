@@ -53,14 +53,19 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      # the artifact name includes the attempt number so that re-running a
+      # failed deployment does not trip deploy-pages over duplicate artifacts
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
 
       # updating an issue in another repository (e.g. lammps/lammps 5071 as set
       # in the STATUS_ISSUE_REPO / STATUS_ISSUE_NUMBER repository variables)
