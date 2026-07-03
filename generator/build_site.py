@@ -177,6 +177,16 @@ def diff_summary_html(diff):
         return 'no changes vs previous run'
     return ' &middot; '.join(parts) + ' vs previous run'
 
+def external_details(data):
+    '''attribution line for an external report card: branch @ commit, date'''
+    parts = []
+    if data.get('branch') or data.get('commit'):
+        commit = str(data.get('commit', ''))[:10]
+        parts.append(esc(f"{data.get('branch', '')} @ {commit}".strip(' @ ')))
+    if data.get('date'):
+        parts.append(esc(data['date']))
+    return ' &middot; '.join(parts)
+
 # ---------------------------------------------------------------- pages
 
 def build_run_page(datadir, outdir, suite, runs, runid):
@@ -356,7 +366,7 @@ def build_index(datadir, outdir, summary):
                 body += (f'<div class="tile"><div class="num">{esc(cov[label])}%</div>'
                          f'<div class="lbl">{esc(label.split("_")[0])}</div></div>')
         body += (f'</div><div class="text-body-secondary small">'
-                 f'{esc(cov.get("date", ""))}</div>')
+                 f'{external_details(cov)}</div>')
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/coverage</div>')
@@ -371,7 +381,7 @@ def build_index(datadir, outdir, summary):
             body += (f'<div class="tile"><div class="num">{num}</div>'
                      f'<div class="lbl">{esc(label)}</div></div>')
         body += (f'</div><div class="text-body-secondary small">'
-                 f'{esc(ana.get("date", ""))}</div>')
+                 f'{external_details(ana)}</div>')
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/analysis</div>')
