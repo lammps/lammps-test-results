@@ -552,4 +552,4 @@ if __name__ == "__main__":
         f.write('\n')
 
     nsuites = len(summary['suites'])
-    print(f"generated site for {nsuites} suite(s) in {args.outdir}/")
+    print(f"Generated site for {nsuites} suite(s) in {args.outdir}/")
