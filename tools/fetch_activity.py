@@ -8,6 +8,15 @@ commit statistics endpoint may reply 202 (statistics being computed) on the
 first request; it is retried a few times and skipped if still unavailable,
 in which case an existing file is left untouched.
 
+open_prs and open_issues are fetched with two independent, symmetric search
+queries (rather than deriving one from the other by subtraction) and cross-
+checked against the repository's open_issues_count. The GitHub search index
+has occasionally been observed to return a stale/incorrect count for one of
+the two is:pr / is:issue qualifiers for an extended period (hours); when the
+three numbers don't reconcile, that is treated like any other fetch failure
+below: a warning is printed and the existing file is left untouched, rather
+than publishing counts that may be swapped or otherwise wrong.
+
 Usage: python3 tools/fetch_activity.py [--repo lammps/lammps]
                                        [--output data/external/activity.json]
 '''
@@ -36,8 +45,16 @@ if __name__ == "__main__":
         repo = json.loads(gh_api(f"repos/{args.repo}"))
         open_prs = json.loads(gh_api(
             f"search/issues?q=repo:{args.repo}+is:pr+is:open&per_page=1"))['total_count']
-        # the repository's open_issues_count includes pull requests
-        open_issues = repo['open_issues_count'] - open_prs
+        open_issues = json.loads(gh_api(
+            f"search/issues?q=repo:{args.repo}+is:issue+is:open&per_page=1"))['total_count']
+        # the repository's open_issues_count includes pull requests, so the
+        # two search counts above should add up to it; if not, the search
+        # index is in a bad state and neither count can be trusted
+        if open_prs + open_issues != repo['open_issues_count']:
+            raise RuntimeError(
+                f"open_prs ({open_prs}) + open_issues ({open_issues}) != "
+                f"open_issues_count ({repo['open_issues_count']}); GitHub "
+                "search index looks inconsistent, not publishing")
 
         # weekly commit counts for the past year; 202 means "still computing"
         weeks = []
