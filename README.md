@@ -3,9 +3,6 @@
 Aggregates the results of the automated LAMMPS test runs into a static
 website and a rolling GitHub status issue.
 
-**This is a prototype** for what may become the official LAMMPS test status
-site; layout, data sources, and hosting location are still under discussion.
-
 ## How it works
 
 - GitHub Actions workflows in [lammps/lammps](https://github.com/lammps/lammps)
