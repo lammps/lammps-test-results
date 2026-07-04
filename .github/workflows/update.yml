@@ -26,8 +26,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # pin to the branch tip explicitly: the default ref is the commit SHA
+      # that triggered the run, which does NOT advance if a failed job is
+      # re-run, so a retry after a partial success (data already committed
+      # and pushed) would redo the commit against a stale base and get its
+      # push rejected
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       # pull new post-merge artifacts from lammps/lammps and refresh the
       # scraped external summaries (not on push events, those only rebuild
