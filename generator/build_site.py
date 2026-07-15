@@ -131,6 +131,20 @@ def suite_title(suite):
         return 'Unit Tests: ' + suite.split('/', 1)[1]
     return suite.replace('-', ' ').title()
 
+def runid_parts(runid):
+    '''split a run id like 2026-07-14T00-44-31Z_4e2bce0464 into a readable
+    "YYYY-MM-DD hh:mm" timestamp and the commit hash; manually ingested runs
+    may lack the trailing Z. if the id does not follow either pattern, it is
+    returned verbatim with an empty hash'''
+    stamp, _, sha = runid.partition('_')
+    for fmt in ('%Y-%m-%dT%H-%M-%SZ', '%Y-%m-%dT%H-%M-%S'):
+        try:
+            when = datetime.datetime.strptime(stamp, fmt)
+            return when.strftime('%Y-%m-%d %H:%M'), sha
+        except ValueError:
+            pass
+    return runid, ''
+
 def tiles_html(counts):
     tiles = [('Tests', counts['tests'], ''), ('Passed', counts['passed'], 'st-passed'),
              ('Failed', counts['failed'], 'st-failed'), ('Errors', counts['error'], 'st-error'),
@@ -379,10 +393,12 @@ def build_index(datadir, outdir, summary):
             if entry.get('diff'):
                 body += f'<div>{diff_summary_html(entry["diff"])}</div>'
             body += sparkline(entry['history'])
+            when, run_sha = runid_parts(entry['latest'])
+            sha = entry.get('sha', '')[:10] or run_sha
             meta = []
-            if entry.get('sha'):
-                meta.append(f'commit {esc(entry["sha"][:10])}')
-            meta.append(esc(entry['latest']))
+            if sha:
+                meta.append(f'commit {esc(sha)}')
+            meta.append(f'{esc(when)} UTC')
             meta.append(f'{len(entry["history"])} archived run(s)')
             body += (f'<div class="text-body-secondary small mt-2">'
                      f'{" &middot; ".join(meta)}</div>')
@@ -401,13 +417,22 @@ def build_index(datadir, outdir, summary):
                  '<thead><tr><th>Configuration</th><th>Status</th>'
                  '<th class="n">Tests</th><th class="n">Passed</th><th class="n">Failed</th>'
                  '<th class="n">Errors</th><th class="n">Skipped</th>'
-                 '<th>Commit</th><th>Latest run</th><th>Last all-OK</th></tr></thead><tbody>')
+                 '<th>Commit</th><th>Latest run (UTC)</th>'
+                 '<th>Last all-OK (UTC)</th></tr></thead><tbody>')
         for entry in matrix:
             counts = entry['counts']
             broken = counts['failed'] + counts['error']
             status = status_chip('passed' if broken == 0 else 'failed')
             config = entry['suite'].split('/', 1)[1]
             sha = esc(entry.get('sha', '')[:10]) if entry.get('sha') else '&mdash;'
+            # the commit hash embedded in the latest run id already has its
+            # own column, so only the timestamp is shown here
+            latest = esc(runid_parts(entry['latest'])[0])
+            if entry.get('last_all_ok'):
+                when, ok_sha = runid_parts(entry['last_all_ok'])
+                all_ok = esc(f'{when} / {ok_sha}') if ok_sha else esc(when)
+            else:
+                all_ok = '&mdash;'
             body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(config)}</a></td>'
                      f'<td>{status}</td>'
@@ -417,9 +442,8 @@ def build_index(datadir, outdir, summary):
                      f'<td class="n">{counts["error"]}</td>'
                      f'<td class="n">{counts["skipped"]}</td>'
                      f'<td>{sha}</td>'
-                     f'<td>{esc(entry["latest"])}</td>'
-                     f'<td>{esc(entry["last_all_ok"]) if entry.get("last_all_ok") else "&mdash;"}'
-                     f'</td></tr>')
+                     f'<td>{latest}</td>'
+                     f'<td>{all_ok}</td></tr>')
         body += '</tbody></table></div>'
 
     # external report summaries (coverage, static analysis)
