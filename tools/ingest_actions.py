@@ -3,10 +3,13 @@
 Ingest test result artifacts from GitHub Actions runs of lammps/lammps into
 the data/ tree of this repository.
 
-Only post-merge runs are considered (event == push, branch == develop); test
-results from pull request branches are for the submitters and are not
-published. Ingestion is idempotent: a run whose data directory already exists
-is skipped, so this script can run from a nightly schedule.
+Only runs on the develop branch are considered, whether post-merge (push),
+manually dispatched, or cron-scheduled; test results from pull request
+branches are for the submitters and are not published. Accepting dispatch
+and schedule events matters for the regression suites, which are too costly
+to run on every push and are instead triggered manually or on a schedule.
+Ingestion is idempotent: a run whose data directory already exists is
+skipped, so this script can run from a nightly schedule.
 
 Requires the "gh" CLI (authenticated; in GitHub Actions the default
 GITHUB_TOKEN is sufficient since lammps/lammps is public).
@@ -41,6 +44,8 @@ UNITTEST_WORKFLOWS = (
     'Unittest for KOKKOS host backends',
     'Windows Unit Tests',
 )
+# trigger events whose runs are ingested (all restricted to develop)
+INGEST_EVENTS = ('push', 'workflow_dispatch', 'schedule')
 
 def gh_api(path, jq=None):
     cmd = ['gh', 'api', path]
@@ -162,20 +167,30 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Ingest test artifacts from GitHub Actions")
     parser.add_argument("--repo", default="lammps/lammps", help="Source repository")
     parser.add_argument("--datadir", default="data", help="Data directory")
-    parser.add_argument("--max-runs", type=int, default=50,
+    parser.add_argument("--max-runs", type=int, default=200,
                         help="Number of recent workflow runs to examine")
     parser.add_argument("--dry-run", action='store_true', default=False,
                         help="Only report what would be ingested")
     args = parser.parse_args()
 
-    runs = json.loads(gh_api(
-        f"repos/{args.repo}/actions/runs?event=push&branch=develop"
-        f"&status=completed&per_page={args.max_runs}"))['workflow_runs']
+    # the runs API accepts only a single "event" value per query, so fetch
+    # all completed runs on develop (paginated) and filter by event below
+    runs = []
+    page = 1
+    while len(runs) < args.max_runs:
+        batch = json.loads(gh_api(
+            f"repos/{args.repo}/actions/runs?branch=develop&status=completed"
+            f"&per_page=100&page={page}"))['workflow_runs']
+        if not batch:
+            break
+        runs += batch
+        page += 1
+    runs = runs[:args.max_runs]
 
     wanted = set(REGRESSION_WORKFLOWS) | set(UNITTEST_WORKFLOWS)
     total = 0
     for run in runs:
-        if run['name'] not in wanted:
+        if run['name'] not in wanted or run['event'] not in INGEST_EVENTS:
             continue
         total += ingest_run(args.repo, run, args.datadir, args.dry_run)
 
