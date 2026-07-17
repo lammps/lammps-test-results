@@ -5,9 +5,10 @@ Maintain the rolling "test status" issue.
 The issue body is rewritten on every update with the current status snapshot;
 editing the body does NOT notify anybody. A comment is added ONLY when the
 latest run of a suite has new failures or fixed tests relative to the previous
-run; comments DO notify issue subscribers. This way anybody who wants email
-notifications about regressions subscribes to this one issue and gets no
-nightly noise otherwise.
+run AND that change has not been announced in an earlier comment; comments DO
+notify issue subscribers. This way anybody who wants email notifications
+about regressions subscribes to this one issue and gets no nightly noise
+otherwise.
 
 The issue is identified by the "test-status" label (created if missing).
 Requires the "gh" CLI with permission to write issues in the target repo.
@@ -93,14 +94,16 @@ def build_body(snapshot, site_url):
     body += f"\n_Last updated: {now}_\n"
     return body
 
-def build_comment(snapshot, site_url):
-    '''comment text if any suite has new failures or fixes, else None'''
+def build_sections(snapshot):
+    '''one markdown section per suite whose latest run has new failures or
+       fixed tests; the heading doubles as the dedup key for drop_announced()'''
     sections = []
     for entry in snapshot:
         diff = entry['diff']
         if not diff or not (diff['new_failures'] or diff['fixed']):
             continue
-        text = f"### {suite_title(entry['suite'])} ({entry['runid']})\n"
+        heading = f"### {suite_title(entry['suite'])} ({entry['runid']})"
+        text = heading + "\n"
         if entry['sha']:
             text += f"commit {entry['sha'][:10]}"
             if entry['run_url']:
@@ -112,10 +115,21 @@ def build_comment(snapshot, site_url):
         if diff['fixed']:
             text += f"\n**Fixed ({len(diff['fixed'])}):**\n"
             text += md_list(diff['fixed'])
-        sections.append(text)
+        sections.append({'heading': heading, 'text': text})
+    return sections
+
+def drop_announced(sections, repo, number):
+    '''drop sections whose heading already appears in a posted comment.
+       a suite's diff stays the same until a newer run of it arrives, so
+       without this check every scheduled update would re-post it'''
     if not sections:
-        return None
-    return ('\n'.join(sections)
+        return sections
+    posted = gh(['api', f'repos/{repo}/issues/{number}/comments',
+                 '--paginate', '--jq', '.[].body'])
+    return [s for s in sections if s['heading'] not in posted]
+
+def build_comment(sections, site_url):
+    return ('\n'.join(s['text'] for s in sections)
             + f"\nFull details on the [test status website]({site_url}).\n")
 
 def find_or_create_issue(repo):
@@ -149,13 +163,16 @@ if __name__ == "__main__":
         sys.exit(0)
 
     body = build_body(snapshot, args.site_url)
-    comment = build_comment(snapshot, args.site_url)
+    sections = build_sections(snapshot)
 
     if args.dry_run:
         print("=== issue body ===")
         print(body)
-        print("=== comment ===")
-        print(comment if comment else "(no comment - no new failures or fixes)")
+        print("=== comment (before dedup against posted comments) ===")
+        if sections:
+            print(build_comment(sections, args.site_url))
+        else:
+            print("(no comment - no new failures or fixes)")
         sys.exit(0)
 
     if args.issue:
@@ -172,8 +189,10 @@ if __name__ == "__main__":
 
     gh(['issue', 'edit', str(number), '--repo', args.repo, '--body', body])
     print(f"updated body of issue #{number}")
-    if comment:
-        gh(['issue', 'comment', str(number), '--repo', args.repo, '--body', comment])
+    sections = drop_announced(sections, args.repo, number)
+    if sections:
+        gh(['issue', 'comment', str(number), '--repo', args.repo,
+            '--body', build_comment(sections, args.site_url)])
         print(f"posted notification comment on issue #{number}")
     else:
-        print("no new failures or fixes - no comment posted")
+        print("no unannounced failures or fixes - no comment posted")
