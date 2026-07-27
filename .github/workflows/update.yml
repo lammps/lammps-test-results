@@ -4,7 +4,12 @@ name: "Update Test Status Site"
 
 on:
   schedule:
-    - cron: '45 3 * * *'
+    # early morning US Eastern, late enough to pick up everything produced
+    # overnight: the server-side coverage and static analysis reports are
+    # published around 03:50 EDT (07:50 UTC), the manual is rebuilt hourly
+    # at 23 minutes past.  the dashboard is a daily snapshot, so a run that
+    # is too early shows results that are a full day old
+    - cron: '45 9 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -49,6 +54,7 @@ jobs:
           python3 tools/scrape_coverity.py --output data/external/coverity.json
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json
+          python3 tools/fetch_docs.py --output data/external/docs.json
 
       - name: Commit new data
         if: ${{ github.event_name != 'push' }}
