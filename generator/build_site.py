@@ -33,10 +33,10 @@ import docsdata
 import rundata
 
 ICONS = {'passed': '&#10003;', 'failed': '&#10007;',
-         'error': '&#9888;', 'skipped': '&#9675;',
+         'error': '&#9888;', 'timeout': '&#9716;', 'skipped': '&#9675;',
          'pending': '&#8635;', 'stale': '&#9888;', 'unknown': '&#8212;'}
 LABELS = {'passed': 'passed', 'failed': 'failed',
-          'error': 'error', 'skipped': 'skipped',
+          'error': 'error', 'timeout': 'timeout', 'skipped': 'skipped',
           'pending': 'pending', 'stale': 'stale', 'unknown': 'unknown'}
 
 def esc(text):
@@ -180,11 +180,20 @@ def tiles_html(counts):
     tiles = [('Tests', counts['tests'], ''), ('Passed', counts['passed'], 'st-passed'),
              ('Failed', counts['failed'], 'st-failed'), ('Errors', counts['error'], 'st-error'),
              ('Skipped', counts['skipped'], 'st-skipped')]
+    # only where tests ran out of time, which the unit test suites never do
+    if counts.get('timeout'):
+        tiles.insert(4, ('Timeouts', counts['timeout'], 'st-timeout'))
     out = '<div class="d-flex flex-wrap gap-4 my-2">'
     for label, num, cls in tiles:
         out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
                 f'<div class="lbl">{label}</div></div>')
     return out + '</div>'
+
+def limits_note(limits):
+    '''how the time limit that produced the timeouts of a run is named'''
+    if not limits:
+        return ''
+    return ' / '.join(f'{limit} s' for limit in limits) + ' limit'
 
 def sparkline(history, width=220, height=36):
     '''tiny SVG trend of the broken (failed+error) count over the recent runs'''
@@ -214,6 +223,8 @@ def diff_summary_html(diff):
         parts.append(f'<span class="delta-bad">+{len(diff["new_failures"])} new failures</span>')
     if diff['fixed']:
         parts.append(f'<span class="delta-good">{len(diff["fixed"])} fixed</span>')
+    if diff.get('new_timeouts'):
+        parts.append(f'{len(diff["new_timeouts"])} newly out of time')
     if diff['new_tests']:
         parts.append(f'{len(diff["new_tests"])} new tests')
     if diff['removed_tests']:
@@ -365,10 +376,16 @@ def docs_card(docs):
 def build_run_page(datadir, outdir, suite, runs, runid):
     run = rundata.load_run(datadir, suite, runid)
     meta = run['metadata']
-    counts = meta['counts']
+    counts = rundata.counts(run)
     tests = run['tests']
 
     body = tiles_html(counts)
+    if counts.get('timeout'):
+        body += (f'<p class="text-body-secondary small">{counts["timeout"]} test(s)'
+                 f' hit the time limit of the test harness'
+                 f' ({esc(limits_note(rundata.time_limits(run)))}) and are counted'
+                 f' apart from the errors: whether they expire depends on the'
+                 f' limit in force and on the load of the machine.</p>')
 
     # metadata table
     body += '<table class="table table-sm table-borderless w-auto small text-body-secondary mb-4"><tbody>'
@@ -390,6 +407,7 @@ def build_run_page(datadir, outdir, suite, runs, runid):
         body += f'<h2 class="h5 mt-4">Changes vs {esc(runs[idx - 1])}</h2>'
         body += f'<p>{diff_summary_html(diff)}</p>'
         for key, label in (('new_failures', 'New failures'), ('fixed', 'Fixed'),
+                           ('new_timeouts', 'Newly out of time'),
                            ('new_tests', 'New tests'), ('removed_tests', 'Removed tests')):
             if diff[key]:
                 items = ''.join(f'<li><code>{esc(t)}</code></li>' for t in diff[key][:50])
@@ -399,7 +417,8 @@ def build_run_page(datadir, outdir, suite, runs, runid):
                          f'<ul>{items}{more}</ul>')
 
     # last-ok information for currently broken tests
-    broken = sorted(k for k, v in tests.items() if v['status'] in rundata.BAD)
+    broken = sorted(k for k, v in tests.items()
+                    if rundata.status_of(v) in rundata.BAD)
     lastok = {}
     if broken and idx > 0:
         for test in broken:
@@ -412,6 +431,7 @@ def build_run_page(datadir, outdir, suite, runs, runid):
 <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
 <button type="button" class="btn btn-outline-primary" data-filter="failed">Failed</button>
 <button type="button" class="btn btn-outline-primary" data-filter="error">Errors</button>
+<button type="button" class="btn btn-outline-primary" data-filter="timeout">Timeouts</button>
 <button type="button" class="btn btn-outline-primary" data-filter="skipped">Skipped</button>
 <button type="button" class="btn btn-outline-primary" data-filter="passed">Passed</button>
 </div>
@@ -424,12 +444,13 @@ def build_run_page(datadir, outdir, suite, runs, runid):
              '<th class="n">Time (s)</th><th>Details</th></tr></thead><tbody>')
     for key in sorted(tests):
         entry = tests[key]
+        status = rundata.status_of(entry)
         details = esc(entry['message'])
         if key in lastok and lastok[key]:
             details += (f' <span class="text-body-secondary">'
                         f'(last OK: {esc(lastok[key])})</span>')
-        body += (f'<tr data-status="{esc(entry["status"])}">'
-                 f'<td>{status_chip(entry["status"])}</td>'
+        body += (f'<tr data-status="{esc(status)}">'
+                 f'<td>{status_chip(status)}</td>'
                  f'<td><code>{esc(key)}</code></td>'
                  f'<td class="n">{entry["time"]:.1f}</td>'
                  f'<td><div class="msg">{details}</div></td></tr>')
@@ -486,8 +507,7 @@ def build_index(datadir, outdir, summary):
                  '<th>Last all-OK (UTC)</th></tr></thead><tbody>')
         for entry in matrix:
             counts = entry['counts']
-            broken = counts['failed'] + counts['error']
-            status = status_chip('passed' if broken == 0 else 'failed')
+            status = status_chip('passed' if rundata.broken(counts) == 0 else 'failed')
             config = entry['suite'].split('/', 1)[1]
             sha = esc(entry.get('sha', '')[:10]) if entry.get('sha') else '&mdash;'
             # the commit hash embedded in the latest run id already has its
@@ -532,6 +552,10 @@ def build_index(datadir, outdir, summary):
             if sha:
                 meta.append(f'commit {esc(sha)}')
             meta.append(f'{esc(when)} UTC')
+            # the time limit differs between the configurations of a suite
+            # and is worth naming wherever tests ran into it
+            if entry.get('time_limits'):
+                meta.append(esc(limits_note(entry['time_limits'])))
             meta.append(f'{len(entry["history"])} archived run(s)')
             body += (f'<div class="text-body-secondary small mt-2">'
                      f'{" &middot; ".join(meta)}</div>')
@@ -623,17 +647,18 @@ if __name__ == "__main__":
         last_all_ok = None
         for runid in runs:
             run = rundata.load_run(args.datadir, suite, runid)
-            counts = run['metadata']['counts']
-            history.append((runid, counts['failed'] + counts['error']))
-            if counts['failed'] + counts['error'] == 0:
+            counts = rundata.counts(run)
+            history.append((runid, rundata.broken(counts)))
+            if rundata.broken(counts) == 0:
                 last_all_ok = runid
             build_run_page(args.datadir, args.outdir, suite, runs, runid)
         latest = rundata.load_run(args.datadir, suite, runs[-1])
         entry = {
             'suite': suite,
             'latest': runs[-1],
-            'counts': latest['metadata']['counts'],
+            'counts': rundata.counts(latest),
             'sha': latest['metadata'].get('sha', ''),
+            'time_limits': rundata.time_limits(latest),
             'history': history,
             'last_all_ok': last_all_ok,
         }

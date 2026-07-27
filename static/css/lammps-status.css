@@ -26,6 +26,10 @@
   --status-error: #ec835a;
   --status-critical: #d03b3b;
   --status-muted: #898781;
+  /* a test that ran out of time: told apart from the errors at a glance,
+     and by hue rather than by shade, so it survives color vision
+     deficiency next to the orange and the red */
+  --status-timeout: #9a6ec9;
 }
 [data-bs-theme="dark"] {
   --lammps-accent: #6ea8de;
@@ -80,6 +84,7 @@
 .st-passed  .ico { color: var(--status-good); }
 .st-failed  .ico { color: var(--status-critical); }
 .st-error   .ico { color: var(--status-error); }
+.st-timeout .ico { color: var(--status-timeout); }
 .st-skipped .ico { color: var(--status-muted); }
 .st-pending .ico { color: var(--lammps-accent); }
 .st-stale   .ico { color: var(--status-error); }

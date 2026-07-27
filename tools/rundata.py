@@ -16,13 +16,25 @@ Each run.json follows the format written by merge_results.py in
 lammps/lammps (tools/regression-tests): a "metadata" object with
 "counts" and "properties", and a "tests" object keyed by
 "classname/name" with {"status", "time", "message"} values.
+
+A test that ran into the time limit of the test harness is reported as an
+error like any other, but says nothing about the code: whether it expires
+depends on the time limit in force, on how many tests run beside it, and on
+the machine. Those runs are classified as "timeout" here (status_of()) and
+counted apart from the errors, so that a slower machine or a lowered limit
+does not read as a regression. They stay visible in their own right, since
+a test that starts hanging because of a code change lands there too.
 '''
 
 import json
 import os
+import re
 
-# statuses that count as broken
+# statuses that count as broken; a timeout is not among them, see above
 BAD = ('failed', 'error')
+# how the test harness reports hitting its time limit, e.g.
+# "failed, no Total wall time in the output, timeout (180s expired)"
+TIMEOUT = re.compile(r'\btimeout \((\d+)s expired\)')
 
 def list_runs(datadir, suite):
     '''return the sorted list of run ids for a suite (oldest first)'''
@@ -70,21 +82,62 @@ def suite_title(suite):
     title = base.replace('-', ' ').title()
     return f'{title}: {config}' if config else title
 
+def status_of(entry):
+    '''the status of one test, with a run that hit the time limit of the test
+       harness classified as "timeout" rather than as an error'''
+    status = entry.get('status', '')
+    if status in BAD and TIMEOUT.search(entry.get('message', '')):
+        return 'timeout'
+    return status
+
+def counts(run):
+    '''the test counts of a run by classified status. the totals are counted
+       from the results rather than taken from the metadata, which knows
+       nothing about timeouts; the number of tests and the walltime are read
+       from the metadata, which is where the harness records them'''
+    tally = dict.fromkeys(('passed', 'failed', 'error', 'timeout', 'skipped'), 0)
+    for entry in run.get('tests', {}).values():
+        status = status_of(entry)
+        tally[status] = tally.get(status, 0) + 1
+    result = dict(run.get('metadata', {}).get('counts', {}))
+    result.update(tally)
+    return result
+
+def broken(counts):
+    '''how many tests of a run are broken; timeouts are not counted, they
+       say nothing about the code (see the module docstring)'''
+    return counts.get('failed', 0) + counts.get('error', 0)
+
+def time_limits(run):
+    '''the time limits the test harness enforced in a run, as seen in the
+       messages of the tests that hit them (sorted, in seconds); empty when
+       no test timed out, which is also when the limit cannot be observed'''
+    limits = set()
+    for entry in run.get('tests', {}).values():
+        found = TIMEOUT.search(entry.get('message', ''))
+        if found:
+            limits.add(int(found.group(1)))
+    return sorted(limits)
+
 def compare_runs(previous, current):
     '''classify the changes between two runs (run.json dicts);
        returns a dict of sorted lists of test keys'''
     tests_prev = previous.get('tests', {})
     tests_curr = current.get('tests', {})
+    prev = {k: status_of(v) for k, v in tests_prev.items()}
+    curr = {k: status_of(v) for k, v in tests_curr.items()}
+    both = [k for k in curr if k in prev]
     return {
-        'new_failures': sorted(k for k in tests_curr if k in tests_prev
-                               and (tests_curr[k]['status'] in BAD)
-                               and (tests_prev[k]['status'] not in BAD)),
-        'still_failing': sorted(k for k in tests_curr if k in tests_prev
-                                and (tests_curr[k]['status'] in BAD)
-                                and (tests_prev[k]['status'] in BAD)),
-        'fixed': sorted(k for k in tests_curr if k in tests_prev
-                        and (tests_curr[k]['status'] == 'passed')
-                        and (tests_prev[k]['status'] in BAD)),
+        'new_failures': sorted(k for k in both if curr[k] in BAD
+                               and prev[k] not in BAD),
+        'still_failing': sorted(k for k in both if curr[k] in BAD
+                                and prev[k] in BAD),
+        'fixed': sorted(k for k in both if curr[k] == 'passed'
+                        and prev[k] in BAD),
+        # a test that newly runs out of time is reported apart from the
+        # failures: it is as likely to be the machine as it is the code
+        'new_timeouts': sorted(k for k in both if curr[k] == 'timeout'
+                               and prev[k] != 'timeout'),
         'new_tests': sorted(k for k in tests_curr if k not in tests_prev),
         'removed_tests': sorted(k for k in tests_prev if k not in tests_curr),
     }

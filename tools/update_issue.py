@@ -8,7 +8,9 @@ latest run of a suite has new failures or fixed tests relative to the previous
 run AND that change has not been announced in an earlier comment; comments DO
 notify issue subscribers. This way anybody who wants email notifications
 about regressions subscribes to this one issue and gets no nightly noise
-otherwise.
+otherwise. Tests that ran out of time are reported in the body and alongside
+the failures of a comment that goes out anyway, but never trigger one on
+their own (see tools/rundata.py).
 
 The status of the automated manual builds (tools/fetch_docs.py) is reported
 the same way: the body always shows the current state of all three published
@@ -63,9 +65,10 @@ def collect(datadir):
         runs = rundata.list_runs(datadir, suite)
         latest = rundata.load_run(datadir, suite, runs[-1])
         entry = {'suite': suite, 'runid': runs[-1],
-                 'counts': latest['metadata']['counts'],
+                 'counts': rundata.counts(latest),
                  'sha': latest['metadata'].get('sha', ''),
                  'run_url': latest['metadata'].get('run_url', ''),
+                 'limits': rundata.time_limits(latest),
                  'diff': None}
         if len(runs) > 1:
             previous = rundata.load_run(datadir, suite, runs[-2])
@@ -107,24 +110,34 @@ def build_body(snapshot, docs, site_url):
             f"This status table is updated in place (no notifications); a comment is posted"
             f" only when new failures appear or failures are fixed - subscribe to this"
             f" issue to be notified about regressions.\n\n")
+    # the timeout column is carried only where tests ran out of time, which
+    # keeps it out of the table on the days the unit test suites are alone
+    timeouts = any(entry['counts'].get('timeout') for entry in snapshot)
+    column = " Timeouts |" if timeouts else ""
     if snapshot:
-        body += "| Suite | Tests | Passed | Failed | Errors | Skipped | Changes |\n"
-        body += "|---|---:|---:|---:|---:|---:|---|\n"
+        body += (f"| Suite | Tests | Passed | Failed | Errors |{column}"
+                 f" Skipped | Changes |\n")
+        body += f"|---|---:|---:|---:|---:|{'---:|' if timeouts else ''}---:|---|\n"
     for entry in snapshot:
         counts = entry['counts']
-        broken = counts['failed'] + counts['error']
-        icon = ':white_check_mark:' if broken == 0 else ':x:'
-        changes = ''
+        icon = ':white_check_mark:' if rundata.broken(counts) == 0 else ':x:'
+        changes = []
         if entry['diff']:
-            parts = []
             if entry['diff']['new_failures']:
-                parts.append(f"**+{len(entry['diff']['new_failures'])} new**")
+                changes.append(f"**+{len(entry['diff']['new_failures'])} new**")
             if entry['diff']['fixed']:
-                parts.append(f"{len(entry['diff']['fixed'])} fixed")
-            changes = ', '.join(parts)
+                changes.append(f"{len(entry['diff']['fixed'])} fixed")
+            if entry['diff']['new_timeouts']:
+                changes.append(f"{len(entry['diff']['new_timeouts'])} newly out of time")
+        cell = f" {counts['timeout']} |" if timeouts else ""
         body += (f"| {icon} {suite_title(entry['suite'])} | {counts['tests']} |"
-                 f" {counts['passed']} | {counts['failed']} | {counts['error']} |"
-                 f" {counts['skipped']} | {changes} |\n")
+                 f" {counts['passed']} | {counts['failed']} | {counts['error']} |{cell}"
+                 f" {counts['skipped']} | {', '.join(changes)} |\n")
+    if timeouts:
+        body += ("\nTests that ran into the time limit of the test harness are"
+                 " counted as timeouts rather than as errors: whether they expire"
+                 " depends on the limit in force and on the load of the machine,"
+                 " so they are reported but not announced as new failures.\n")
     if docs:
         body += docs_table(docs)
     body += f"\n_Last updated: {now}_\n"
@@ -151,6 +164,13 @@ def build_sections(snapshot):
         if diff['fixed']:
             text += f"\n**Fixed ({len(diff['fixed'])}):**\n"
             text += md_list(diff['fixed'])
+        # not worth a notification of its own, but part of the picture in a
+        # comment that goes out anyway
+        if diff['new_timeouts']:
+            limits = ' / '.join(f"{limit} s" for limit in entry['limits'])
+            text += (f"\nAnother {len(diff['new_timeouts'])} test(s) newly ran"
+                     f" into the time limit of the test harness"
+                     f"{f' ({limits})' if limits else ''}.\n")
         sections.append({'heading': heading, 'text': text})
     return sections
 

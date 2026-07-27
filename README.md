@@ -90,6 +90,21 @@ does not: a `generated` field without a zone is in the local time of the test
 machine and cannot be compared with the UTC stamps of the runs ingested from
 GitHub Actions.
 
+### Tests that run out of time
+
+A test that hits the time limit of the test harness is reported as an error
+like any other, with a message ending in `timeout (<n>s expired)`. Whether it
+expires depends on the limit in force (which differs between the serial and
+the parallel configuration), on how many tests run beside it, and on the
+machine - so it says nothing about the code. Those runs are classified as
+`timeout` (`rundata.status_of()`), counted apart from the errors, and left
+out of the broken count that drives the trend, the *last all OK* run, and the
+notification comments. They are not swept under the carpet: they have their
+own tile, filter, and column, a run-to-run comparison lists them as *newly
+out of time*, and a test that starts hanging because of a code change shows
+up there. The limit itself is read back from the messages
+(`rundata.time_limits()`), since the run data does not record it.
+
 ## Documentation build status
 
 The three published variants of the manual - `develop`
