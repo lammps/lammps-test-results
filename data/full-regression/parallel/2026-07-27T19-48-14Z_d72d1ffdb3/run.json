@@ -1,0 +1,4629 @@
+{
+  "metadata": {
+    "title": "Full Regression Test / Parallel",
+    "generated": "2026-07-27T19:48:14Z",
+    "properties": {
+      "operating_system": "OS: Linux \"Fedora Linux 44 (Forty Four)\" 7.1.4-204.fc44.x86_64 x86_64",
+      "git_info": "Git info (preview / patch_4Jul2026-867-gd72d1ffdb3-modified)",
+      "compiler": "Compiler: Clang C++ Clang 22.1.8 (Fedora 22.1.8-4.fc44) with OpenMP 5.1",
+      "compile_flags": "-DLAMMPS_GZIP -DLAMMPS_PNG -DLAMMPS_JPEG -DLAMMPS_FFMPEG -DLAMMPS_CURL -DLAMMPS_SMALLBIG",
+      "config_file": "config.yaml",
+      "lmp_binary": "/home/akohlmey/compile/lammps-analyze/build-analysis/lmp"
+    },
+    "counts": {
+      "tests": 854,
+      "passed": 357,
+      "failed": 173,
+      "error": 168,
+      "skipped": 156,
+      "time": 6522.857999999999
+    },
+    "commit": "d72d1ffdb3c2e9ec495185fccffecc0938b631fe",
+    "branch": "preview",
+    "version": "patch_4Jul2026-867-gd72d1ffdb3-modified",
+    "sha": "d72d1ffdb3c2e9ec495185fccffecc0938b631fe",
+    "source_url": "https://download.lammps.org/coverage/parallel.json"
+  },
+  "tests": {
+    "ASPHERE/tri/in.tri.srd": {
+      "status": "failed",
+      "time": 34.211,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/latboltz/confined_colloid/in.confined_colloids": {
+      "status": "error",
+      "time": 60.017,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "multi/in.powerlaw": {
+      "status": "failed",
+      "time": 1.592,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "mliap/in.mliap.pytorch.ace": {
+      "status": "error",
+      "time": 0.575,
+      "message": "failed, ERROR: Using pair_style mliap model mliappy requires ML-IAP with python support (src/ML-IAP/pair_mliap.cpp:172)"
+    },
+    "GRAPHICS/in.bpm-fracture": {
+      "status": "error",
+      "time": 27.282,
+      "message": "failed, ERROR on proc 0: Special bond 1588 5349 not found (src/BPM/fix_update_special_bonds.cpp:121)"
+    },
+    "PACKAGES/alchemy/in.twowater": {
+      "status": "error",
+      "time": 0.656,
+      "message": "failed, ERROR: World variable count 2 doesn't match # of partitions 1 (src/variable.cpp:368)"
+    },
+    "PACKAGES/dpd-react/dpdp-shardlow/in.dpdp-shardlow": {
+      "status": "skipped",
+      "time": 0.777,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.etypes": {
+      "status": "skipped",
+      "time": 14.317,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4-CF4/bar10/in.bar10.lmp": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.bucky-plus-cnt-gpu": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/momentum/in.momentum": {
+      "status": "skipped",
+      "time": 12.604,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pimd_bosonic/harmonic_trap_langevin/in.lmp": {
+      "status": "error",
+      "time": 0.648,
+      "message": "failed, ERROR: Fix pimd/langevin/bosonic only supports a single processor per bead (src/REPLICA/fix_pimd_langevin_bosonic.cpp:87)"
+    },
+    "QUANTUM/LATTE/in.ch4.plugin": {
+      "status": "error",
+      "time": 0.644,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "SPIN/gneb/iron/in.gneb.iron": {
+      "status": "error",
+      "time": 0.621,
+      "message": "failed, ERROR: Cannot use NEBSpin with a single replica (src/SPIN/neb_spin.cpp:136)"
+    },
+    "fire/in.neb.sivac.fire_mod": {
+      "status": "error",
+      "time": 0.595,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "mdi/in.series.alone": {
+      "status": "skipped",
+      "time": 0.652,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "reaxff/water/in.water.qeqr.field": {
+      "status": "error",
+      "time": 0.586,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized fix style 'qeqr/reaxff' (src/modify.cpp:916)"
+    },
+    "wall/in.wall.sphere": {
+      "status": "skipped",
+      "time": 4.089,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "VISCOSITY/in.einstein.2d": {
+      "status": "failed",
+      "time": 16.065,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "comb/in.comb3": {
+      "status": "passed",
+      "time": 4.237,
+      "message": ""
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.nh": {
+      "status": "failed",
+      "time": 19.77,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.02
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.nh": {
+      "status": "failed",
+      "time": 13.106,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.04
+    },
+    "PACKAGES/drude/butane/in.butane.tgnh": {
+      "status": "failed",
+      "time": 13.658,
+      "message": "completed, 3 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.05
+    },
+    "reaxff/HNS/in.reaxff.hns": {
+      "status": "failed",
+      "time": 7.136,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.1
+    },
+    "mc/in.hmc.flexible.melt": {
+      "status": "failed",
+      "time": 5.472,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.085
+    },
+    "bpm/impact/in.bpm.impact.spring": {
+      "status": "error",
+      "time": 0.887,
+      "message": "failed, ERROR on proc 0: Special bond 1588 5349 not found (src/BPM/fix_update_special_bonds.cpp:121)"
+    },
+    "SPIN/bfo/in.spin.bfo": {
+      "status": "failed",
+      "time": 2.26,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.1
+    },
+    "ttm/in.ttm": {
+      "status": "passed",
+      "time": 5.292,
+      "message": ""
+    },
+    "SPIN/nickel/in.spin.nickel": {
+      "status": "passed",
+      "time": 2.487,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.cascade_AlCu": {
+      "status": "passed",
+      "time": 2.061,
+      "message": ""
+    },
+    "PACKAGES/eff/H2/in.h2": {
+      "status": "passed",
+      "time": 2.598,
+      "message": "",
+      "diverged": 3,
+      "diverged_from": 0.01
+    },
+    "VISCOSITY/in.cos.1000SPCE": {
+      "status": "failed",
+      "time": 9.587,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "reaxff/water/in.water.qtpie.field": {
+      "status": "passed",
+      "time": 2.48,
+      "message": ""
+    },
+    "mliap/in.mliap.unified.lj.Ar": {
+      "status": "error",
+      "time": 0.617,
+      "message": "failed, ERROR: Could not process Python string:"
+    },
+    "srd/in.srd.mixture": {
+      "status": "failed",
+      "time": 1.145,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.14
+    },
+    "python/in.pair_python_long": {
+      "status": "passed",
+      "time": 1.797,
+      "message": ""
+    },
+    "gransurf/in.tribox.gran.surf": {
+      "status": "passed",
+      "time": 1.902,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.Ta06A": {
+      "status": "error",
+      "time": 0.563,
+      "message": "failed, ERROR: Using pair_style mliap model mliappy requires ML-IAP with python support (src/ML-IAP/pair_mliap.cpp:172)"
+    },
+    "melt/in.melt": {
+      "status": "passed",
+      "time": 0.757,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.nph": {
+      "status": "passed",
+      "time": 0.963,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.hsph.p2nfft": {
+      "status": "error",
+      "time": 0.541,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "comb/in.comb.Si.elastic": {
+      "status": "passed",
+      "time": 0.673,
+      "message": ""
+    },
+    "micelle/in.micelle": {
+      "status": "failed",
+      "time": 0.654,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 1.0
+    },
+    "gransurf/in.tri.gran.surf": {
+      "status": "passed",
+      "time": 0.89,
+      "message": ""
+    },
+    "gransurf/in.line.gran.data": {
+      "status": "passed",
+      "time": 0.838,
+      "message": ""
+    },
+    "micelle/in.micelle-rigid": {
+      "status": "failed",
+      "time": 0.659,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.787,
+      "message": ""
+    },
+    "grid/in.grid.2d": {
+      "status": "passed",
+      "time": 0.654,
+      "message": ""
+    },
+    "wall/in.wall.lepton": {
+      "status": "passed",
+      "time": 0.6,
+      "message": ""
+    },
+    "PACKAGES/mop/in.compute_stress_mop": {
+      "status": "passed",
+      "time": 0.631,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.beta": {
+      "status": "passed",
+      "time": 0.654,
+      "message": ""
+    },
+    "snap/in.gaussian.grid": {
+      "status": "passed",
+      "time": 0.558,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.pod.compute": {
+      "status": "error",
+      "time": 0.619,
+      "message": "failed, ERROR: compute command does not support multi processors (src/ML-POD/compute_pod_atom.cpp:42)"
+    },
+    "HEAT/in.lj.ehex": {
+      "status": "error",
+      "time": 60.007,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/latboltz/diffusingsphere/in.trapnewsphere": {
+      "status": "error",
+      "time": 60.007,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "streitz/in.ctip": {
+      "status": "passed",
+      "time": 57.759,
+      "message": ""
+    },
+    "ASPHERE/box/in.box.mp": {
+      "status": "failed",
+      "time": 4.964,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "ELASTIC_T/DEFORMATION/Silicon/in.elastic": {
+      "status": "skipped",
+      "time": 2.499,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/alchemy/in.alloy": {
+      "status": "error",
+      "time": 0.599,
+      "message": "failed, ERROR: World variable count 2 doesn't match # of partitions 1 (src/variable.cpp:368)"
+    },
+    "PACKAGES/dpd-react/dpdh-shardlow/in.dpdh-shardlow": {
+      "status": "skipped",
+      "time": 1.566,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.conq2": {
+      "status": "skipped",
+      "time": 15.057,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4-CF4/bar01/in.bar01.lmp": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.bucky-plus-cnt": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/mofff/in.hkust1_long": {
+      "status": "skipped",
+      "time": 0.695,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pimd/prot-hairpin/in.scp": {
+      "status": "skipped",
+      "time": 4.337,
+      "message": "completed, numerical checks skipped, unsupported log file format"
+    },
+    "PACKAGES/vtk/in.vtp": {
+      "status": "skipped",
+      "time": 0.765,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/PySCF/in.water.qmmm.plugin": {
+      "status": "error",
+      "time": 0.655,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "fire/in.neb.sivac.fire": {
+      "status": "error",
+      "time": 0.594,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "mdi/in.sequence.python": {
+      "status": "error",
+      "time": 0.601,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "reaxff/water/in.water.qeqr": {
+      "status": "error",
+      "time": 0.58,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized fix style 'qeqr/reaxff' (src/modify.cpp:916)"
+    },
+    "wall/in.wall.harmonic.outside.2d": {
+      "status": "skipped",
+      "time": 1.1,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "VISCOSITY/in.gk.2d": {
+      "status": "failed",
+      "time": 16.439,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/cgspica/peg-verlet/in.pegc12e8-angle": {
+      "status": "skipped",
+      "time": 18.227,
+      "message": "completed, error parsing log.pegc12e8-angle.4 into YAML"
+    },
+    "prd/in.prd": {
+      "status": "failed",
+      "time": 1.478,
+      "message": "failed, incomplete runs"
+    },
+    "PACKAGES/drude/butane/in.butane.nh": {
+      "status": "failed",
+      "time": 15.05,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.05
+    },
+    "PACKAGES/shock/nemd/in.nemd": {
+      "status": "failed",
+      "time": 5.292,
+      "message": "completed, 8 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_from": 0.0
+    },
+    "template/in.molecular-mix": {
+      "status": "failed",
+      "time": 6.869,
+      "message": "completed, 4 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_lattice": {
+      "status": "error",
+      "time": 0.558,
+      "message": "failed, ERROR: Illegal sectoring operation resulting in 2 sectors instead of 8 (src/SPIN/fix_nve_spin.cpp:609)"
+    },
+    "PACKAGES/drude/ethylene_glycol/in.ethylene_glycol": {
+      "status": "failed",
+      "time": 6.909,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.1
+    },
+    "mc/in.gcmc.region": {
+      "status": "passed",
+      "time": 8.795,
+      "message": ""
+    },
+    "coreshell/in.coreshell.wolf": {
+      "status": "failed",
+      "time": 6.156,
+      "message": "completed, 10 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_from": 0.0
+    },
+    "SPIN/cobalt_fcc/in.spin.cobalt_fcc": {
+      "status": "passed",
+      "time": 2.319,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.read_data": {
+      "status": "passed",
+      "time": 1.788,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.restart": {
+      "status": "passed",
+      "time": 0.821,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.write_restart": {
+      "status": "passed",
+      "time": 1.374,
+      "message": ""
+    },
+    "crack/in.crack": {
+      "status": "passed",
+      "time": 1.227,
+      "message": ""
+    },
+    "PACKAGES/yaff/mil53al/in.mil53a": {
+      "status": "skipped",
+      "time": 3.223,
+      "message": "completed, error parsing log.mil53a.4 into YAML"
+    },
+    "PACKAGES/manybody_table/in.spce_sw": {
+      "status": "passed",
+      "time": 1.495,
+      "message": ""
+    },
+    "ellipse/in.ellipse.resquared": {
+      "status": "failed",
+      "time": 1.169,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.45
+    },
+    "obstacle/in.obstacle": {
+      "status": "failed",
+      "time": 0.915,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.16
+    },
+    "PACKAGES/hdnnp/in.hybrid": {
+      "status": "error",
+      "time": 0.537,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized pair style 'hdnnp' is part of the ML-HDNNP package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dispersion/in.d2": {
+      "status": "passed",
+      "time": 1.434,
+      "message": ""
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid-real": {
+      "status": "failed",
+      "time": 0.799,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.05
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.atom-diffusion": {
+      "status": "passed",
+      "time": 0.819,
+      "message": ""
+    },
+    "PACKAGES/cauchy/in.cauchystat": {
+      "status": "failed",
+      "time": 0.863,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "tersoff/in.hBN_shift": {
+      "status": "passed",
+      "time": 0.709,
+      "message": ""
+    },
+    "steinhardt/in.icos": {
+      "status": "passed",
+      "time": 1.296,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.bohr": {
+      "status": "passed",
+      "time": 0.655,
+      "message": ""
+    },
+    "gransurf/in.tribox.gran.global.stl": {
+      "status": "passed",
+      "time": 0.702,
+      "message": ""
+    },
+    "PACKAGES/pimd/langevin_metal_units/in.pimd-langevin.metal": {
+      "status": "error",
+      "time": 0.605,
+      "message": "failed, ERROR: Method pimd only supports a single processor per bead (src/REPLICA/fix_pimd_langevin.cpp:502)"
+    },
+    "nemd/in.nemd": {
+      "status": "passed",
+      "time": 0.534,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.666,
+      "message": ""
+    },
+    "PACKAGES/quip/in.molecular": {
+      "status": "passed",
+      "time": 0.591,
+      "message": ""
+    },
+    "PACKAGES/symmetry/in.lj_pinv": {
+      "status": "passed",
+      "time": 0.523,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc": {
+      "status": "passed",
+      "time": 0.54,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.vac0-bcc": {
+      "status": "passed",
+      "time": 0.544,
+      "message": ""
+    },
+    "triclinic/in.sq2.orthog": {
+      "status": "passed",
+      "time": 0.564,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "error",
+      "time": 0.661,
+      "message": "failed, ERROR on proc 0: cannot open oxdna potential potential file oxdna2_lj.cgdna: No such file or directory (src/potential_file_reader.cpp:58)"
+    },
+    "PACKAGES/shock/hugoniostat/in.hugoniostat": {
+      "status": "passed",
+      "time": 3.247,
+      "message": ""
+    },
+    "QUANTUM/NWChem/in.zeolite.qmmm": {
+      "status": "error",
+      "time": 0.569,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "granular/in.pour.heat": {
+      "status": "passed",
+      "time": 22.523,
+      "message": ""
+    },
+    "COUPLE/lammps_spparks/in.spparks": {
+      "status": "error",
+      "time": 0.594,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: seed 56789 (src/input.cpp:308)"
+    },
+    "GRAPHICS/in.peptide-hbonds": {
+      "status": "error",
+      "time": 60.012,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/basal/in.basal": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/edip/in.edip-Si": {
+      "status": "skipped",
+      "time": 0.729,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/madelung/in.ewald-ew3dc": {
+      "status": "skipped",
+      "time": 0.577,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4hyd/fep10/in.fep10.lmp": {
+      "status": "error",
+      "time": 60.005,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.melt_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/smtbq/in.smatbAgCuPancake": {
+      "status": "skipped",
+      "time": 0.857,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/LATTE/in.water.plugin": {
+      "status": "error",
+      "time": 0.62,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "bpm/metamaterial/in.bpm.metamaterial": {
+      "status": "passed",
+      "time": 56.526,
+      "message": ""
+    },
+    "kim/in.kim-query": {
+      "status": "error",
+      "time": 0.568,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init EAM_Dynamo_ErcolessiAdams_1994_Al__MO_123629422045_005 metal (src/input.cpp:308)"
+    },
+    "mliap/in.mliap.pytorch.relu1hidden": {
+      "status": "error",
+      "time": 0.602,
+      "message": "failed, ERROR: Using pair_style mliap model mliappy requires ML-IAP with python support (src/ML-IAP/pair_mliap.cpp:172)"
+    },
+    "rheo/taylor-green/in.rheo.taylor.green": {
+      "status": "skipped",
+      "time": 28.175,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve": {
+      "status": "passed",
+      "time": 18.032,
+      "message": ""
+    },
+    "DIFFUSE/in.vacf.2d": {
+      "status": "failed",
+      "time": 11.998,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_full/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 14.522,
+      "message": ""
+    },
+    "mc/in.gcmc.co2": {
+      "status": "failed",
+      "time": 17.754,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.35
+    },
+    "comb/in.comb.Cu2O.elastic": {
+      "status": "passed",
+      "time": 4.048,
+      "message": ""
+    },
+    "PACKAGES/drude/butane/in.butane.lang": {
+      "status": "failed",
+      "time": 12.586,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.05
+    },
+    "multi/in.colloid": {
+      "status": "failed",
+      "time": 0.667,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/pedone/in.pedone.relax": {
+      "status": "failed",
+      "time": 4.398,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "dipole/in.charge_dipole": {
+      "status": "passed",
+      "time": 6.155,
+      "message": ""
+    },
+    "VISCOSITY/in.wall.2d": {
+      "status": "failed",
+      "time": 2.755,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/charge_regulation/in.chreg-polymer": {
+      "status": "failed",
+      "time": 0.918,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.0
+    },
+    "controller/in.controller.temp": {
+      "status": "passed",
+      "time": 2.298,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.p2nfft": {
+      "status": "error",
+      "time": 0.511,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "wall/in.wall.flow": {
+      "status": "passed",
+      "time": 1.448,
+      "message": ""
+    },
+    "python/in.pair_python_coulomb": {
+      "status": "passed",
+      "time": 1.191,
+      "message": ""
+    },
+    "reaxff/FeOH3/in.FeOH3": {
+      "status": "failed",
+      "time": 1.652,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.033
+    },
+    "mliap/in.mliap.pytorch.ace.NN": {
+      "status": "error",
+      "time": 0.51,
+      "message": "failed, ERROR: Using pair_style mliap model mliappy requires ML-IAP with python support (src/ML-IAP/pair_mliap.cpp:172)"
+    },
+    "PACKAGES/brownian/align_self/in.alignself_dipole": {
+      "status": "passed",
+      "time": 1.192,
+      "message": ""
+    },
+    "PACKAGES/quip/in.gap": {
+      "status": "passed",
+      "time": 1.253,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-rattle": {
+      "status": "skipped",
+      "time": 1.44,
+      "message": "completed, error parsing log.peptide-rattle.4 into YAML"
+    },
+    "snap/in.snap.hybrid.WSNAP.HePair": {
+      "status": "passed",
+      "time": 1.007,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.cw.ewald": {
+      "status": "error",
+      "time": 0.492,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc_relax": {
+      "status": "passed",
+      "time": 0.924,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.langevin": {
+      "status": "passed",
+      "time": 0.633,
+      "message": ""
+    },
+    "PACKAGES/colvars/in.peptide-spring2": {
+      "status": "passed",
+      "time": 0.85,
+      "message": ""
+    },
+    "grid/in.grid.3d": {
+      "status": "passed",
+      "time": 0.698,
+      "message": ""
+    },
+    "PACKAGES/pimd/langevin_metal_units/in.langevin.metal": {
+      "status": "failed",
+      "time": 0.608,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/meam_sw_spline/Si/in.hcp_relax": {
+      "status": "failed",
+      "time": 1.473,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "python/in.fix_python_move_nve_melt_opt": {
+      "status": "error",
+      "time": 0.509,
+      "message": "failed, ERROR: Loading python integrator module failure (src/PYTHON/fix_python_move.cpp:64)"
+    },
+    "reaxff/in.reaxff.rdx-shielded": {
+      "status": "passed",
+      "time": 0.625,
+      "message": ""
+    },
+    "meam/in.meam": {
+      "status": "passed",
+      "time": 0.546,
+      "message": ""
+    },
+    "amoeba/in.water_dimer.hippo": {
+      "status": "failed",
+      "time": 0.525,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.0
+    },
+    "vashishta/in.vashishta.inp": {
+      "status": "passed",
+      "time": 0.516,
+      "message": ""
+    },
+    "steinhardt/in.bcc": {
+      "status": "passed",
+      "time": 0.489,
+      "message": ""
+    },
+    "snap/in.snap.compute.quadratic": {
+      "status": "skipped",
+      "time": 0.486,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "QUANTUM/LATTE/in.series": {
+      "status": "error",
+      "time": 0.496,
+      "message": "failed, ERROR: MDI unable to connect to stand-alone engine (src/MDI/mdi_command.cpp:56)"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "error",
+      "time": 0.492,
+      "message": "failed, ERROR on proc 0: cannot open oxdna potential potential file oxdna2_real.cgdna: No such file or directory (src/potential_file_reader.cpp:58)"
+    },
+    "QUANTUM/NWChem/in.water.qmmm": {
+      "status": "error",
+      "time": 0.548,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "hyper/in.hyper.global": {
+      "status": "failed",
+      "time": 14.904,
+      "message": "completed, 291 abs diff and 291 rel diff checks failed",
+      "diverged": 388,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/rhok/in.crystal": {
+      "status": "failed",
+      "time": 5.809,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.01
+    },
+    "PACKAGES/rhok/in.pinning": {
+      "status": "failed",
+      "time": 6.136,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/rhok/in.setup": {
+      "status": "failed",
+      "time": 5.547,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.02
+    },
+    "ASPHERE/superellipsoid_gran/in.super_table": {
+      "status": "skipped",
+      "time": 0.824,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.mixer-drum~": {
+      "status": "error",
+      "time": 60.014,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/apip/in.vacancy.dynamic.lambda": {
+      "status": "skipped",
+      "time": 1.692,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion/in.lammps": {
+      "status": "skipped",
+      "time": 8.788,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/madelung/in.cg": {
+      "status": "skipped",
+      "time": 0.639,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4hyd/fdti10/in.fdti10.lmp": {
+      "status": "error",
+      "time": 60.006,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.deca-ala_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/reaction/tiny_nylon_wildcards/in.tiny_nylon.stabilized": {
+      "status": "skipped",
+      "time": 3.018,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/LATTE/in.uo2.plugin": {
+      "status": "error",
+      "time": 0.629,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "UNITS/in.ar.real": {
+      "status": "skipped",
+      "time": 0.632,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.kim-pm-query.melt": {
+      "status": "error",
+      "time": 0.579,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init SW_StillingerWeber_1985_Si__MO_405512056662_005 real (src/input.cpp:308)"
+    },
+    "mdi/in.snapshot.driver.plugin": {
+      "status": "error",
+      "time": 0.626,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "rheo/oxidation/in.rheo.oxidation": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "tad/in.tad": {
+      "status": "error",
+      "time": 0.844,
+      "message": "failed, ERROR: Cannot use TAD with a single replica for NEB (src/REPLICA/tad.cpp:83)"
+    },
+    "PACKAGES/filter_corotate/in.peptide": {
+      "status": "failed",
+      "time": 27.756,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "PACKAGES/cgspica/peg-verlet/in.pegc12e8": {
+      "status": "skipped",
+      "time": 18.007,
+      "message": "completed, error parsing log.pegc12e8.4 into YAML"
+    },
+    "meam/in.meam.shear": {
+      "status": "failed",
+      "time": 8.197,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.5
+    },
+    "python/in.pair_python_melt": {
+      "status": "failed",
+      "time": 5.891,
+      "message": "completed, 0 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.2
+    },
+    "PACKAGES/ilves/in.rhodo-shake": {
+      "status": "skipped",
+      "time": 12.282,
+      "message": "completed, error parsing log.rhodo-shake.4 into YAML"
+    },
+    "PACKAGES/qtb/methane_qtb/in.methane_qtb": {
+      "status": "failed",
+      "time": 5.614,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "airebo/in.rebo2": {
+      "status": "passed",
+      "time": 1.858,
+      "message": ""
+    },
+    "PACKAGES/pedone/in.pedone.melt": {
+      "status": "failed",
+      "time": 3.982,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid": {
+      "status": "failed",
+      "time": 1.183,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.05
+    },
+    "ttm/in.ttm.grid": {
+      "status": "passed",
+      "time": 5.013,
+      "message": ""
+    },
+    "reaxff/water/in.water.acks2": {
+      "status": "passed",
+      "time": 4.32,
+      "message": ""
+    },
+    "SPIN/nickel/in.spin.nickel_cubic": {
+      "status": "passed",
+      "time": 2.422,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6.ang": {
+      "status": "passed",
+      "time": 3.922,
+      "message": ""
+    },
+    "PACKAGES/pafi/in.pafi": {
+      "status": "failed",
+      "time": 1.722,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "SPIN/iron/in.spin.iron": {
+      "status": "failed",
+      "time": 2.16,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/mesont/in.film_mesocnt": {
+      "status": "passed",
+      "time": 3.797,
+      "message": ""
+    },
+    "ttm/in.ttm.mod": {
+      "status": "passed",
+      "time": 2.063,
+      "message": ""
+    },
+    "PACKAGES/meam_spline/in.meam-spline.Si": {
+      "status": "passed",
+      "time": 1.057,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-shake": {
+      "status": "skipped",
+      "time": 1.601,
+      "message": "completed, error parsing log.peptide-shake.4 into YAML"
+    },
+    "PACKAGES/machdyn/rubber_strip_pull/in.rubber_strip_pull": {
+      "status": "passed",
+      "time": 1.205,
+      "message": ""
+    },
+    "PACKAGES/machdyn/aluminum_strip_pull/in.aluminum_strip_pull": {
+      "status": "passed",
+      "time": 1.014,
+      "message": ""
+    },
+    "PACKAGES/tally/in.pe": {
+      "status": "passed",
+      "time": 1.168,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x.y": {
+      "status": "passed",
+      "time": 1.093,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.tri": {
+      "status": "passed",
+      "time": 0.807,
+      "message": ""
+    },
+    "rigid/in.rigid.atomfile": {
+      "status": "passed",
+      "time": 0.625,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.cw.p2nfft": {
+      "status": "error",
+      "time": 0.55,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "min/in.min": {
+      "status": "passed",
+      "time": 0.616,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.676,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.696,
+      "message": ""
+    },
+    "MC-LOOP/in.mc": {
+      "status": "failed",
+      "time": 1.104,
+      "message": "completed, 2999 abs diff and 3002 rel diff checks failed",
+      "diverged": 3002,
+      "diverged_from": 0.0
+    },
+    "amoeba/in.water_dimer.amoeba": {
+      "status": "failed",
+      "time": 0.563,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/ptm/in.ptm": {
+      "status": "passed",
+      "time": 0.547,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.single_atom": {
+      "status": "passed",
+      "time": 0.536,
+      "message": ""
+    },
+    "triclinic/in.data.general": {
+      "status": "passed",
+      "time": 0.554,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/mdpd/in.mdpd": {
+      "status": "failed",
+      "time": 35.058,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "airebo/in.airebo": {
+      "status": "passed",
+      "time": 13.816,
+      "message": ""
+    },
+    "granregion/in.granregion.mixer": {
+      "status": "passed",
+      "time": 14.338,
+      "message": ""
+    },
+    "bpm/plasticity/in.bpm.plasticity": {
+      "status": "failed",
+      "time": 37.923,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.005
+    },
+    "ASPHERE/superellipsoid_gran/in.bowling": {
+      "status": "skipped",
+      "time": 0.661,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.breakable": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/apip/in.surface.balance": {
+      "status": "skipped",
+      "time": 28.159,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-react/dpdrx-shardlow/in.dpdrx-shardlow": {
+      "status": "error",
+      "time": 0.664,
+      "message": "failed, ERROR on proc 0: Shardlow algorithm requires sub-domain length > 2*(rcut+skin). Either reduce the number of processors requested, or change the cutoff/skin: rcut= 36 bbx= 34.565272530332074 bb ..."
+    },
+    "PACKAGES/electrode/graph-il/in.ffield": {
+      "status": "skipped",
+      "time": 13.15,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4-CF4/fep01/in.fep01.lmp": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.deca-ala-solv-filter_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/orient_eco/in.orient_eco": {
+      "status": "skipped",
+      "time": 29.704,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pimd_bosonic/harmonic_trap_nvt/in.lmp": {
+      "status": "error",
+      "time": 1.122,
+      "message": "failed, ERROR: Fix pimd/nvt/bosonic only supports a single processor per bead (src/REPLICA/fix_pimd_nvt_bosonic.cpp:50)"
+    },
+    "QUANTUM/LATTE/in.graphene.plugin": {
+      "status": "error",
+      "time": 0.588,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "SPIN/gneb/skyrmion/in.gneb.skyrmion": {
+      "status": "error",
+      "time": 0.572,
+      "message": "failed, ERROR: Did not assign all atoms correctly"
+    },
+    "fire/in.neb.sivac.qm": {
+      "status": "error",
+      "time": 0.576,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "mdi/in.series.driver.plugin": {
+      "status": "error",
+      "time": 0.61,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "rheo/balloon/in.rheo.balloon": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.energy_conservation.meam.sw": {
+      "status": "failed",
+      "time": 14.059,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.07
+    },
+    "streitz/in.streitz.wolf": {
+      "status": "failed",
+      "time": 18.583,
+      "message": "failed, mismatched columns in the log files"
+    },
+    "PACKAGES/moments/in.simple": {
+      "status": "error",
+      "time": 0.487,
+      "message": "failed, ERROR on proc 0: cannot open eam/alloy potential file AlCu.eam.alloy: No such file or directory (src/potential_file_reader.cpp:58)"
+    },
+    "mc/in.gcmc.lj": {
+      "status": "passed",
+      "time": 14.178,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.min": {
+      "status": "passed",
+      "time": 7.573,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/SiC/bulk/in.SiC": {
+      "status": "passed",
+      "time": 5.708,
+      "message": ""
+    },
+    "template/in.template-mix": {
+      "status": "failed",
+      "time": 6.115,
+      "message": "completed, 4 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/reaction/tiny_polystyrene/in.tiny_polystyrene.stabilized": {
+      "status": "failed",
+      "time": 7.44,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 1.0
+    },
+    "PACKAGES/momb/in.system": {
+      "status": "passed",
+      "time": 6.489,
+      "message": ""
+    },
+    "peri/in.peri.lps": {
+      "status": "failed",
+      "time": 4.597,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "amoeba/in.water_box.hippo": {
+      "status": "passed",
+      "time": 2.126,
+      "message": ""
+    },
+    "reaxff/AuO/in.AuO": {
+      "status": "failed",
+      "time": 2.659,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "ASPHERE/dimer/in.dimer": {
+      "status": "failed",
+      "time": 1.657,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "reaxff/RDX/in.RDX": {
+      "status": "passed",
+      "time": 2.681,
+      "message": ""
+    },
+    "mdi/in.aimd.driver": {
+      "status": "error",
+      "time": 0.489,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "mc/in.widom.lj": {
+      "status": "passed",
+      "time": 1.306,
+      "message": ""
+    },
+    "PACKAGES/dispersion/in.d3": {
+      "status": "passed",
+      "time": 1.908,
+      "message": ""
+    },
+    "PACKAGES/tmd/in.tmd": {
+      "status": "skipped",
+      "time": 1.434,
+      "message": "completed, error parsing log.tmd.4 into YAML"
+    },
+    "balance/in.balance.group.dynamic": {
+      "status": "passed",
+      "time": 1.102,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-ilves": {
+      "status": "skipped",
+      "time": 1.507,
+      "message": "completed, error parsing log.peptide-ilves.4 into YAML"
+    },
+    "mdi/in.snapshot.driver": {
+      "status": "error",
+      "time": 0.478,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "mliap/in.mliap.nn.Ta06A": {
+      "status": "passed",
+      "time": 0.678,
+      "message": ""
+    },
+    "rerun/in.rerun": {
+      "status": "passed",
+      "time": 0.623,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.xy": {
+      "status": "passed",
+      "time": 0.9,
+      "message": ""
+    },
+    "body/in.pour3d": {
+      "status": "passed",
+      "time": 0.611,
+      "message": ""
+    },
+    "flow/in.flow.couette": {
+      "status": "failed",
+      "time": 0.597,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.25
+    },
+    "rigid/in.rigid.spheres": {
+      "status": "passed",
+      "time": 0.591,
+      "message": ""
+    },
+    "fire/in.fire": {
+      "status": "failed",
+      "time": 0.528,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.72
+    },
+    "rigid/in.rigid.ellipsoids": {
+      "status": "passed",
+      "time": 0.538,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.563,
+      "message": ""
+    },
+    "comb/in.comb.Si": {
+      "status": "passed",
+      "time": 0.501,
+      "message": ""
+    },
+    "PACKAGES/symmetry/in.lj_diamond_pinv": {
+      "status": "passed",
+      "time": 0.486,
+      "message": ""
+    },
+    "mliap/in.mliap.quadratic.compute": {
+      "status": "skipped",
+      "time": 0.491,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.fcc": {
+      "status": "passed",
+      "time": 0.489,
+      "message": ""
+    },
+    "triclinic/in.hex.orthog": {
+      "status": "passed",
+      "time": 0.485,
+      "message": ""
+    },
+    "PACKAGES/electrode/piston/in.piston": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "airebo/in.airebo-m": {
+      "status": "passed",
+      "time": 15.159,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.rigid-small": {
+      "status": "passed",
+      "time": 4.411,
+      "message": ""
+    },
+    "PACKAGES/machdyn/fluid_structure_interaction/in.fluid_structure_interaction": {
+      "status": "passed",
+      "time": 11.17,
+      "message": "",
+      "diverged": 1,
+      "diverged_from": 0.94
+    },
+    "ASPHERE/superellipsoid_gran/in.drop_test": {
+      "status": "skipped",
+      "time": 3.998,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.cubes-and-pyramids": {
+      "status": "error",
+      "time": 60.011,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/apip/in.surface.la.cons": {
+      "status": "skipped",
+      "time": 21.814,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-react/multi-lucy/in.multi-lucy": {
+      "status": "skipped",
+      "time": 0.972,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.ramp": {
+      "status": "skipped",
+      "time": 14.271,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4-CF4/fep10/in.fep10.lmp": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/1-1D-mono/in.Ana": {
+      "status": "skipped",
+      "time": 31.899,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pod/InP/in.fitpod": {
+      "status": "error",
+      "time": 0.593,
+      "message": "failed, ERROR: Cannot fit potential without data files. The data paths may not be valid. Please check the data paths in the POD data file. (src/ML-POD/fitpod_command.cpp:708)"
+    },
+    "QUANTUM/LATTE/in.series.plugin": {
+      "status": "error",
+      "time": 0.636,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "UNITS/in.ar.lj": {
+      "status": "skipped",
+      "time": 0.558,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.kim-ex.melt": {
+      "status": "error",
+      "time": 0.619,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init LennardJones_Ar real (src/input.cpp:308)"
+    },
+    "mdi/in.series.engine": {
+      "status": "error",
+      "time": 0.632,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "rheo/dam-break/in.rheo.dam.break": {
+      "status": "error",
+      "time": 60.001,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/eff/Li-solid/in.Li.ang": {
+      "status": "passed",
+      "time": 16.776,
+      "message": ""
+    },
+    "qeq/in.qeq.buck": {
+      "status": "passed",
+      "time": 4.858,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-solid/in.Li.bohr": {
+      "status": "passed",
+      "time": 11.983,
+      "message": ""
+    },
+    "fire/in.meam.abcfire": {
+      "status": "passed",
+      "time": 10.402,
+      "message": ""
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_edge": {
+      "status": "failed",
+      "time": 12.371,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "PACKAGES/machdyn/rubber_rings_3d/in.rubber_rings_3d": {
+      "status": "failed",
+      "time": 6.313,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.02
+    },
+    "airebo/in.airebo-0-0": {
+      "status": "passed",
+      "time": 1.571,
+      "message": ""
+    },
+    "threebody/in.mos2.rebomos": {
+      "status": "passed",
+      "time": 4.045,
+      "message": ""
+    },
+    "mesh/in.marble_race": {
+      "status": "failed",
+      "time": 47.645,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water.opt": {
+      "status": "failed",
+      "time": 3.379,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "rerun/in.rdf.rerun": {
+      "status": "passed",
+      "time": 1.557,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid": {
+      "status": "passed",
+      "time": 2.061,
+      "message": ""
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_cut": {
+      "status": "passed",
+      "time": 1.345,
+      "message": ""
+    },
+    "balance/in.balance.clock.static": {
+      "status": "passed",
+      "time": 2.015,
+      "message": ""
+    },
+    "ASPHERE/poly/in.poly": {
+      "status": "passed",
+      "time": 1.862,
+      "message": ""
+    },
+    "min/in.min.box": {
+      "status": "failed",
+      "time": 0.886,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "mliap/in.mliap.nn.Cu": {
+      "status": "passed",
+      "time": 1.15,
+      "message": ""
+    },
+    "mliap/in.mliap.so3.nn.Si": {
+      "status": "passed",
+      "time": 1.17,
+      "message": ""
+    },
+    "balance/in.balance.group.static": {
+      "status": "passed",
+      "time": 1.042,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 1.482,
+      "message": ""
+    },
+    "threebody/in.mos2.sw.mod": {
+      "status": "passed",
+      "time": 0.839,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.sphere": {
+      "status": "passed",
+      "time": 0.71,
+      "message": ""
+    },
+    "wall/in.wall.diffusive": {
+      "status": "passed",
+      "time": 0.56,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.water": {
+      "status": "error",
+      "time": 0.481,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "replicate/in.replicate.bond.x": {
+      "status": "passed",
+      "time": 0.698,
+      "message": ""
+    },
+    "PACKAGES/ees/in.fix_wall": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "rigid/in.rigid.dipoles": {
+      "status": "passed",
+      "time": 0.518,
+      "message": ""
+    },
+    "gransurf/in.line.gran.global": {
+      "status": "passed",
+      "time": 0.554,
+      "message": ""
+    },
+    "indent/in.indent.min": {
+      "status": "failed",
+      "time": 0.481,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.53,
+      "message": ""
+    },
+    "comb/in.comb.Cu": {
+      "status": "passed",
+      "time": 0.476,
+      "message": ""
+    },
+    "python/in.python.wrap": {
+      "status": "passed",
+      "time": 0.468,
+      "message": ""
+    },
+    "mliap/in.mliap.ace.compute": {
+      "status": "skipped",
+      "time": 0.556,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/eff/Be-solid/in.Be-solid.spe": {
+      "status": "passed",
+      "time": 2.594,
+      "message": ""
+    },
+    "triclinic/in.bcc.orthog": {
+      "status": "passed",
+      "time": 0.458,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-hBN": {
+      "status": "passed",
+      "time": 15.796,
+      "message": ""
+    },
+    "bpm/pour/in.bpm.pour": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/cnp/in.cnp": {
+      "status": "passed",
+      "time": 4.613,
+      "message": ""
+    },
+    "ASPHERE/box/in.box": {
+      "status": "failed",
+      "time": 4.401,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "ASPHERE/superellipsoid_gran/in.ellipsoid_gran": {
+      "status": "skipped",
+      "time": 0.702,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.mixer-drum": {
+      "status": "error",
+      "time": 60.012,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/apip/in.surface.la.cons.balance": {
+      "status": "skipped",
+      "time": 29.275,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion-in-shear-flow/in.lammps": {
+      "status": "skipped",
+      "time": 16.145,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.thermo": {
+      "status": "skipped",
+      "time": 14.939,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4hyd/fdti01/in.fdti01.lmp": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd_v3": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/1-1D-mono/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/pod/Ta/in.fitpod": {
+      "status": "skipped",
+      "time": 0.764,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "QUANTUM/LATTE/in.sucrose.plugin": {
+      "status": "error",
+      "time": 0.623,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "UNITS/in.ar.metal": {
+      "status": "skipped",
+      "time": 0.566,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.kim-pm-property": {
+      "status": "error",
+      "time": 0.549,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init LJ_Shifted_Bernardes_1958MedCutoff_Ar__MO_126566794224_004 metal (src/input.cpp:308)"
+    },
+    "mdi/in.snapshot.alone": {
+      "status": "skipped",
+      "time": 0.657,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "rheo/ice-cubes/in.rheo.ice.cubes": {
+      "status": "error",
+      "time": 60.001,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.Ana": {
+      "status": "passed",
+      "time": 34.268,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.nvt": {
+      "status": "passed",
+      "time": 14.245,
+      "message": ""
+    },
+    "mc/in.sgcmc.eam": {
+      "status": "passed",
+      "time": 13.448,
+      "message": ""
+    },
+    "rdf-adf/in.spce.hbond": {
+      "status": "failed",
+      "time": 16.144,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/ilves/in.rhodo-allbonds": {
+      "status": "skipped",
+      "time": 11.791,
+      "message": "completed, error parsing log.rhodo-allbonds.4 into YAML"
+    },
+    "grid/in.sph": {
+      "status": "passed",
+      "time": 8.872,
+      "message": ""
+    },
+    "ASPHERE/star/in.star": {
+      "status": "failed",
+      "time": 2.552,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "nb3b/in.nb3b.screened": {
+      "status": "passed",
+      "time": 8.5,
+      "message": ""
+    },
+    "granular/in.tableting.200": {
+      "status": "passed",
+      "time": 10.098,
+      "message": ""
+    },
+    "balance/in.balance.kspace": {
+      "status": "failed",
+      "time": 2.251,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.6
+    },
+    "mesh/in.mesh_box": {
+      "status": "failed",
+      "time": 2.702,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.28
+    },
+    "shear/in.shear": {
+      "status": "passed",
+      "time": 1.253,
+      "message": ""
+    },
+    "coreshell/in.coreshell.thermostats": {
+      "status": "failed",
+      "time": 3.328,
+      "message": "completed, 12 abs diff and 14 rel diff checks failed",
+      "diverged": 14,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 2.02,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.07
+    },
+    "PACKAGES/pace/in.pace.product": {
+      "status": "passed",
+      "time": 2.057,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce2": {
+      "status": "failed",
+      "time": 1.291,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.6
+    },
+    "PACKAGES/stressprofile/in.cylinder": {
+      "status": "passed",
+      "time": 1.268,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc_relax": {
+      "status": "failed",
+      "time": 1.205,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "reaxff/in.reaxff.tatb-shielded": {
+      "status": "passed",
+      "time": 1.399,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-mix": {
+      "status": "skipped",
+      "time": 1.334,
+      "message": "completed, error parsing log.peptide-mix.4 into YAML"
+    },
+    "PACKAGES/ilves/in.cg-polymers": {
+      "status": "passed",
+      "time": 1.163,
+      "message": ""
+    },
+    "PACKAGES/ees/in.fix_wall_region": {
+      "status": "passed",
+      "time": 0.71,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.hsph.fmm": {
+      "status": "error",
+      "time": 0.479,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "balance/in.balance.bond.fast": {
+      "status": "failed",
+      "time": 0.748,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.25
+    },
+    "snap/in.snap.Ta06A": {
+      "status": "passed",
+      "time": 0.623,
+      "message": ""
+    },
+    "rigid/in.rigid.nve": {
+      "status": "failed",
+      "time": 0.564,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.005
+    },
+    "PACKAGES/dpd-basic/dpd/in.dpd": {
+      "status": "failed",
+      "time": 0.604,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.02
+    },
+    "fire/in.fire_mod": {
+      "status": "failed",
+      "time": 0.521,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.792
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.6,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.578,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew2d": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ffield": {
+      "status": "passed",
+      "time": 0.687,
+      "message": ""
+    },
+    "mliap/in.mliap.so3.Ni_Mo": {
+      "status": "skipped",
+      "time": 0.478,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.single_atom": {
+      "status": "passed",
+      "time": 0.481,
+      "message": ""
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.bohr": {
+      "status": "passed",
+      "time": 0.483,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.eta": {
+      "status": "passed",
+      "time": 0.477,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.ilp_graphene_hbn": {
+      "status": "passed",
+      "time": 16.106,
+      "message": ""
+    },
+    "mc/in.gcmc.h2o": {
+      "status": "failed",
+      "time": 53.218,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/meam_spline/in.meam-spline.TiO2": {
+      "status": "passed",
+      "time": 18.265,
+      "message": ""
+    },
+    "PACKAGES/machdyn/funnel_flow/in.funnel_flow": {
+      "status": "failed",
+      "time": 10.819,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.16
+    },
+    "COUPLE/lammps_spparks/in.lammps": {
+      "status": "error",
+      "time": 0.631,
+      "message": "failed, ERROR: Cannot open file data.lammps: No such file or directory (src/read_data.cpp:382)"
+    },
+    "GRAPHICS/in.obstacle-lines": {
+      "status": "error",
+      "time": 60.001,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/baoab/in.baoab_lj": {
+      "status": "skipped",
+      "time": 0.893,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-smooth/equipartition-verification/in.lammps": {
+      "status": "skipped",
+      "time": 6.416,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/madelung/in.ewald-ew2d": {
+      "status": "skipped",
+      "time": 0.634,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4hyd/fep01/in.fep01.lmp": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.deca-ala_imd-gpu": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.EAM3D": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/slater/in.slater": {
+      "status": "error",
+      "time": 60.001,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "QUANTUM/LATTE/in.water.min.plugin": {
+      "status": "error",
+      "time": 0.571,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "bpm/impact/in.bpm.impact.rotational": {
+      "status": "skipped",
+      "time": 39.0,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.kim-pm.melt": {
+      "status": "error",
+      "time": 0.495,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init SW_StillingerWeber_1985_Si__MO_405512056662_005 real (src/input.cpp:308)"
+    },
+    "mdi/in.snapshot.engine": {
+      "status": "error",
+      "time": 0.515,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "rheo/poiseuille/in.rheo.poiseuille": {
+      "status": "skipped",
+      "time": 10.366,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve.ang": {
+      "status": "passed",
+      "time": 15.93,
+      "message": ""
+    },
+    "multi/in.granular": {
+      "status": "failed",
+      "time": 0.776,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/srp_react/in.srp_react": {
+      "status": "passed",
+      "time": 19.346,
+      "message": ""
+    },
+    "rigid/in.rigid.tnr": {
+      "status": "failed",
+      "time": 4.507,
+      "message": "completed, 22 abs diff and 27 rel diff checks failed",
+      "diverged": 27,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/electron_stopping/in.elstop": {
+      "status": "passed",
+      "time": 4.496,
+      "message": ""
+    },
+    "ASPHERE/vesicle/in.vesicle": {
+      "status": "passed",
+      "time": 2.2,
+      "message": ""
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_ewald": {
+      "status": "failed",
+      "time": 2.434,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "deposit/in.deposit.atom": {
+      "status": "failed",
+      "time": 2.046,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "ASPHERE/flat_membrane/in.flat_membrane": {
+      "status": "failed",
+      "time": 3.986,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.467
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.ang": {
+      "status": "failed",
+      "time": 5.03,
+      "message": "completed, 4 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.04
+    },
+    "granular/in.pour.drum": {
+      "status": "passed",
+      "time": 3.141,
+      "message": ""
+    },
+    "SPIN/cobalt_hcp/in.spin.cobalt_hcp": {
+      "status": "failed",
+      "time": 1.39,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "granular/in.pour.flatwall": {
+      "status": "passed",
+      "time": 2.455,
+      "message": ""
+    },
+    "PACKAGES/srp/in.srp": {
+      "status": "passed",
+      "time": 1.644,
+      "message": ""
+    },
+    "PACKAGES/eff/CH4/in.ch4.dynamics": {
+      "status": "passed",
+      "time": 1.055,
+      "message": ""
+    },
+    "PACKAGES/interlayer/drip/in.C_drip": {
+      "status": "passed",
+      "time": 0.807,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.elstop.only": {
+      "status": "passed",
+      "time": 0.679,
+      "message": ""
+    },
+    "python/in.fix_python_move_nve_melt": {
+      "status": "error",
+      "time": 0.493,
+      "message": "failed, ERROR: Loading python integrator module failure (src/PYTHON/fix_python_move.cpp:64)"
+    },
+    "PACKAGES/plumed/in.peptide-plumed": {
+      "status": "failed",
+      "time": 0.835,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.091
+    },
+    "tersoff/in.tersoff": {
+      "status": "passed",
+      "time": 0.585,
+      "message": ""
+    },
+    "snap/in.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 0.927,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.graphene": {
+      "status": "error",
+      "time": 0.477,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "PACKAGES/tally/in.stress": {
+      "status": "passed",
+      "time": 0.942,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.gravity": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.Ta06A": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "rigid/in.rigid": {
+      "status": "passed",
+      "time": 0.543,
+      "message": ""
+    },
+    "granular/in.restitution": {
+      "status": "passed",
+      "time": 1.602,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.global.stl": {
+      "status": "passed",
+      "time": 0.618,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.575,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.545,
+      "message": ""
+    },
+    "SPIN/setforce_spin/in.spin.setforce": {
+      "status": "error",
+      "time": 0.851,
+      "message": "failed, no Total wall time in the output,"
+    },
+    "wall/in.wall.table": {
+      "status": "passed",
+      "time": 0.488,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha": {
+      "status": "passed",
+      "time": 0.464,
+      "message": ""
+    },
+    "triclinic/in.fcc.orthog": {
+      "status": "passed",
+      "time": 0.461,
+      "message": ""
+    },
+    "triclinic/in.sq2.primitive": {
+      "status": "passed",
+      "time": 0.456,
+      "message": ""
+    },
+    "HEAT/in.lj.hex": {
+      "status": "error",
+      "time": 60.006,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/latboltz/dragforce/in.dragtest": {
+      "status": "error",
+      "time": 60.061,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "gransurf/in.screwfeeder.local": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/interlayer/ilp_tmds/in.mos2": {
+      "status": "failed",
+      "time": 13.713,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "ELASTIC_T/BORN_MATRIX/Silicon/in.elastic": {
+      "status": "skipped",
+      "time": 17.228,
+      "message": "completed, error parsing log.elastic.4 into YAML"
+    },
+    "PACKAGES/adios/rerun/in.rerun": {
+      "status": "error",
+      "time": 0.622,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized reader style 'adios' is part of the ADIOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dpd-react/dpde-vv/in.dpde-vv": {
+      "status": "skipped",
+      "time": 3.663,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.conq": {
+      "status": "skipped",
+      "time": 14.582,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CC-CO/fep10/in.fep10.lmp": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/grem/lj-temper/in.gREM-temper": {
+      "status": "error",
+      "time": 0.625,
+      "message": "failed, ERROR: World variable count 4 doesn't match # of partitions 1 (src/variable.cpp:368)"
+    },
+    "PACKAGES/mofff/in.hkust1": {
+      "status": "skipped",
+      "time": 0.706,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pimd/para-h2/in.scp": {
+      "status": "skipped",
+      "time": 2.765,
+      "message": "completed, numerical checks skipped, unsupported log file format"
+    },
+    "PACKAGES/vtk/in.vtk": {
+      "status": "skipped",
+      "time": 0.782,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/PySCF/in.mixture.qmmm.plugin": {
+      "status": "error",
+      "time": 0.679,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "fire/in.neb.sivac.abcfire_mod": {
+      "status": "error",
+      "time": 0.61,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "mdi/in.aimdpy.qm": {
+      "status": "error",
+      "time": 0.579,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "python/in.fix_python_invoke_neighlist": {
+      "status": "error",
+      "time": 0.661,
+      "message": "failed, ERROR: Could not process Python string:"
+    },
+    "wall/in.wall.harmonic.2d": {
+      "status": "skipped",
+      "time": 1.507,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/addtorque_group/in.addtorque": {
+      "status": "failed",
+      "time": 14.32,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.lang": {
+      "status": "failed",
+      "time": 17.533,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.01
+    },
+    "mc/in.widom.spce": {
+      "status": "error",
+      "time": 0.6,
+      "message": "failed, ERROR: fix widom does currently not support full_energy option with molecules on more than 1 MPI process. (src/MC/fix_widom.cpp:463)"
+    },
+    "mc/in.hmc.rigid": {
+      "status": "failed",
+      "time": 7.695,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "pour/in.pour": {
+      "status": "passed",
+      "time": 4.917,
+      "message": ""
+    },
+    "QUANTUM/PySCF/in.mixture.qmmm": {
+      "status": "error",
+      "time": 0.633,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "rerun/in.first": {
+      "status": "passed",
+      "time": 4.383,
+      "message": ""
+    },
+    "python/in.pair_python_hybrid": {
+      "status": "failed",
+      "time": 2.984,
+      "message": "completed, 0 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.2
+    },
+    "peri/in.peri.ves": {
+      "status": "failed",
+      "time": 6.326,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "charmmfsw/in.charmmfsw": {
+      "status": "failed",
+      "time": 4.543,
+      "message": "completed, 2 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.2
+    },
+    "srd/in.srd.pure": {
+      "status": "passed",
+      "time": 1.417,
+      "message": ""
+    },
+    "SPIN/spinmin/in.spin.bfo_min": {
+      "status": "passed",
+      "time": 1.617,
+      "message": ""
+    },
+    "cmap/in.cmap": {
+      "status": "failed",
+      "time": 1.681,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.12
+    },
+    "PACKAGES/interlayer/drip/in.CH_drip": {
+      "status": "failed",
+      "time": 0.936,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.5
+    },
+    "PACKAGES/brownian/align_self/in.alignself_quat": {
+      "status": "passed",
+      "time": 1.863,
+      "message": ""
+    },
+    "ASPHERE/line/in.line": {
+      "status": "failed",
+      "time": 2.355,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/mgpt/in.vacmin-bcc": {
+      "status": "passed",
+      "time": 1.802,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 1.162,
+      "message": ""
+    },
+    "snap/in.snap.W.2940": {
+      "status": "passed",
+      "time": 1.044,
+      "message": ""
+    },
+    "gransurf/in.tribox.gran.global": {
+      "status": "passed",
+      "time": 1.241,
+      "message": ""
+    },
+    "PACKAGES/yaff/mof5/in.mof5": {
+      "status": "skipped",
+      "time": 1.231,
+      "message": "completed, error parsing log.mof5.4 into YAML"
+    },
+    "wall/in.wall.ccl": {
+      "status": "passed",
+      "time": 0.643,
+      "message": ""
+    },
+    "PACKAGES/bocs/1_site_just_pair_LD/in.basic_ldd": {
+      "status": "passed",
+      "time": 0.992,
+      "message": ""
+    },
+    "python/in.fix_python_invoke": {
+      "status": "error",
+      "time": 0.543,
+      "message": "failed, ERROR: Could not process Python string:"
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.unstabilized": {
+      "status": "passed",
+      "time": 0.751,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.cw.fmm": {
+      "status": "error",
+      "time": 0.52,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "rigid/in.rigid.cubes.partial": {
+      "status": "passed",
+      "time": 0.61,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.716,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.658,
+      "message": ""
+    },
+    "python/in.python": {
+      "status": "error",
+      "time": 0.531,
+      "message": "failed, ERROR on proc 1: Python evaluation of function loop failed (src/PYTHON/python_impl.cpp:416)"
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ffield": {
+      "status": "passed",
+      "time": 0.553,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.hexagonal": {
+      "status": "passed",
+      "time": 0.523,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc": {
+      "status": "passed",
+      "time": 0.531,
+      "message": ""
+    },
+    "PACKAGES/pace/compute/in.compute": {
+      "status": "passed",
+      "time": 0.603,
+      "message": ""
+    },
+    "HEAT/in.spce.ehex": {
+      "status": "error",
+      "time": 60.016,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/latboltz/microrheology/in.microrheology": {
+      "status": "error",
+      "time": 60.007,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/qtb/alpha_quartz_qbmsst/in.alpha_quartz_qbmsst": {
+      "status": "failed",
+      "time": 13.309,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_create_data": {
+      "status": "skipped",
+      "time": 2.226,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_molecule": {
+      "status": "passed",
+      "time": 2.116,
+      "message": ""
+    },
+    "ELASTIC_T/BORN_MATRIX/Argon/Numdiff/in.ljcov": {
+      "status": "skipped",
+      "time": 25.777,
+      "message": "completed, error parsing log.ljcov.4 into YAML"
+    },
+    "PACKAGES/adios/rerun/in.read_dump": {
+      "status": "error",
+      "time": 0.599,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized reader style 'adios' is part of the ADIOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dpd-react/dpde-shardlow/in.dpde-shardlow": {
+      "status": "skipped",
+      "time": 0.798,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/graph-il/in.conp": {
+      "status": "skipped",
+      "time": 15.499,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CC-CO/fep01/in.fep01.lmp": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/grem/lj-single/in.gREM-nvt": {
+      "status": "skipped",
+      "time": 0.643,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/ml-runner/in.ml-runner.H2O": {
+      "status": "skipped",
+      "time": 1.343,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/pimd/langevin_reduced_units_group/in.lmp": {
+      "status": "skipped",
+      "time": 0.607,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/uf3/in.uf3.Nb": {
+      "status": "skipped",
+      "time": 0.737,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/PySCF/in.mixture.mm": {
+      "status": "skipped",
+      "time": 0.851,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "fire/in.neb.sivac.abcfire": {
+      "status": "error",
+      "time": 0.59,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "mdi/in.aimdpy.mm": {
+      "status": "error",
+      "time": 0.624,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "peri/in.peri-pmb": {
+      "status": "skipped",
+      "time": 4.213,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "wall/in.wall.block": {
+      "status": "skipped",
+      "time": 3.561,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/ilves/in.covid": {
+      "status": "passed",
+      "time": 27.809,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.rigid-nvt-small": {
+      "status": "passed",
+      "time": 4.376,
+      "message": ""
+    },
+    "PACKAGES/drude/toluene/in.toluene.lang": {
+      "status": "failed",
+      "time": 18.561,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.025
+    },
+    "PACKAGES/sna_nnn_slcsa/in.slcsa": {
+      "status": "error",
+      "time": 0.642,
+      "message": "failed, ERROR: Invalid compute slcsa/atom argument: slcsa (src/EXTRA-COMPUTE/compute_slcsa_atom.cpp:115)"
+    },
+    "reaxff/ci-reaxFF/in.ci-reax.CH": {
+      "status": "passed",
+      "time": 6.002,
+      "message": ""
+    },
+    "ASPHERE/line/in.line.srd": {
+      "status": "failed",
+      "time": 10.732,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_spin": {
+      "status": "error",
+      "time": 0.571,
+      "message": "failed, ERROR: Illegal sectoring operation resulting in 2 sectors instead of 8 (src/SPIN/fix_nve_spin.cpp:609)"
+    },
+    "mliap/in.mliap.snap.chem": {
+      "status": "passed",
+      "time": 3.94,
+      "message": ""
+    },
+    "balance/in.balance.neigh.static": {
+      "status": "passed",
+      "time": 3.483,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid.mp": {
+      "status": "passed",
+      "time": 2.745,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpd_tstat/in.dpd_tstat": {
+      "status": "passed",
+      "time": 2.859,
+      "message": ""
+    },
+    "relres/in.22DMH.relres": {
+      "status": "passed",
+      "time": 2.734,
+      "message": ""
+    },
+    "body/in.wall2d": {
+      "status": "failed",
+      "time": 2.793,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.01
+    },
+    "QUANTUM/PySCF/in.water.qmmm": {
+      "status": "error",
+      "time": 0.551,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "pour/in.pour.2d.molecule": {
+      "status": "passed",
+      "time": 1.456,
+      "message": ""
+    },
+    "PACKAGES/pace/in.pace.recursive": {
+      "status": "passed",
+      "time": 2.085,
+      "message": ""
+    },
+    "reaxff/VOH/in.VOH": {
+      "status": "failed",
+      "time": 1.853,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "pour/in.pour.2d": {
+      "status": "passed",
+      "time": 1.045,
+      "message": ""
+    },
+    "reaxff/in.reaxff.tatb": {
+      "status": "passed",
+      "time": 1.636,
+      "message": ""
+    },
+    "PACKAGES/flow_gauss/in.GD": {
+      "status": "passed",
+      "time": 0.996,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.bohr": {
+      "status": "failed",
+      "time": 1.1,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.159
+    },
+    "wall/in.wall.specular": {
+      "status": "passed",
+      "time": 0.655,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes": {
+      "status": "passed",
+      "time": 0.697,
+      "message": ""
+    },
+    "granular/in.triaxial.compaction.12": {
+      "status": "passed",
+      "time": 1.673,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x.noloop": {
+      "status": "passed",
+      "time": 0.863,
+      "message": ""
+    },
+    "fire/in.abcfire": {
+      "status": "passed",
+      "time": 0.604,
+      "message": "",
+      "diverged": 2,
+      "diverged_from": 0.276
+    },
+    "fire/in.cg": {
+      "status": "passed",
+      "time": 0.617,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.uo2": {
+      "status": "error",
+      "time": 0.565,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "reaxff/in.reaxff.rdx": {
+      "status": "passed",
+      "time": 0.638,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew3dc": {
+      "status": "passed",
+      "time": 0.602,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.ch4": {
+      "status": "error",
+      "time": 0.527,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6": {
+      "status": "passed",
+      "time": 0.54,
+      "message": ""
+    },
+    "voronoi/in.voronoi.2d": {
+      "status": "skipped",
+      "time": 0.545,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "triclinic/in.hex.primitive": {
+      "status": "passed",
+      "time": 0.529,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.eta_cg": {
+      "status": "passed",
+      "time": 0.612,
+      "message": ""
+    },
+    "HEAT/in.spce.hex": {
+      "status": "error",
+      "time": 60.015,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/latboltz/pit_geometry/in.pits": {
+      "status": "passed",
+      "time": 53.6,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.grhBN": {
+      "status": "passed",
+      "time": 17.33,
+      "message": ""
+    },
+    "PACKAGES/interlayer/saip_metal_tmd/in.au_mos2": {
+      "status": "failed",
+      "time": 14.799,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "ELASTIC_T/BORN_MATRIX/Argon/Analytical/in.ljcov": {
+      "status": "skipped",
+      "time": 22.658,
+      "message": "completed, error parsing log.ljcov.4 into YAML"
+    },
+    "PACKAGES/adios/rerun/in.first": {
+      "status": "error",
+      "time": 0.652,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized dump style 'custom/adios' is part of the ADIOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dpd-react/dpd-vv/in.dpd-vv": {
+      "status": "skipped",
+      "time": 3.205,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/au-aq/in.tf": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/fep/C7inEthanol/fep10/in.deletion": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/grem/lj-single/in.gREM-npt": {
+      "status": "skipped",
+      "time": 0.678,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/mbx/na+_slab/in.slab": {
+      "status": "error",
+      "time": 60.002,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/pimd/langevin_reduced_units/in.lmp": {
+      "status": "skipped",
+      "time": 0.621,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/ti/in.ti_spring": {
+      "status": "skipped",
+      "time": 1.272,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/NWChem/in.zeolite.qmmm.plugin": {
+      "status": "error",
+      "time": 0.538,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "bpm/peri/in.bpm.peri.ves": {
+      "status": "error",
+      "time": 0.565,
+      "message": "failed, ERROR: Fix ID dmg for compute reduce does not exist (src/compute_reduce.cpp:309)"
+    },
+    "mdi/in.aimd.engine": {
+      "status": "error",
+      "time": 0.539,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI engine to use mdi engine (src/MDI/mdi_engine.cpp:131)"
+    },
+    "numdiff/in.numdiff": {
+      "status": "skipped",
+      "time": 0.656,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "tracker/in.track": {
+      "status": "skipped",
+      "time": 0.645,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "fire/in.meam.fire": {
+      "status": "passed",
+      "time": 14.822,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.rigid-nve-small": {
+      "status": "passed",
+      "time": 4.089,
+      "message": ""
+    },
+    "PACKAGES/bocs/in.methanol": {
+      "status": "failed",
+      "time": 6.219,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.05
+    },
+    "airebo/in.airebo-bc": {
+      "status": "passed",
+      "time": 12.594,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.rhodo-ilves": {
+      "status": "skipped",
+      "time": 10.881,
+      "message": "completed, error parsing log.rhodo-ilves.4 into YAML"
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.lang": {
+      "status": "failed",
+      "time": 9.73,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.02
+    },
+    "mc/in.gcmc.restart": {
+      "status": "passed",
+      "time": 5.948,
+      "message": ""
+    },
+    "peri/in.peri.eps": {
+      "status": "failed",
+      "time": 5.116,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "template/in.mol-data-mix": {
+      "status": "failed",
+      "time": 4.311,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "coreshell/in.coreshell.dsf": {
+      "status": "passed",
+      "time": 4.594,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.fmm": {
+      "status": "error",
+      "time": 0.483,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/gle/in.h2o-quantum": {
+      "status": "failed",
+      "time": 3.214,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.14
+    },
+    "ASPHERE/poly/in.poly.mp": {
+      "status": "passed",
+      "time": 1.867,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.sucrose": {
+      "status": "error",
+      "time": 0.47,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 0.777,
+      "message": ""
+    },
+    "replicate/in.replicate.cnt": {
+      "status": "passed",
+      "time": 2.106,
+      "message": ""
+    },
+    "yaml/in.yaml": {
+      "status": "skipped",
+      "time": 1.156,
+      "message": "completed, error parsing log.yaml.4 into YAML"
+    },
+    "PACKAGES/hdnnp/in.hdnnp": {
+      "status": "error",
+      "time": 0.476,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized pair style 'hdnnp' is part of the ML-HDNNP package which is not enabled in this LAMMPS binary."
+    },
+    "peptide/in.peptide": {
+      "status": "skipped",
+      "time": 1.416,
+      "message": "completed, error parsing log.peptide.4 into YAML"
+    },
+    "PACKAGES/colvars/in.peptide-colvars": {
+      "status": "skipped",
+      "time": 1.38,
+      "message": "completed, error parsing log.peptide-colvars.4 into YAML"
+    },
+    "mliap/in.mliap.snap.quadratic": {
+      "status": "passed",
+      "time": 0.793,
+      "message": ""
+    },
+    "vashishta/in.vashishta.sio2": {
+      "status": "passed",
+      "time": 0.568,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpdext/in.dpdext": {
+      "status": "failed",
+      "time": 0.694,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.02
+    },
+    "vashishta/in.vashishta.table.sio2": {
+      "status": "passed",
+      "time": 0.573,
+      "message": ""
+    },
+    "rigid/in.rigid.property": {
+      "status": "passed",
+      "time": 0.541,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha_relaxation": {
+      "status": "failed",
+      "time": 0.964,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "rigid/in.rigid.small": {
+      "status": "passed",
+      "time": 0.673,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.dimer": {
+      "status": "skipped",
+      "time": 0.642,
+      "message": "completed, error parsing log.dimer.4 into YAML"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.65,
+      "message": ""
+    },
+    "threebody/in.mos2-bulk": {
+      "status": "passed",
+      "time": 0.524,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ew3dc": {
+      "status": "passed",
+      "time": 0.709,
+      "message": ""
+    },
+    "vashishta/in.vashishta.table.inp": {
+      "status": "passed",
+      "time": 0.538,
+      "message": ""
+    },
+    "rerun/in.read_dump": {
+      "status": "passed",
+      "time": 0.654,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.ang": {
+      "status": "passed",
+      "time": 0.477,
+      "message": ""
+    },
+    "PACKAGES/apip/in.validate": {
+      "status": "passed",
+      "time": 0.503,
+      "message": ""
+    },
+    "KAPPA/in.ehex": {
+      "status": "failed",
+      "time": 35.441,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/latboltz/planewall/in.planewall": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/qtb/methane_qbmsst/in.methane_qbmsst": {
+      "status": "failed",
+      "time": 35.526,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd-region": {
+      "status": "failed",
+      "time": 17.51,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "ELASTIC/in.elastic": {
+      "status": "skipped",
+      "time": 0.697,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/adios/balance/in.adios_balance2": {
+      "status": "error",
+      "time": 0.585,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized reader style 'adios' is part of the ADIOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dpd-react/dpd-shardlow/in.dpd-shardlow": {
+      "status": "skipped",
+      "time": 0.712,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/au-aq/in.ffield": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/fep/C7inEthanol/fep01/in.insertion": {
+      "status": "error",
+      "time": 60.001,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/grem/lj-6rep/in.gREM": {
+      "status": "error",
+      "time": 0.556,
+      "message": "failed, ERROR: Cannot open file restart_file: No such file or directory (src/read_data.cpp:382)"
+    },
+    "PACKAGES/mbx/mof_ff_lammps+1_h2o_mbx/in.mbx_mof_1h2o": {
+      "status": "skipped",
+      "time": 9.842,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/phonon/dynamical_matrix_command/Silicon/in.silicon": {
+      "status": "skipped",
+      "time": 0.592,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/temper_npt/in.temper_npt": {
+      "status": "error",
+      "time": 0.621,
+      "message": "failed, ERROR: World variable count 8 doesn't match # of partitions 1 (src/variable.cpp:368)"
+    },
+    "QUANTUM/NWChem/in.zeolite.mm": {
+      "status": "skipped",
+      "time": 0.587,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "bpm/peri/in.bpm.peri.pmb": {
+      "status": "error",
+      "time": 0.595,
+      "message": "failed, ERROR: Fix ID dmg for compute reduce does not exist (src/compute_reduce.cpp:309)"
+    },
+    "mdi/in.aimd.driver.plugin": {
+      "status": "error",
+      "time": 0.565,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "neb/in.neb.sivac": {
+      "status": "error",
+      "time": 0.576,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "streitz/in.gan": {
+      "status": "skipped",
+      "time": 1.029,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mc/in.mixed": {
+      "status": "passed",
+      "time": 13.25,
+      "message": ""
+    },
+    "PACKAGES/drude/toluene/in.toluene.nh": {
+      "status": "failed",
+      "time": 21.55,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.025
+    },
+    "VISCOSITY/in.nemd.2d": {
+      "status": "failed",
+      "time": 6.366,
+      "message": "completed, 8 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_from": 0.0
+    },
+    "coreshell/in.coreshell": {
+      "status": "failed",
+      "time": 3.165,
+      "message": "completed, 7 abs diff and 9 rel diff checks failed",
+      "diverged": 9,
+      "diverged_from": 0.0
+    },
+    "balance/in.balance.var.dynamic": {
+      "status": "failed",
+      "time": 6.423,
+      "message": "completed, 0 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.4
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.tgnh": {
+      "status": "failed",
+      "time": 11.281,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.04
+    },
+    "ASPHERE/dimer/in.dimer.mp": {
+      "status": "error",
+      "time": 2.442,
+      "message": "failed, ERROR: Lost atoms: original 17353 current 17329"
+    },
+    "amoeba/in.water_box.amoeba": {
+      "status": "passed",
+      "time": 3.736,
+      "message": ""
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_pppm": {
+      "status": "failed",
+      "time": 2.847,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/qtb/alpha_quartz_qtb/in.alpha_quartz_qtb": {
+      "status": "failed",
+      "time": 3.907,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "ttm/in.ttm.thermal": {
+      "status": "passed",
+      "time": 4.6,
+      "message": ""
+    },
+    "VISCOSITY/in.mp.2d": {
+      "status": "failed",
+      "time": 2.45,
+      "message": "completed, 7 abs diff and 7 rel diff checks failed",
+      "diverged": 7,
+      "diverged_from": 0.0
+    },
+    "SPIN/spinmin/in.spin.bfo_min_cg": {
+      "status": "passed",
+      "time": 1.591,
+      "message": ""
+    },
+    "PACKAGES/gle/in.h2o-smart": {
+      "status": "failed",
+      "time": 4.072,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.12
+    },
+    "PACKAGES/manybody_table/in.spce": {
+      "status": "failed",
+      "time": 1.414,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.6
+    },
+    "PACKAGES/uef/npt_biaxial/in.npt_biaxial": {
+      "status": "passed",
+      "time": 1.617,
+      "message": ""
+    },
+    "reaxff/water/in.water.qeq.field": {
+      "status": "passed",
+      "time": 1.935,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.p3m": {
+      "status": "error",
+      "time": 0.546,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/ilves/in.peptide-allbonds": {
+      "status": "skipped",
+      "time": 1.862,
+      "message": "completed, error parsing log.peptide-allbonds.4 into YAML"
+    },
+    "gransurf/in.tribox.gran.surf.stl": {
+      "status": "passed",
+      "time": 1.725,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.flat": {
+      "status": "passed",
+      "time": 1.037,
+      "message": ""
+    },
+    "PACKAGES/apip/in.vacancy.const.lambda": {
+      "status": "passed",
+      "time": 1.16,
+      "message": ""
+    },
+    "dipole/in.dipole": {
+      "status": "passed",
+      "time": 0.75,
+      "message": ""
+    },
+    "python/in.pair_python_table": {
+      "status": "passed",
+      "time": 0.671,
+      "message": ""
+    },
+    "PACKAGES/colvars/in.peptide-colvars2": {
+      "status": "skipped",
+      "time": 0.863,
+      "message": "completed, error parsing log.peptide-colvars2.4 into YAML"
+    },
+    "PACKAGES/extep/in.extep-bn": {
+      "status": "failed",
+      "time": 0.586,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.02
+    },
+    "gransurf/in.tri.gran.data": {
+      "status": "passed",
+      "time": 0.809,
+      "message": ""
+    },
+    "gransurf/in.line.gran.surf": {
+      "status": "passed",
+      "time": 0.674,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.686,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "amoeba/in.water_hexamer.hippo": {
+      "status": "failed",
+      "time": 0.511,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/symmetry/in.lj_fcc_pinv": {
+      "status": "passed",
+      "time": 0.506,
+      "message": ""
+    },
+    "meam/msmeam/in.msmeam": {
+      "status": "passed",
+      "time": 0.493,
+      "message": ""
+    },
+    "voronoi/in.voronoi.data": {
+      "status": "skipped",
+      "time": 0.496,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.bohr": {
+      "status": "passed",
+      "time": 0.515,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.eta_mix": {
+      "status": "passed",
+      "time": 0.525,
+      "message": ""
+    },
+    "KAPPA/in.heat": {
+      "status": "failed",
+      "time": 37.194,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/latboltz/polymer/in.polymer": {
+      "status": "error",
+      "time": 60.061,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "granregion/in.granregion.funnel": {
+      "status": "passed",
+      "time": 40.48,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd": {
+      "status": "failed",
+      "time": 17.143,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "COUPLE/simple/in.lj": {
+      "status": "skipped",
+      "time": 0.65,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/adios/balance/in.adios_balance": {
+      "status": "error",
+      "time": 0.585,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized dump style 'custom/adios' is part of the ADIOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/dpd-basic/dpd_coul_slater_long/in.dpd_coul_slater_long": {
+      "status": "skipped",
+      "time": 0.984,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4.ang": {
+      "status": "skipped",
+      "time": 0.597,
+      "message": "completed, error parsing log.SiH4.ang.4 into YAML"
+    },
+    "PACKAGES/entropy/in.entropy": {
+      "status": "skipped",
+      "time": 3.993,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-split": {
+      "status": "skipped",
+      "time": 1.672,
+      "message": "completed, error parsing log.gauss-diel-split.4 into YAML"
+    },
+    "PACKAGES/mbx/256h2o_dipole/in.mbx_h2o": {
+      "status": "skipped",
+      "time": 24.282,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/phonon/4-Graphene/in.graphene": {
+      "status": "error",
+      "time": 60.005,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/smtbq/in.smtbq.TiO2": {
+      "status": "error",
+      "time": 60.007,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "QUANTUM/NWChem/in.water.qmmm.plugin": {
+      "status": "error",
+      "time": 0.57,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qmmm (src/MDI/fix_mdi_qmmm.cpp:77)"
+    },
+    "bpm/peri/in.bpm.peri.lps": {
+      "status": "error",
+      "time": 0.591,
+      "message": "failed, ERROR: Fix ID dmg for compute reduce does not exist (src/compute_reduce.cpp:309)"
+    },
+    "mdi/in.aimd.alone": {
+      "status": "skipped",
+      "time": 0.644,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "neb/in.neb.hop2": {
+      "status": "error",
+      "time": 0.608,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "snap/in.snap.scale.Ni_Zuo_JCPA2020": {
+      "status": "skipped",
+      "time": 1.564,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mc/in.pure": {
+      "status": "passed",
+      "time": 12.558,
+      "message": ""
+    },
+    "body/in.cubes": {
+      "status": "failed",
+      "time": 9.779,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.1
+    },
+    "PACKAGES/local_density/benzene_water/in.benzene_water": {
+      "status": "skipped",
+      "time": 14.346,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/eff/CH4/in.ch4_ionized.dynamics": {
+      "status": "passed",
+      "time": 22.133,
+      "message": ""
+    },
+    "template/in.tmpl-restart-mix": {
+      "status": "passed",
+      "time": 10.596,
+      "message": ""
+    },
+    "rerun/in.rdf.first": {
+      "status": "passed",
+      "time": 4.128,
+      "message": ""
+    },
+    "balance/in.balance.neigh.dynamic": {
+      "status": "passed",
+      "time": 4.588,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.cascade_SiSi": {
+      "status": "passed",
+      "time": 2.669,
+      "message": ""
+    },
+    "template/in.tmpl-data-mix": {
+      "status": "failed",
+      "time": 4.382,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "colloid/in.colloid": {
+      "status": "failed",
+      "time": 2.307,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.12
+    },
+    "PACKAGES/bondval/in.hexbto": {
+      "status": "passed",
+      "time": 3.994,
+      "message": ""
+    },
+    "template/in.hybrid": {
+      "status": "failed",
+      "time": 2.357,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/e3b/in.e3b-tip4p2005": {
+      "status": "passed",
+      "time": 1.012,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon_json/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 2.647,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.07
+    },
+    "python/in.pair_python_spce": {
+      "status": "passed",
+      "time": 2.583,
+      "message": ""
+    },
+    "reaxff/water/in.water.qtpie": {
+      "status": "passed",
+      "time": 2.138,
+      "message": ""
+    },
+    "PACKAGES/uef/nvt_uniaxial/in.nvt_uniaxial": {
+      "status": "passed",
+      "time": 1.314,
+      "message": ""
+    },
+    "comb/in.comb.HfO2": {
+      "status": "passed",
+      "time": 1.224,
+      "message": ""
+    },
+    "PACKAGES/pod/InP/in.pod": {
+      "status": "passed",
+      "time": 0.947,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc_relax": {
+      "status": "passed",
+      "time": 1.099,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 1.791,
+      "message": ""
+    },
+    "PACKAGES/quip/in.sw": {
+      "status": "passed",
+      "time": 1.016,
+      "message": ""
+    },
+    "wall/in.wall.maxwell": {
+      "status": "passed",
+      "time": 0.695,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_epoxy/in.tiny_epoxy.stabilized": {
+      "status": "passed",
+      "time": 0.79,
+      "message": ""
+    },
+    "snap/in.snap.Mo_Chen": {
+      "status": "passed",
+      "time": 0.655,
+      "message": ""
+    },
+    "rigid/in.rigid.early": {
+      "status": "passed",
+      "time": 0.553,
+      "message": ""
+    },
+    "balance/in.balance": {
+      "status": "failed",
+      "time": 0.626,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.6
+    },
+    "rigid/in.rigid.molecule": {
+      "status": "passed",
+      "time": 0.548,
+      "message": "",
+      "diverged": 1,
+      "diverged_from": 0.975
+    },
+    "PACKAGES/scafacos/in.scafacos.cw.p3m": {
+      "status": "error",
+      "time": 0.48,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.597,
+      "message": ""
+    },
+    "PACKAGES/eff/CH4/in.ch4.min": {
+      "status": "passed",
+      "time": 0.524,
+      "message": ""
+    },
+    "qeq/in.qeq.reaxff": {
+      "status": "passed",
+      "time": 0.514,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.omega": {
+      "status": "passed",
+      "time": 0.5,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.bcc0": {
+      "status": "passed",
+      "time": 0.495,
+      "message": ""
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.ang": {
+      "status": "passed",
+      "time": 0.472,
+      "message": ""
+    },
+    "KAPPA/in.heatflux": {
+      "status": "failed",
+      "time": 49.41,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.02
+    },
+    "PACKAGES/latboltz/toycar/in.toycar": {
+      "status": "error",
+      "time": 60.01,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "rdf-adf/in.spce": {
+      "status": "failed",
+      "time": 22.006,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "bpm/poissons_ratio/in.bpm.poissons_ratio": {
+      "status": "failed",
+      "time": 12.262,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.005
+    },
+    "COUPLE/multiple/in.chain": {
+      "status": "skipped",
+      "time": 1.8,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.peptide-pimd": {
+      "status": "error",
+      "time": 60.005,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/class2xe/in.NVT_class2xe.script": {
+      "status": "skipped",
+      "time": 0.611,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/edip/in.edip-Si-multi": {
+      "status": "skipped",
+      "time": 0.692,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/madelung/in.ewald-ffield": {
+      "status": "skipped",
+      "time": 0.642,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/ta/in.spce.lmp": {
+      "status": "error",
+      "time": 60.005,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/imd/in.melt_imd-gpu": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/smtbq/in.smatbBulkFCC": {
+      "status": "skipped",
+      "time": 0.626,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/NWChem/in.series": {
+      "status": "error",
+      "time": 0.549,
+      "message": "failed, ERROR: MDI unable to connect to stand-alone engine (src/MDI/mdi_command.cpp:56)"
+    },
+    "bpm/peri/benchmark/in.bench.bpm.pmb": {
+      "status": "skipped",
+      "time": 1.092,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.kim-sm.melt": {
+      "status": "error",
+      "time": 0.619,
+      "message": "failed, unknown command, package not installed, ERROR: Unknown command: kim init Sim_LAMMPS_ReaxFF_StrachanVanDuinChakraborty_2003_CHNO__SM_107643900657_000 real (src/input.cpp:308)"
+    },
+    "mliap/jax/in.run": {
+      "status": "error",
+      "time": 0.573,
+      "message": "failed, ERROR: Using pair_style mliap unified requires ML-IAP with python support (src/ML-IAP/pair_mliap.cpp:212)"
+    },
+    "rigid/in.rigid.small.kk": {
+      "status": "skipped",
+      "time": 0.717,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "gjf/in.gjf.vhalf": {
+      "status": "passed",
+      "time": 4.072,
+      "message": ""
+    },
+    "streitz/in.streitz.ewald": {
+      "status": "failed",
+      "time": 16.389,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/moments/in.converge": {
+      "status": "error",
+      "time": 0.543,
+      "message": "failed, ERROR on proc 0: cannot open eam/alloy potential file AlCu.eam.alloy: No such file or directory (src/potential_file_reader.cpp:58)"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.npt": {
+      "status": "passed",
+      "time": 10.727,
+      "message": ""
+    },
+    "template/in.mol-restart-mix": {
+      "status": "passed",
+      "time": 11.792,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpdext_tstat/in.dpdext_tstat": {
+      "status": "passed",
+      "time": 6.095,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.shake": {
+      "status": "failed",
+      "time": 3.211,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.018
+    },
+    "amoeba/in.ubiquitin": {
+      "status": "passed",
+      "time": 3.386,
+      "message": ""
+    },
+    "balance/in.balance.clock.dynamic": {
+      "status": "failed",
+      "time": 5.306,
+      "message": "completed, 1 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "bpm/wires/in.bpm.wires": {
+      "status": "passed",
+      "time": 6.263,
+      "message": ""
+    },
+    "reaxff/water/in.water.acks2.field": {
+      "status": "passed",
+      "time": 5.452,
+      "message": ""
+    },
+    "atm/in.atm": {
+      "status": "passed",
+      "time": 3.366,
+      "message": ""
+    },
+    "shear/in.shear.void": {
+      "status": "passed",
+      "time": 1.237,
+      "message": ""
+    },
+    "friction/in.friction": {
+      "status": "failed",
+      "time": 1.293,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.5
+    },
+    "relres/in.22DMH.respa": {
+      "status": "passed",
+      "time": 2.306,
+      "message": ""
+    },
+    "SPIN/test_problems/validation_nve/in.spin.iron-nve": {
+      "status": "error",
+      "time": 0.545,
+      "message": "failed, ERROR: Illegal sectoring operation resulting in 2 sectors instead of 8 (src/SPIN/fix_nve_spin.cpp:609)"
+    },
+    "threebody/in.threebody": {
+      "status": "passed",
+      "time": 0.86,
+      "message": "",
+      "diverged": 1,
+      "diverged_from": 0.3
+    },
+    "LEPTON/in.efield-lepton": {
+      "status": "passed",
+      "time": 1.878,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc_relax": {
+      "status": "passed",
+      "time": 1.548,
+      "message": ""
+    },
+    "ellipse/in.ellipse.gayberne": {
+      "status": "failed",
+      "time": 0.893,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.15
+    },
+    "python/in.fix_python_move_nve_melt_group": {
+      "status": "error",
+      "time": 0.608,
+      "message": "failed, ERROR: Loading python integrator module failure (src/PYTHON/fix_python_move.cpp:64)"
+    },
+    "body/in.body": {
+      "status": "passed",
+      "time": 0.909,
+      "message": ""
+    },
+    "PACKAGES/tally/in.force": {
+      "status": "passed",
+      "time": 1.069,
+      "message": ""
+    },
+    "QUANTUM/LATTE/in.water.min": {
+      "status": "error",
+      "time": 0.514,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized_variable_probability": {
+      "status": "failed",
+      "time": 0.771,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.4
+    },
+    "rigid/in.rigid.nve.early": {
+      "status": "failed",
+      "time": 0.687,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.005
+    },
+    "gransurf/in.tri.gran.surf.stl": {
+      "status": "passed",
+      "time": 0.858,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos.hsph.direct": {
+      "status": "error",
+      "time": 0.551,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "SPIN/spinmin/in.spin.iron_min": {
+      "status": "passed",
+      "time": 0.58,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.656,
+      "message": ""
+    },
+    "dreiding/in.dreiding": {
+      "status": "skipped",
+      "time": 0.668,
+      "message": "completed, error parsing log.dreiding.4 into YAML"
+    },
+    "PACKAGES/symmetry/in.lj_binary_fcc_pinv": {
+      "status": "passed",
+      "time": 0.538,
+      "message": ""
+    },
+    "mdi/in.series.driver": {
+      "status": "error",
+      "time": 0.512,
+      "message": "failed, ERROR: Cannot use mdi connect with plugin engine (src/MDI/mdi_command.cpp:58)"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc": {
+      "status": "passed",
+      "time": 0.524,
+      "message": ""
+    },
+    "triclinic/in.bcc.primitive": {
+      "status": "passed",
+      "time": 0.528,
+      "message": ""
+    },
+    "KAPPA/in.langevin": {
+      "status": "failed",
+      "time": 36.764,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/latboltz/translocation/in.translocation": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 15.956,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd-region": {
+      "status": "failed",
+      "time": 12.397,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "COUPLE/python/in.fix_external": {
+      "status": "skipped",
+      "time": 0.632,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "GRAPHICS/in.water-arrows": {
+      "status": "error",
+      "time": 60.004,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/dielectric/in.nopbc": {
+      "status": "skipped",
+      "time": 0.635,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4": {
+      "status": "skipped",
+      "time": 0.659,
+      "message": "completed, error parsing log.SiH4.4 into YAML"
+    },
+    "PACKAGES/electrode/madelung/in.pppm-ffield": {
+      "status": "skipped",
+      "time": 0.61,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-cg": {
+      "status": "skipped",
+      "time": 1.388,
+      "message": "completed, error parsing log.gauss-diel-cg.4 into YAML"
+    },
+    "PACKAGES/mbx/256h2o/in.mbx_h2o": {
+      "status": "skipped",
+      "time": 25.045,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/phonon/4-Graphene/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/smtbq/in.smtbq.Al2O3": {
+      "status": "skipped",
+      "time": 54.043,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/NWChem/in.water.mm": {
+      "status": "skipped",
+      "time": 0.609,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "bpm/peri/in.bpm.peri.eps": {
+      "status": "skipped",
+      "time": 8.796,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mc/in.gemc.lj": {
+      "status": "error",
+      "time": 0.571,
+      "message": "failed, ERROR: Numeric index 2 is out of bounds (1-1)"
+    },
+    "neb/in.neb.hop1.end": {
+      "status": "error",
+      "time": 0.611,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "snap/in.snap.grid.triclinic": {
+      "status": "skipped",
+      "time": 0.575,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd": {
+      "status": "failed",
+      "time": 11.812,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/shock/msst/in.msst": {
+      "status": "passed",
+      "time": 2.144,
+      "message": ""
+    },
+    "relres/in.22DMH.real": {
+      "status": "passed",
+      "time": 15.02,
+      "message": ""
+    },
+    "snap/in.C_SNAP": {
+      "status": "passed",
+      "time": 8.161,
+      "message": ""
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_center": {
+      "status": "failed",
+      "time": 14.65,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "hyper/in.hyper.local": {
+      "status": "failed",
+      "time": 4.019,
+      "message": "failed, thermo checks skipped due to mismatched log files after the first run"
+    },
+    "ASPHERE/star/in.star.mp": {
+      "status": "failed",
+      "time": 3.107,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "PACKAGES/reaction/create_atoms_polystyrene/in.grow_styrene": {
+      "status": "failed",
+      "time": 5.986,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.037
+    },
+    "PACKAGES/filter_corotate/in.bpti": {
+      "status": "skipped",
+      "time": 7.224,
+      "message": "completed, error parsing log.bpti.4 into YAML"
+    },
+    "snap/in.snap.InP.JCPA2020": {
+      "status": "passed",
+      "time": 3.633,
+      "message": ""
+    },
+    "stress_vcm/in.stress_vcm": {
+      "status": "passed",
+      "time": 5.247,
+      "message": ""
+    },
+    "body/in.squares": {
+      "status": "failed",
+      "time": 2.856,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.01
+    },
+    "PACKAGES/interlayer/saip_metal/in.gold_gr": {
+      "status": "passed",
+      "time": 2.517,
+      "message": ""
+    },
+    "reaxff/CHO/in.CHO": {
+      "status": "failed",
+      "time": 2.416,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.0
+    },
+    "eim/in.eim": {
+      "status": "failed",
+      "time": 1.156,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.1
+    },
+    "reaxff/AB/in.AB": {
+      "status": "failed",
+      "time": 2.002,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.05
+    },
+    "balance/in.balance.neigh.rcb": {
+      "status": "passed",
+      "time": 1.655,
+      "message": ""
+    },
+    "PACKAGES/scafacos/in.scafacos": {
+      "status": "error",
+      "time": 0.53,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "gransurf/in.tribox.gran.data": {
+      "status": "passed",
+      "time": 1.665,
+      "message": ""
+    },
+    "rigid/in.rigid.gravity": {
+      "status": "passed",
+      "time": 0.815,
+      "message": ""
+    },
+    "fire/in.abcfire_mod": {
+      "status": "failed",
+      "time": 0.91,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "balance/in.balance.bond.slow": {
+      "status": "passed",
+      "time": 1.307,
+      "message": ""
+    },
+    "reaxff/ZnOH2/in.ZnOH2": {
+      "status": "failed",
+      "time": 0.811,
+      "message": "completed, 2 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.1
+    },
+    "PACKAGES/moments/in.valtest": {
+      "status": "error",
+      "time": 0.515,
+      "message": "failed, ERROR on proc 0: cannot open eam/alloy potential file AlCu.eam.alloy: No such file or directory (src/potential_file_reader.cpp:58)"
+    },
+    "PACKAGES/colvars/in.peptide-spring": {
+      "status": "failed",
+      "time": 0.917,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.7
+    },
+    "rigid/in.rigid.atomvar": {
+      "status": "passed",
+      "time": 0.647,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.pod": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "SPIN/spinmin/in.spin.bfo_min_lbfgs": {
+      "status": "passed",
+      "time": 0.585,
+      "message": ""
+    },
+    "rigid/in.rigid.infile": {
+      "status": "passed",
+      "time": 0.659,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.646,
+      "message": ""
+    },
+    "granular/in.sync_verlet": {
+      "status": "passed",
+      "time": 1.491,
+      "message": ""
+    },
+    "PACKAGES/symmetry/in.lj_pm_wyckoff": {
+      "status": "passed",
+      "time": 0.558,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc": {
+      "status": "passed",
+      "time": 0.515,
+      "message": ""
+    },
+    "snap/in.snap.compute": {
+      "status": "skipped",
+      "time": 0.516,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "triclinic/in.fcc.primitive": {
+      "status": "passed",
+      "time": 0.515,
+      "message": ""
+    },
+    "KAPPA/in.mp": {
+      "status": "failed",
+      "time": 49.95,
+      "message": "completed, 7 abs diff and 7 rel diff checks failed",
+      "diverged": 7,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/scafacos/in.scafacos.ewald": {
+      "status": "error",
+      "time": 0.633,
+      "message": "failed, unrecognized command, package not installed, ERROR: Unrecognized kspace style 'scafacos' is part of the SCAFACOS package which is not enabled in this LAMMPS binary."
+    },
+    "PACKAGES/eff/Auger-Adamantane/in.adamantane_ionized.nve": {
+      "status": "failed",
+      "time": 34.017,
+      "message": "completed, 7 abs diff and 7 rel diff checks failed",
+      "diverged": 7,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/local_density/methanol_implicit_water/in.methanol_implicit_water": {
+      "status": "skipped",
+      "time": 15.33,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "COUPLE/plugin/in.lj": {
+      "status": "skipped",
+      "time": 0.65,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "GRAPHICS/in.rhodo-delaunay": {
+      "status": "error",
+      "time": 60.003,
+      "message": "failed, no Total wall time in the output, timeout (60s expired)"
+    },
+    "PACKAGES/dielectric/in.confined": {
+      "status": "skipped",
+      "time": 0.858,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/edip/in.edip-SiC": {
+      "status": "skipped",
+      "time": 0.563,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/madelung/in.pppm-ew3dc": {
+      "status": "skipped",
+      "time": 0.647,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel": {
+      "status": "skipped",
+      "time": 3.075,
+      "message": "completed, error parsing log.gauss-diel.4 into YAML"
+    },
+    "PACKAGES/ipi/in.graphene": {
+      "status": "error",
+      "time": 0.567,
+      "message": "failed, ERROR on proc 0: Error opening UNIX socket: server may not be running or the path to the socket unavailable (src/MISC/fix_ipi.cpp:131)"
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.dos": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/smtbq/in.smtbq.Al": {
+      "status": "skipped",
+      "time": 1.479,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "QUANTUM/NWChem/in.series.plugin": {
+      "status": "error",
+      "time": 0.605,
+      "message": "failed, ERROR: Must invoke LAMMPS as an MDI driver to use fix mdi/qm (src/MDI/fix_mdi_qm.cpp:69)"
+    },
+    "bpm/peri/benchmark/in.bench.legacy.pmb": {
+      "status": "skipped",
+      "time": 1.723,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "kim/in.lammps.melt": {
+      "status": "skipped",
+      "time": 1.223,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "neb/in.neb.hop1": {
+      "status": "error",
+      "time": 0.594,
+      "message": "failed, ERROR: Cannot use NEB with a single replica (src/REPLICA/neb.cpp:144)"
+    },
+    "snap/in.snap.grid": {
+      "status": "skipped",
+      "time": 0.57,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "gjf/in.gjf.vfull": {
+      "status": "passed",
+      "time": 3.883,
+      "message": ""
+    },
+    "DIFFUSE/in.msd.2d": {
+      "status": "failed",
+      "time": 9.545,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/reaction/nylon,6-6_melt/in.large_nylon_melt": {
+      "status": "passed",
+      "time": 15.379,
+      "message": ""
+    },
+    "python/in.pair_python_harmonic": {
+      "status": "passed",
+      "time": 8.476,
+      "message": ""
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water": {
+      "status": "failed",
+      "time": 8.127,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "controller/in.controller.wall": {
+      "status": "failed",
+      "time": 6.032,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "deposit/in.deposit.molecule": {
+      "status": "failed",
+      "time": 2.855,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.02
+    },
+    "PACKAGES/ilves/in.polymelt": {
+      "status": "passed",
+      "time": 8.619,
+      "message": ""
+    },
+    "peri/in.peri.pmb": {
+      "status": "passed",
+      "time": 4.271,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.energy_conservation.meam.sw": {
+      "status": "passed",
+      "time": 2.8,
+      "message": ""
+    },
+    "reaxff/FC/in.FC": {
+      "status": "passed",
+      "time": 4.363,
+      "message": ""
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-hybrid": {
+      "status": "passed",
+      "time": 2.458,
+      "message": ""
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-regular": {
+      "status": "passed",
+      "time": 2.252,
+      "message": ""
+    },
+    "indent/in.indent": {
+      "status": "failed",
+      "time": 2.324,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.ang": {
+      "status": "failed",
+      "time": 2.339,
+      "message": "completed, 3 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_from": 0.167
+    },
+    "SPIN/iron/in.spin.iron_cubic": {
+      "status": "failed",
+      "time": 2.001,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_from": 0.0
+    },
+    "reaxff/water/in.water.qeq": {
+      "status": "passed",
+      "time": 2.392,
+      "message": ""
+    },
+    "PACKAGES/apip/in.surface.la.nocons": {
+      "status": "passed",
+      "time": 3.272,
+      "message": ""
+    },
+    "nb3b/in.nb3b": {
+      "status": "passed",
+      "time": 1.912,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-fixed": {
+      "status": "skipped",
+      "time": 1.819,
+      "message": "completed, error parsing log.peptide-fixed.4 into YAML"
+    },
+    "voronoi/in.voronoi": {
+      "status": "skipped",
+      "time": 2.986,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "granregion/in.granregion.box": {
+      "status": "failed",
+      "time": 0.924,
+      "message": "completed, 7 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_from": 0.0
+    },
+    "rigid/in.rigid.cubes.npt": {
+      "status": "passed",
+      "time": 0.83,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.nvt": {
+      "status": "passed",
+      "time": 0.817,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.nve": {
+      "status": "passed",
+      "time": 0.806,
+      "message": ""
+    },
+    "flow/in.flow.pois": {
+      "status": "failed",
+      "time": 0.739,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_from": 0.3
+    },
+    "gransurf/in.tri.gran.global": {
+      "status": "passed",
+      "time": 0.922,
+      "message": ""
+    },
+    "rigid/in.rigid.small.infile": {
+      "status": "passed",
+      "time": 0.933,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.869,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.776,
+      "message": ""
+    },
+    "amoeba/in.water_hexamer.amoeba": {
+      "status": "failed",
+      "time": 0.65,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_from": 0.0
+    },
+    "PACKAGES/symmetry/in.sic_c2": {
+      "status": "passed",
+      "time": 0.576,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.compute": {
+      "status": "skipped",
+      "time": 0.649,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "steinhardt/in.fcc": {
+      "status": "passed",
+      "time": 0.652,
+      "message": ""
+    },
+    "PACKAGES/diffraction/in.BulkNi": {
+      "status": "passed",
+      "time": 41.089,
+      "message": ""
+    }
+  }
+}
