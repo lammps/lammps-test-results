@@ -378,35 +378,6 @@ def build_index(datadir, outdir, summary):
     body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
     body += ci_badges_html()
 
-    # regression suites as cards
-    regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
-    if regression:
-        body += '<hr class="my-4">'
-        body += '<h2 class="h5">Regression tests</h2><div class="row g-3">'
-        for entry in regression:
-            counts = entry['counts']
-            body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
-            body += (f'<h3 class="h6 card-title">'
-                     f'<a href="{run_link(entry["suite"], entry["latest"])}">'
-                     f'{esc(suite_title(entry["suite"]))}</a></h3>')
-            body += tiles_html(counts)
-            if entry.get('diff'):
-                body += f'<div>{diff_summary_html(entry["diff"])}</div>'
-            body += sparkline(entry['history'])
-            when, run_sha = runid_parts(entry['latest'])
-            sha = entry.get('sha', '')[:10] or run_sha
-            meta = []
-            if sha:
-                meta.append(f'commit {esc(sha)}')
-            meta.append(f'{esc(when)} UTC')
-            meta.append(f'{len(entry["history"])} archived run(s)')
-            body += (f'<div class="text-body-secondary small mt-2">'
-                     f'{" &middot; ".join(meta)}</div>')
-            body += '</div></div></div>'
-        if 'activity' in summary.get('external', {}):
-            body += activity_card(summary['external']['activity'])
-        body += '</div>'
-
     # unit test matrix as a table
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
     if matrix:
@@ -446,10 +417,39 @@ def build_index(datadir, outdir, summary):
                      f'<td>{all_ok}</td></tr>')
         body += '</tbody></table></div>'
 
+    # regression suites as cards
+    regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
+    if regression:
+        body += '<hr class="my-4">'
+        body += '<div class="h5 row g-3">'
+        for entry in regression:
+            counts = entry['counts']
+            body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+            body += (f'<h3 class="h6 card-title">'
+                     f'<a href="{run_link(entry["suite"], entry["latest"])}">'
+                     f'{esc(suite_title(entry["suite"]))}</a></h3>')
+            body += tiles_html(counts)
+            if entry.get('diff'):
+                body += f'<div>{diff_summary_html(entry["diff"])}</div>'
+            body += sparkline(entry['history'])
+            when, run_sha = runid_parts(entry['latest'])
+            sha = entry.get('sha', '')[:10] or run_sha
+            meta = []
+            if sha:
+                meta.append(f'commit {esc(sha)}')
+            meta.append(f'{esc(when)} UTC')
+            meta.append(f'{len(entry["history"])} archived run(s)')
+            body += (f'<div class="text-body-secondary small mt-2">'
+                     f'{" &middot; ".join(meta)}</div>')
+            body += '</div></div></div>'
+        if 'activity' in summary.get('external', {}):
+            body += activity_card(summary['external']['activity'])
+        body += '</div>'
+
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
     body += '<hr class="my-4">'
-    body += '<h2 class="h5">Other reports</h2><div class="row g-3">'
+    body += '<div class="h5 row g-3">'
     body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/coverage/">'
              'Code coverage</a></h3>')
