@@ -29,12 +29,15 @@ import sys
 
 TOPDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(os.path.join(TOPDIR, 'tools'))
+import docsdata
 import rundata
 
 ICONS = {'passed': '&#10003;', 'failed': '&#10007;',
-         'error': '&#9888;', 'skipped': '&#9675;'}
+         'error': '&#9888;', 'skipped': '&#9675;',
+         'pending': '&#8635;', 'stale': '&#9888;', 'unknown': '&#8212;'}
 LABELS = {'passed': 'passed', 'failed': 'failed',
-          'error': 'error', 'skipped': 'skipped'}
+          'error': 'error', 'skipped': 'skipped',
+          'pending': 'pending', 'stale': 'stale', 'unknown': 'unknown'}
 
 def esc(text):
     return html.escape(str(text), quote=True)
@@ -102,6 +105,23 @@ def page(title, body, root=''):
 </footer>
 <script src="{root}static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script>
+  // absolute timestamps marked <time class="rel"> become relative ages when
+  // the page is viewed, which a page rebuilt only once a day cannot bake in
+  (function () {{
+    function age(seconds) {{
+      var minutes = seconds / 60;
+      if (minutes < 1) return 'just now';
+      if (minutes < 90) return Math.round(minutes) + ' min ago';
+      if (minutes < 2880) return Math.round(minutes / 60) + ' h ago';
+      return Math.round(minutes / 1440) + ' d ago';
+    }}
+    document.querySelectorAll('time.rel[datetime]').forEach(function (el) {{
+      var when = Date.parse(el.getAttribute('datetime'));
+      if (!isNaN(when)) el.textContent = age((Date.now() - when) / 1000);
+    }});
+  }})();
+</script>
+<script>
   (function () {{
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
@@ -130,6 +150,19 @@ def suite_title(suite):
     if suite.startswith('unit-tests/'):
         return 'Unit Tests: ' + suite.split('/', 1)[1]
     return suite.replace('-', ' ').title()
+
+def time_tag(stamp):
+    '''an absolute UTC timestamp that the browser turns into a relative age
+    ("3 h ago") when the page is viewed; the pages are static and rebuilt
+    only once a day, so a relative age baked in here would be wrong by the
+    time anybody reads it.  the absolute time remains as the tooltip and as
+    the fallback without JavaScript'''
+    when = docsdata.parse_iso(stamp)
+    if when is None:
+        return ''
+    text = esc(when.strftime('%Y-%m-%d %H:%M UTC'))
+    return (f'<time class="rel" datetime="{esc(when.isoformat())}" '
+            f'title="{text}">{text}</time>')
 
 def runid_parts(runid):
     '''split a run id like 2026-07-14T00-44-31Z_4e2bce0464 into a readable
@@ -264,6 +297,69 @@ def activity_card(activity):
         out += svg
         out += (f'<div class="text-body-secondary small">commits per week, last '
                 f'{len(weeks)} weeks</div>')
+    return out + '</div></div></div>'
+
+DOCS_URL = 'https://docs.lammps.org/'
+
+def docs_detail(state):
+    '''the detail of a classified build as markup: its plain text plus, where
+    the state carries one, the timestamp it refers to'''
+    parts = [esc(state['text'])] if state['text'] else []
+    if state['stamp']:
+        parts.append(time_tag(state['stamp']))
+    return ' '.join(parts)
+
+def docs_card(docs):
+    '''dashboard card with the status of the automated manual builds for the
+       three published variants (develop, release, and stable branch)'''
+    now = datetime.datetime.now(datetime.timezone.utc)
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += (f'<h3 class="h6 card-title"><a href="{esc(docs.get("url", DOCS_URL))}">'
+            'Documentation builds</a></h3>')
+    out += ('<table class="table table-sm table-borderless docs mb-1">'
+            '<tbody>')
+    notes = []
+    for entry in docs.get('branches', []):
+        branch = entry.get('branch', '?')
+        state = docsdata.state(entry, now)
+
+        # left column: which manual, and what it currently documents
+        ident = []
+        if entry.get('version'):
+            # the git-describe suffix repeats the commit hash shown next to it
+            version = str(entry['version']).split('-g')[0]
+            ident.append(f'<span title="{esc(entry["version"])}">{esc(version)}</span>')
+        if entry.get('commit'):
+            ident.append(f'<code>{esc(str(entry["commit"])[:10])}</code>')
+        out += (f'<tr><td><a href="{esc(entry.get("url", DOCS_URL))}">{esc(branch)}</a>'
+                f'<div class="lbl">{" &middot; ".join(ident)}</div></td>')
+
+        # right column: how that build went, and how long ago it ran
+        detail = docs_detail(state)
+        seconds = docsdata.total_seconds(entry)
+        meta = []
+        if detail:
+            meta.append(detail)
+        elif seconds:
+            meta.append(f'<span title="{esc(docsdata.timing(entry))}">{seconds} s</span>')
+        if entry.get('built'):
+            # labelled: a failure detail can carry an age of its own
+            meta.append(f'built {time_tag(entry["built"])}')
+        out += (f'<td class="text-end">{status_chip(state["status"])}'
+                f'<div class="lbl">{" &middot; ".join(meta)}</div></td></tr>')
+
+        if entry.get('error'):
+            read = time_tag(entry.get('checked'))
+            when = f' (last read {read})' if read else ''
+            notes.append(f'{esc(branch)}: status file unreachable{when}')
+    out += '</tbody></table>'
+
+    fetched = time_tag(docs.get('fetched'))
+    if fetched:
+        notes.append(f'checked {fetched}')
+    if notes:
+        out += (f'<div class="text-body-secondary small">'
+                f'{" &middot; ".join(notes)}</div>')
     return out + '</div></div></div>'
 
 # ---------------------------------------------------------------- pages
@@ -444,11 +540,12 @@ def build_index(datadir, outdir, summary):
             body += '</div></div></div>'
         if 'activity' in summary.get('external', {}):
             body += activity_card(summary['external']['activity'])
+        if 'docs' in summary.get('external', {}):
+            body += docs_card(summary['external']['docs'])
         body += '</div>'
 
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
-    body += '<hr class="my-4">'
     body += '<div class="h5 row g-3">'
     body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/coverage/">'

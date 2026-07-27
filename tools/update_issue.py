@@ -10,6 +10,13 @@ notify issue subscribers. This way anybody who wants email notifications
 about regressions subscribes to this one issue and gets no nightly noise
 otherwise.
 
+The status of the automated manual builds (tools/fetch_docs.py) is reported
+the same way: the body always shows the current state of all three published
+variants, and a comment is posted when one of them starts failing or falls
+behind its branch, and again when it recovers. Which of the two was announced
+last is recorded per manual in a hidden marker in the comment, so a build that
+stays broken is announced once rather than every night.
+
 The issue is identified by the "test-status" label (created if missing).
 Requires the "gh" CLI with permission to write issues in the target repo.
 
@@ -25,6 +32,7 @@ import subprocess
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import docsdata
 import rundata
 
 LABEL = 'test-status'
@@ -67,15 +75,43 @@ def collect(datadir):
         snapshot.append(entry)
     return snapshot
 
-def build_body(snapshot, site_url):
+DOCS_ICONS = {'passed': ':white_check_mark:', 'failed': ':x:',
+              'stale': ':warning:', 'pending': ':hourglass_flowing_sand:',
+              'unknown': ':grey_question:'}
+
+def docs_status_text(state):
+    '''the classified state as one readable phrase'''
+    text = state['text']
+    if state['stamp']:
+        text = f"{text} {docsdata.fmt_utc(state['stamp'])}".strip()
+    return text or state['status']
+
+def docs_table(docs, now=None):
+    '''current state of all three published manual variants'''
+    body = "\n### Documentation builds\n\n"
+    body += "| Manual | Status | Documents | Built |\n|---|---|---|---|\n"
+    for entry in docs.get('branches', []):
+        state = docsdata.state(entry, now)
+        icon = DOCS_ICONS.get(state['status'], ':grey_question:')
+        name = entry.get('branch', '?')
+        if entry.get('url'):
+            name = f"[{name}]({entry['url']})"
+        contents = ' @ '.join(f"`{part}`" for part in docsdata.documents(entry))
+        built = docsdata.fmt_utc(entry.get('built')) or '-'
+        body += (f"| {icon} {name} | {docs_status_text(state)} |"
+                 f" {contents or '-'} | {built} |\n")
+    return body
+
+def build_body(snapshot, docs, site_url):
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    body = (f"{MARKER}\nCurrent status of the automated LAMMPS test runs. Full details on the"
-            f" [test status website]({site_url}).\n\n"
+    body = (f"{MARKER}\nCurrent status of the automated LAMMPS test runs and manual"
+            f" builds. Full details on the [test status website]({site_url}).\n\n"
             f"This status table is updated in place (no notifications); a comment is posted"
             f" only when new failures appear or failures are fixed - subscribe to this"
             f" issue to be notified about regressions.\n\n")
-    body += "| Suite | Tests | Passed | Failed | Errors | Skipped | Changes |\n"
-    body += "|---|---:|---:|---:|---:|---:|---|\n"
+    if snapshot:
+        body += "| Suite | Tests | Passed | Failed | Errors | Skipped | Changes |\n"
+        body += "|---|---:|---:|---:|---:|---:|---|\n"
     for entry in snapshot:
         counts = entry['counts']
         broken = counts['failed'] + counts['error']
@@ -91,6 +127,8 @@ def build_body(snapshot, site_url):
         body += (f"| {icon} {suite_title(entry['suite'])} | {counts['tests']} |"
                  f" {counts['passed']} | {counts['failed']} | {counts['error']} |"
                  f" {counts['skipped']} | {changes} |\n")
+    if docs:
+        body += docs_table(docs)
     body += f"\n_Last updated: {now}_\n"
     return body
 
@@ -118,15 +156,71 @@ def build_sections(snapshot):
         sections.append({'heading': heading, 'text': text})
     return sections
 
-def drop_announced(sections, repo, number):
+def posted_comments(repo, number):
+    '''the bodies of all comments on the issue, oldest first'''
+    return gh(['api', f'repos/{repo}/issues/{number}/comments',
+               '--paginate', '--jq', '.[].body'])
+
+def drop_announced(sections, posted):
     '''drop sections whose heading already appears in a posted comment.
        a suite's diff stays the same until a newer run of it arrives, so
        without this check every scheduled update would re-post it'''
-    if not sections:
-        return sections
-    posted = gh(['api', f'repos/{repo}/issues/{number}/comments',
-                 '--paginate', '--jq', '.[].body'])
     return [s for s in sections if s['heading'] not in posted]
+
+def docs_marker(branch, announcement):
+    '''hidden per-manual record of the last announcement made about it; the
+       heading cannot serve as the dedup key here the way it does for a test
+       suite, because it carries no run id that would change over time'''
+    return f"<!-- docs-status: {branch} {announcement} -->"
+
+def last_docs_announcement(posted, branch):
+    '''"broken", "ok", or "" for a manual never announced about; whichever
+       marker appears last wins, so the comments must be in posting order'''
+    last, position = '', -1
+    for announcement in ('broken', 'ok'):
+        found = posted.rfind(docs_marker(branch, announcement))
+        if found > position:
+            last, position = announcement, found
+    return last
+
+def docs_sections(docs, posted, now=None):
+    '''one markdown section per manual that started failing or falling behind
+       since the last announcement, and per manual that recovered since'''
+    sections = []
+    for entry in (docs or {}).get('branches', []):
+        branch = entry.get('branch', '?')
+        state = docsdata.state(entry, now)
+        announced = last_docs_announcement(posted, branch)
+        if state['status'] in docsdata.NOTIFY and announced != 'broken':
+            announcement = 'broken'
+        elif state['status'] == 'passed' and announced == 'broken':
+            announcement = 'ok'
+        else:
+            # unchanged, or a state (pending, unknown) that says nothing
+            # either way and must not clear a pending "broken" announcement
+            continue
+
+        name = f"{branch} manual"
+        if entry.get('url'):
+            name = f"[{name}]({entry['url']})"
+        heading = f"### Documentation build: {branch}"
+        text = f"{heading}\n{docs_marker(branch, announcement)}\n\n"
+        if announcement == 'broken':
+            detail = docs_status_text(state)
+            text += f"The {name} build is **{state['status']}**"
+            text += f" ({detail}).\n" if detail != state['status'] else ".\n"
+        else:
+            text += f"The {name} builds cleanly again.\n"
+        contents = ' @ '.join(f"`{part}`" for part in docsdata.documents(entry))
+        if contents:
+            text += f"\n- published manual documents {contents}\n"
+        built = docsdata.fmt_utc(entry.get('built'))
+        if built:
+            timing = docsdata.timing(entry)
+            text += f"- last build {built}"
+            text += f" ({timing})\n" if timing else "\n"
+        sections.append({'heading': heading, 'text': text})
+    return sections
 
 def build_comment(sections, site_url):
     return ('\n'.join(s['text'] for s in sections)
@@ -158,17 +252,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     snapshot = collect(args.datadir)
-    if not snapshot:
+    docs = docsdata.load(args.datadir)
+    if not snapshot and not docs:
         print("no run data, nothing to do")
         sys.exit(0)
 
-    body = build_body(snapshot, args.site_url)
-    sections = build_sections(snapshot)
+    body = build_body(snapshot, docs, args.site_url)
 
     if args.dry_run:
         print("=== issue body ===")
         print(body)
         print("=== comment (before dedup against posted comments) ===")
+        # nothing announced yet, so this shows every section that a state
+        # change could produce
+        sections = build_sections(snapshot) + docs_sections(docs, '')
         if sections:
             print(build_comment(sections, args.site_url))
         else:
@@ -189,7 +286,9 @@ if __name__ == "__main__":
 
     gh(['issue', 'edit', str(number), '--repo', args.repo, '--body', body])
     print(f"updated body of issue #{number}")
-    sections = drop_announced(sections, args.repo, number)
+    posted = posted_comments(args.repo, number)
+    sections = drop_announced(build_sections(snapshot), posted)
+    sections += docs_sections(docs, posted)
     if sections:
         gh(['issue', 'comment', str(number), '--repo', args.repo,
             '--body', build_comment(sections, args.site_url)])

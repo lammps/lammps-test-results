@@ -71,7 +71,8 @@
 
 /* stat tiles inside the suite cards */
 .tile .num { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
-.tile .lbl { color: var(--bs-secondary-color); font-size: .78rem; }
+/* secondary line under a tile number, a table cell, or a status chip */
+.lbl { color: var(--bs-secondary-color); font-size: .78rem; }
 
 /* test outcome chips: colored icon + regular-ink label */
 .status { white-space: nowrap; }
@@ -80,6 +81,9 @@
 .st-failed  .ico { color: var(--status-critical); }
 .st-error   .ico { color: var(--status-error); }
 .st-skipped .ico { color: var(--status-muted); }
+.st-pending .ico { color: var(--lammps-accent); }
+.st-stale   .ico { color: var(--status-error); }
+.st-unknown .ico { color: var(--status-muted); }
 .delta-bad  { color: var(--status-critical); font-weight: 600; }
 .delta-good { color: var(--status-good); font-weight: 600; }
 
@@ -93,6 +97,10 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 /* per-test details column */
 td .msg { color: var(--bs-secondary-color); font-size: .85rem; }
 tr.hidden { display: none; }
+
+/* documentation build table: tight rows, no cell padding at the card edge */
+.docs td { padding: .3rem 0; vertical-align: top; }
+.docs code { font-size: .78rem; }
 
 /* repository activity bar chart */
 .actbar rect { fill: var(--lammps-accent); }
