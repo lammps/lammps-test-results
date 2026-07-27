@@ -4,11 +4,13 @@ Fetch the results of the full regression test runs from download.lammps.org
 and archive them under data/full-regression/<config>/<runid>/run.json.
 
 The runs are no longer done in GitHub Actions but on a dedicated machine with
-a much more complete LAMMPS configuration, in two configurations: "serial"
-(one MPI task) and "parallel" (four MPI tasks). Each publishes the same
-run.json format this repository archives (see tools/rundata.py), next to a
-markdown summary and a JUnit XML file of the same data, which are not
-ingested since the JSON is a superset of both.
+a much more complete LAMMPS configuration, in one configuration per published
+file: "serial" (one MPI task), "parallel" (four MPI tasks), "openmp" (two MPI
+tasks with two OpenMP threads each, through the OPENMP package), and "kokkos"
+(the same through KOKKOS/OpenMP). Each publishes the same run.json format
+this repository archives (see tools/rundata.py), next to a markdown summary
+and a JUnit XML file of the same data, which are not ingested since the JSON
+is a superset of both.
 
 Only the results of the most recent run are published, so a run that is not
 picked up before the next one is overwritten is lost. The runs themselves are
@@ -47,7 +49,12 @@ import sys
 import urllib.request
 
 URL_BASE = 'https://download.lammps.org/coverage/'
-CONFIGS = ('serial', 'parallel')
+# one published file per configuration the inputs are run in: serial, 4 MPI
+# tasks, 2 MPI tasks with 2 OpenMP threads each through the OPENMP package,
+# and the same through KOKKOS/OpenMP.  the file name is what identifies the
+# configuration: the "config_file" property does not, three of them share
+# config.yaml, and only the title of the run spells the difference out
+CONFIGS = ('serial', 'parallel', 'openmp', 'kokkos')
 SUITE = 'full-regression'
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

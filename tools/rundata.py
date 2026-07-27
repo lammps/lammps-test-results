@@ -82,6 +82,20 @@ def suite_title(suite):
     title = base.replace('-', ' ').title()
     return f'{title}: {config}' if config else title
 
+def config_label(suite, title):
+    '''how a run describes its own configuration, where that says more than
+       the name of the suite does: the "Full Regression Test / KOKKOS/OpenMP"
+       of "full-regression/kokkos" is "KOKKOS/OpenMP", while the
+       "... / Serial" of "full-regression/serial" only repeats the suite name
+       and is dropped.  the configurations that run the same input decks in
+       different ways are told apart by this, and by little else: several of
+       them share one configuration file'''
+    config = suite.partition('/')[2]
+    if not config or '/' not in title:
+        return ''
+    label = title.split('/', 1)[1].strip()
+    return '' if label.lower() == config.lower() else label
+
 def status_of(entry):
     '''the status of one test, with a run that hit the time limit of the test
        harness classified as "timeout" rather than as an error'''
@@ -119,13 +133,35 @@ def time_limits(run):
             limits.add(int(found.group(1)))
     return sorted(limits)
 
-def compare_runs(previous, current):
-    '''classify the changes between two runs (run.json dicts);
-       returns a dict of sorted lists of test keys'''
+def compare_runs(previous, current, earlier=()):
+    '''classify the changes between two runs (run.json dicts); returns a dict
+       of sorted lists of test keys.
+
+       a test that timed out in the previous run has no verdict there, so the
+       comparison falls back to the most recent run before it that does have
+       one, taken from "earlier" (older runs, newest first, loaded lazily).
+       without that, a failing test which flaps through a timeout is
+       announced as a new failure every time it comes back'''
     tests_prev = previous.get('tests', {})
     tests_curr = current.get('tests', {})
-    prev = {k: status_of(v) for k, v in tests_prev.items()}
+    reported = {k: status_of(v) for k, v in tests_prev.items()}
     curr = {k: status_of(v) for k, v in tests_curr.items()}
+
+    prev = dict(reported)
+    pending = {k for k, status in prev.items()
+               if status == 'timeout' and k in curr}
+    older_runs = iter(earlier)
+    while pending:
+        try:
+            older = next(older_runs)
+        except StopIteration:
+            break
+        for key in sorted(pending):
+            entry = older.get('tests', {}).get(key)
+            if entry is not None and status_of(entry) != 'timeout':
+                prev[key] = status_of(entry)
+                pending.discard(key)
+
     both = [k for k in curr if k in prev]
     return {
         'new_failures': sorted(k for k in both if curr[k] in BAD
@@ -135,9 +171,11 @@ def compare_runs(previous, current):
         'fixed': sorted(k for k in both if curr[k] == 'passed'
                         and prev[k] in BAD),
         # a test that newly runs out of time is reported apart from the
-        # failures: it is as likely to be the machine as it is the code
+        # failures: it is as likely to be the machine as it is the code.
+        # this one goes by what the previous run reported, not by the last
+        # verdict: a test that timed out twice in a row is not news
         'new_timeouts': sorted(k for k in both if curr[k] == 'timeout'
-                               and prev[k] != 'timeout'),
+                               and reported[k] != 'timeout'),
         'new_tests': sorted(k for k in tests_curr if k not in tests_prev),
         'removed_tests': sorted(k for k in tests_prev if k not in tests_curr),
     }

@@ -10,9 +10,12 @@ website and a rolling GitHub status issue.
   `develop` branch (regression tests: merged `run.json` + JUnit XML; unit
   tests: one `junit-<config>` artifact per platform/configuration).
 - The full regression tests are no longer run in GitHub Actions but on a
-  dedicated machine with a much more complete LAMMPS configuration, in a
-  `serial` and a `parallel` (4 MPI tasks) configuration, and published on
-  download.lammps.org (`tools/fetch_regression.py`, see below).
+  dedicated machine with a much more complete LAMMPS configuration, and
+  published on download.lammps.org (`tools/fetch_regression.py`, see below).
+  The same input decks are run in four configurations: `serial` (one MPI
+  task), `parallel` (4 MPI tasks), `openmp` (2 MPI tasks with 2 OpenMP
+  threads each, through the OPENMP package), and `kokkos` (the same through
+  KOKKOS/OpenMP).
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
   regression results (`tools/fetch_regression.py`), archives one `run.json`
@@ -70,9 +73,15 @@ is documented in `tools/rundata.py`.
 
 `tools/fetch_regression.py` archives the results published as
 <https://download.lammps.org/coverage/serial.json> and the corresponding
-`parallel.json` (the `-summary.md` and `-regression.xml` files next to them
-show the same data and are not ingested, since the JSON is a superset of
-both). Only the most recent run is published, so a run that is not picked up
+`parallel.json`, `openmp.json`, and `kokkos.json` (the `-summary.md` and
+`-regression.xml` files next to them show the same data and are not ingested,
+since the JSON is a superset of both). The file name is what identifies the
+configuration: the `config_file` property does not, three of the four share
+`config.yaml`, and only the title of the run spells the difference out - which
+is why the dashboard and the status issue carry it alongside the suite name
+where it says more than the name does (`rundata.config_label()`).
+
+Only the most recent run is published, so a run that is not picked up
 before the next one replaces it is lost; the runs are gated by changes in the
 monitored branch, though, so unchanged results simply stay in place. Since the
 published files are rewritten even when no new test run happened, ingestion
@@ -94,9 +103,9 @@ GitHub Actions.
 
 A test that hits the time limit of the test harness is reported as an error
 like any other, with a message ending in `timeout (<n>s expired)`. Whether it
-expires depends on the limit in force (which differs between the serial and
-the parallel configuration), on how many tests run beside it, and on the
-machine - so it says nothing about the code. Those runs are classified as
+expires depends on the limit in force (180 s serial, 60 s for the others), on
+how many tests run beside it, and on the machine - so it says nothing about
+the code. Those runs are classified as
 `timeout` (`rundata.status_of()`), counted apart from the errors, and left
 out of the broken count that drives the trend, the *last all OK* run, and the
 notification comments. They are not swept under the carpet: they have their
@@ -104,6 +113,13 @@ own tile, filter, and column, a run-to-run comparison lists them as *newly
 out of time*, and a test that starts hanging because of a code change shows
 up there. The limit itself is read back from the messages
 (`rundata.time_limits()`), since the run data does not record it.
+
+Because a timeout is the *absence* of a verdict rather than one, a comparison
+against a run in which a test timed out falls back to the most recent run
+before it that did judge that test (`rundata.compare_runs()` reads older runs
+lazily, only as far as it needs them). Otherwise a test that keeps failing but
+flaps through a timeout would be announced as a new failure every time it came
+back - which is exactly what the archived parallel runs did on 2026-07-27.
 
 ## Documentation build status
 

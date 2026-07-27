@@ -68,11 +68,17 @@ def collect(datadir):
                  'counts': rundata.counts(latest),
                  'sha': latest['metadata'].get('sha', ''),
                  'run_url': latest['metadata'].get('run_url', ''),
+                 'label': rundata.config_label(suite,
+                                               latest['metadata'].get('title', '')),
                  'limits': rundata.time_limits(latest),
                  'diff': None}
         if len(runs) > 1:
             previous = rundata.load_run(datadir, suite, runs[-2])
-            entry['diff'] = rundata.compare_runs(previous, latest)
+            # older runs, newest first, for the tests that have no verdict
+            # in the previous run because they timed out there
+            earlier = (rundata.load_run(datadir, suite, older)
+                       for older in reversed(runs[:-2]))
+            entry['diff'] = rundata.compare_runs(previous, latest, earlier)
         snapshot.append(entry)
     return snapshot
 
@@ -130,7 +136,12 @@ def build_body(snapshot, docs, site_url):
             if entry['diff']['new_timeouts']:
                 changes.append(f"{len(entry['diff']['new_timeouts'])} newly out of time")
         cell = f" {counts['timeout']} |" if timeouts else ""
-        body += (f"| {icon} {suite_title(entry['suite'])} | {counts['tests']} |"
+        # the suite name alone does not say what a configuration does, and
+        # several of them run the same inputs in different ways
+        name = suite_title(entry['suite'])
+        if entry['label']:
+            name += f" ({entry['label']})"
+        body += (f"| {icon} {name} | {counts['tests']} |"
                  f" {counts['passed']} | {counts['failed']} | {counts['error']} |{cell}"
                  f" {counts['skipped']} | {', '.join(changes)} |\n")
     if timeouts:

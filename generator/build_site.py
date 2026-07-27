@@ -389,7 +389,8 @@ def build_run_page(datadir, outdir, suite, runs, runid):
 
     # metadata table
     body += '<table class="table table-sm table-borderless w-auto small text-body-secondary mb-4"><tbody>'
-    for key in ('sha', 'branch', 'version', 'generated', 'run_url', 'source_url'):
+    for key in ('title', 'sha', 'branch', 'version', 'generated',
+                'run_url', 'source_url'):
         if meta.get(key):
             value = esc(meta[key])
             if key.endswith('url'):
@@ -403,7 +404,11 @@ def build_run_page(datadir, outdir, suite, runs, runid):
     idx = runs.index(runid)
     if idx > 0:
         previous = rundata.load_run(datadir, suite, runs[idx - 1])
-        diff = rundata.compare_runs(previous, run)
+        # older runs, newest first, read only as far as the comparison needs
+        # them to find a verdict for the tests that timed out in "previous"
+        earlier = (rundata.load_run(datadir, suite, older)
+                   for older in reversed(runs[:idx - 1]))
+        diff = rundata.compare_runs(previous, run, earlier)
         body += f'<h2 class="h5 mt-4">Changes vs {esc(runs[idx - 1])}</h2>'
         body += f'<p>{diff_summary_html(diff)}</p>'
         for key, label in (('new_failures', 'New failures'), ('fixed', 'Fixed'),
@@ -542,6 +547,9 @@ def build_index(datadir, outdir, summary):
             body += (f'<h3 class="h6 card-title">'
                      f'<a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(suite_title(entry["suite"]))}</a></h3>')
+            # what the configuration means, where its name does not say it
+            if entry.get('label'):
+                body += f'<div class="lbl">{esc(entry["label"])}</div>'
             body += tiles_html(counts)
             if entry.get('diff'):
                 body += f'<div>{diff_summary_html(entry["diff"])}</div>'
@@ -658,13 +666,16 @@ if __name__ == "__main__":
             'latest': runs[-1],
             'counts': rundata.counts(latest),
             'sha': latest['metadata'].get('sha', ''),
+            'label': rundata.config_label(suite, latest['metadata'].get('title', '')),
             'time_limits': rundata.time_limits(latest),
             'history': history,
             'last_all_ok': last_all_ok,
         }
         if len(runs) > 1:
             previous = rundata.load_run(args.datadir, suite, runs[-2])
-            entry['diff'] = rundata.compare_runs(previous, latest)
+            earlier = (rundata.load_run(args.datadir, suite, older)
+                       for older in reversed(runs[:-2]))
+            entry['diff'] = rundata.compare_runs(previous, latest, earlier)
         summary['suites'].append(entry)
 
     # optional external report summaries
