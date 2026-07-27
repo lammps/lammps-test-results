@@ -6,9 +6,11 @@ The data layout is:
 
     data/<suite>/<runid>/run.json
 
-where <suite> is e.g. "full-regression", "quick-regression", or
-"unit-tests/<config>" (one level deeper for the per-platform unit test
-matrix), and <runid> sorts chronologically (ISO timestamp + short sha).
+where <suite> is e.g. "quick-regression", "full-regression/<config>", or
+"unit-tests/<config>" (one level deeper wherever a suite is run in more
+than one configuration: the per-platform unit test matrix, and the serial
+and parallel full regression runs), and <runid> sorts chronologically
+(ISO timestamp + short sha).
 
 Each run.json follows the format written by merge_results.py in
 lammps/lammps (tools/regression-tests): a "metadata" object with
@@ -39,8 +41,10 @@ def load_run(datadir, suite, runid):
         return json.load(f)
 
 def list_suites(datadir):
-    '''return all suites that have at least one run, unit-test configs listed
-       individually as "unit-tests/<config>"'''
+    '''return all suites that have at least one run; a suite that is run in
+       several configurations keeps them in subdirectories and is listed once
+       per configuration as "<suite>/<config>" (e.g. "unit-tests/linux-arm64"
+       or "full-regression/serial")'''
     suites = []
     if not os.path.isdir(datadir):
         return suites
@@ -48,13 +52,23 @@ def list_suites(datadir):
         path = os.path.join(datadir, entry)
         if not os.path.isdir(path) or entry == 'external':
             continue
-        if entry == 'unit-tests':
-            for config in sorted(os.listdir(path)):
-                if list_runs(datadir, f'unit-tests/{config}'):
-                    suites.append(f'unit-tests/{config}')
-        elif list_runs(datadir, entry):
+        # runs directly below the suite directory: a single configuration.
+        # both layouts are recognized side by side, so a suite can grow
+        # configurations later without invalidating its existing runs
+        if list_runs(datadir, entry):
             suites.append(entry)
+        for config in sorted(os.listdir(path)):
+            if list_runs(datadir, f'{entry}/{config}'):
+                suites.append(f'{entry}/{config}')
     return suites
+
+def suite_title(suite):
+    '''readable name of a suite: "unit-tests/linux-arm64" becomes
+       "Unit Tests: linux-arm64", "full-regression" becomes
+       "Full Regression"'''
+    base, _, config = suite.partition('/')
+    title = base.replace('-', ' ').title()
+    return f'{title}: {config}' if config else title
 
 def compare_runs(previous, current):
     '''classify the changes between two runs (run.json dicts);

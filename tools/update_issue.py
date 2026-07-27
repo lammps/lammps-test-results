@@ -53,10 +53,8 @@ def md_list(keys, maxlen=25):
         lines.append(f"- ... and {len(keys) - maxlen} more")
     return '\n'.join(lines) + '\n'
 
-def suite_title(suite):
-    if suite.startswith('unit-tests/'):
-        return 'Unit Tests: ' + suite.split('/', 1)[1]
-    return suite.replace('-', ' ').title()
+# the status issue and the website name a suite the same way (tools/rundata.py)
+suite_title = rundata.suite_title
 
 def collect(datadir):
     '''gather the latest status and diff for every suite'''

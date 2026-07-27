@@ -30,9 +30,12 @@ import zipfile
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import junit_to_json
 
-# workflow name -> how to ingest its artifacts
+# workflow name -> how to ingest its artifacts. the full regression tests
+# have moved off GitHub Actions to a dedicated machine and are collected by
+# tools/fetch_regression.py; that suite is not ingested from here anymore so
+# that a stray manual run of the (still present) workflow cannot mix results
+# from two very differently configured LAMMPS binaries into one history
 REGRESSION_WORKFLOWS = {
-    'Full Regression Test': 'full-regression',
     'Quick Regression Test': 'quick-regression',
 }
 # artifacts named junit-<config> from the unit test workflows

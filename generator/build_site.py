@@ -146,10 +146,8 @@ def page(title, body, root=''):
 def suite_slug(suite):
     return suite.replace('/', '-')
 
-def suite_title(suite):
-    if suite.startswith('unit-tests/'):
-        return 'Unit Tests: ' + suite.split('/', 1)[1]
-    return suite.replace('-', ' ').title()
+# the website and the status issue name a suite the same way (tools/rundata.py)
+suite_title = rundata.suite_title
 
 def time_tag(stamp):
     '''an absolute UTC timestamp that the browser turns into a relative age
@@ -374,10 +372,10 @@ def build_run_page(datadir, outdir, suite, runs, runid):
 
     # metadata table
     body += '<table class="table table-sm table-borderless w-auto small text-body-secondary mb-4"><tbody>'
-    for key in ('sha', 'branch', 'run_url', 'generated'):
+    for key in ('sha', 'branch', 'version', 'generated', 'run_url', 'source_url'):
         if meta.get(key):
             value = esc(meta[key])
-            if key == 'run_url':
+            if key.endswith('url'):
                 value = f'<a href="{value}">{value}</a>'
             body += f'<tr><td class="pe-3">{esc(key)}</td><td>{value}</td></tr>'
     for key, value in meta.get('properties', {}).items():

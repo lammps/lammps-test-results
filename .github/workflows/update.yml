@@ -4,12 +4,16 @@ name: "Update Test Status Site"
 
 on:
   schedule:
-    # early morning US Eastern, late enough to pick up everything produced
-    # overnight: the server-side coverage and static analysis reports are
-    # published around 03:50 EDT (07:50 UTC), the manual is rebuilt hourly
-    # at 23 minutes past.  the dashboard is a daily snapshot, so a run that
-    # is too early shows results that are a full day old
-    - cron: '45 9 * * *'
+    # twice a day: the full regression results are published as a single
+    # "latest" file per configuration on download.lammps.org, so a run that
+    # is not picked up before the next one replaces it is lost.  the test
+    # machine runs at most once every 24 h and only when the monitored
+    # branch has changed, which makes the time of day it publishes drift;
+    # polling every 12 h keeps the margin.  the same schedule refreshes the
+    # coverage and static analysis summaries from that machine, the manual
+    # build status (rebuilt hourly at 23 minutes past), and the GitHub
+    # Actions unit test artifacts
+    - cron: '45 9,21 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -41,9 +45,10 @@ jobs:
         with:
           ref: main
 
-      # pull new post-merge artifacts from lammps/lammps and refresh the
-      # scraped external summaries (not on push events, those only rebuild
-      # the site after code or data changes)
+      # pull new post-merge artifacts from lammps/lammps, archive the latest
+      # full regression results, and refresh the scraped external summaries
+      # (not on push events, those only rebuild the site after code or data
+      # changes)
       - name: Ingest new results
         id: ingest
         if: ${{ github.event_name != 'push' }}
@@ -51,6 +56,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
+          python3 tools/fetch_regression.py --datadir data
           python3 tools/scrape_coverity.py --output data/external/coverity.json
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json

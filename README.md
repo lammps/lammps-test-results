@@ -9,11 +9,16 @@ website and a rolling GitHub status issue.
   upload JUnit XML test results as artifacts for post-merge runs on the
   `develop` branch (regression tests: merged `run.json` + JUnit XML; unit
   tests: one `junit-<config>` artifact per platform/configuration).
-- The nightly [update workflow](.github/workflows/update.yml) in this
-  repository ingests new artifacts (`tools/ingest_actions.py`), archives one
-  `run.json` per run under `data/<suite>/<runid>/`, rebuilds the website
+- The full regression tests are no longer run in GitHub Actions but on a
+  dedicated machine with a much more complete LAMMPS configuration, in a
+  `serial` and a `parallel` (4 MPI tasks) configuration, and published on
+  download.lammps.org (`tools/fetch_regression.py`, see below).
+- The [update workflow](.github/workflows/update.yml) in this repository
+  ingests new artifacts (`tools/ingest_actions.py`) and the latest published
+  regression results (`tools/fetch_regression.py`), archives one `run.json`
+  per run under `data/<suite>/<runid>/`, rebuilds the website
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
-  rolling status issue (`tools/update_issue.py`).
+  rolling status issue (`tools/update_issue.py`). It runs twice a day.
 - Summaries of the server-side reports (code coverage, static analysis) can
   be ingested as `data/external/*.json`; the publicly visible Coverity Scan
   analysis metrics are scraped nightly from the project overview page
@@ -42,6 +47,7 @@ scripts that talk to GitHub):
 
     python3 generator/build_site.py             # data/ -> _site/
     python3 tools/ingest_actions.py --dry-run   # what would be ingested
+    python3 tools/fetch_regression.py --dry-run # latest regression results
     python3 tools/fetch_docs.py                 # manual build status
     python3 tools/update_issue.py --repo <owner/repo> --site-url <url> --dry-run
 
@@ -54,9 +60,35 @@ or `tools/junit_to_json.py` (any JUnit XML file, e.g. from
 
     data/<suite>/<runid>/run.json
 
-`<suite>` is `full-regression`, `quick-regression`, or `unit-tests/<config>`;
-`<runid>` is `<ISO timestamp>_<short sha>` and sorts chronologically. The
-`run.json` format is documented in `tools/rundata.py`.
+`<suite>` is `quick-regression`, `full-regression/<config>`, or
+`unit-tests/<config>`: a suite that is run in more than one configuration
+keeps them in subdirectories and appears once per configuration. `<runid>` is
+`<ISO timestamp>_<short sha>` and sorts chronologically. The `run.json` format
+is documented in `tools/rundata.py`.
+
+## Full regression tests
+
+`tools/fetch_regression.py` archives the results published as
+<https://download.lammps.org/coverage/serial.json> and the corresponding
+`parallel.json` (the `-summary.md` and `-regression.xml` files next to them
+show the same data and are not ingested, since the JSON is a superset of
+both). Only the most recent run is published, so a run that is not picked up
+before the next one replaces it is lost; the runs are gated by changes in the
+monitored branch, though, so unchanged results simply stay in place. Since the
+published files are rewritten even when no new test run happened, ingestion
+deduplicates on the generation time and commit recorded in the file rather
+than on its modification time.
+
+The commit and the branch are read from the `commit` and `branch` metadata
+fields, and recovered from the `git_info` property where those are missing;
+that property is also the source of the git describe string kept as
+`version`. The website and the status issue read the commit as `sha`.
+
+The run id is stamped with the `generated` time where that carries a time
+zone, and with the publication time from the `Last-Modified` header where it
+does not: a `generated` field without a zone is in the local time of the test
+machine and cannot be compared with the UTC stamps of the runs ingested from
+GitHub Actions.
 
 ## Documentation build status
 
