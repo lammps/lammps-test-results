@@ -20,22 +20,30 @@
   --bs-link-hover-color: #17527f;
   --bs-link-hover-color-rgb: 23, 82, 127;
 
-  /* status colors for test outcomes (not brand colors; kept identical in
-     light and dark mode, validated for both surfaces) */
-  --status-good: #0ca30c;
-  --status-error: #ec835a;
-  --status-critical: #d03b3b;
-  --status-muted: #898781;
-  /* a test that ran out of time: told apart from the errors at a glance,
-     and by hue rather than by shade, so it survives color vision
-     deficiency next to the orange and the red */
-  --status-timeout: #9a6ec9;
+  /* status colors for test outcomes (not brand colors): one color per
+     outcome, used by the chips, the tile numbers and the segments of the
+     composition bar alike, so that the tiles read as the legend of the bar.
+     desaturated variants of the obvious hues (firebrick, forestgreen), which
+     also keeps them apart by hue rather than by shade alone */
+  --status-passed: #228b22;
+  --status-failed: #b22222;
+  --status-error: #a67c00;
+  --status-timeout: #3b6fa8;
+  --status-skipped: #6c757d;
 }
 [data-bs-theme="dark"] {
   --lammps-accent: #6ea8de;
   --lammps-accent-rgb: 110, 168, 222;
   --bs-link-hover-color: #9cc4ea;
   --bs-link-hover-color-rgb: 156, 196, 234;
+
+  /* the same hues lightened: the dark variants do not carry enough contrast
+     against the dark surface to be read as small text */
+  --status-passed: #4caf50;
+  --status-failed: #e06c6c;
+  --status-error: #d9a92e;
+  --status-timeout: #6fa8dc;
+  --status-skipped: #9a9a9a;
 }
 
 /* Rebrand Bootstrap's primary buttons to the LAMMPS blue. */
@@ -81,16 +89,27 @@
 /* test outcome chips: colored icon + regular-ink label */
 .status { white-space: nowrap; }
 .status .ico { font-weight: 700; }
-.st-passed  .ico { color: var(--status-good); }
-.st-failed  .ico { color: var(--status-critical); }
+.st-passed  .ico { color: var(--status-passed); }
+.st-failed  .ico { color: var(--status-failed); }
 .st-error   .ico { color: var(--status-error); }
 .st-timeout .ico { color: var(--status-timeout); }
-.st-skipped .ico { color: var(--status-muted); }
+.st-skipped .ico { color: var(--status-skipped); }
 .st-pending .ico { color: var(--lammps-accent); }
 .st-stale   .ico { color: var(--status-error); }
-.st-unknown .ico { color: var(--status-muted); }
-.delta-bad  { color: var(--status-critical); font-weight: 600; }
-.delta-good { color: var(--status-good); font-weight: 600; }
+.st-unknown .ico { color: var(--status-skipped); }
+
+/* the tile numbers carry the outcome color as well: they are what tells
+   the reader which segment of the bar below them is which */
+.tile.st-passed  .num { color: var(--status-passed); }
+.tile.st-failed  .num { color: var(--status-failed); }
+.tile.st-error   .num { color: var(--status-error); }
+.tile.st-timeout .num { color: var(--status-timeout); }
+.tile.st-skipped .num { color: var(--status-skipped); }
+
+.delta-bad  { color: var(--status-failed); font-weight: 600; }
+.delta-good { color: var(--status-passed); font-weight: 600; }
+/* nothing changed on that side: stated, but not shouted */
+.delta-zero { color: var(--bs-secondary-color); }
 
 /* grouped listings of tests on a run page */
 ul.listing { padding-left: 1.2rem; }
@@ -99,9 +118,16 @@ ul.listing li { margin-bottom: .25rem; }
    set apart from the message without borrowing an outcome color */
 .attn { color: var(--bs-secondary-color); font-size: .78rem; font-style: italic; }
 
-/* trend sparkline in the suite cards */
-.spark polyline { fill: none; stroke: var(--lammps-accent); stroke-width: 2; }
-.spark circle { fill: var(--lammps-accent); }
+/* composition bar in the suite cards: the whole bar is the number of tests
+   of the run, one segment per outcome.  a segment of a handful of tests out
+   of a thousand is still given a sliver wide enough to see and to hover */
+.statusbar { display: flex; height: 1.1rem; overflow: hidden; border-radius: .2rem; }
+.statusbar .seg { min-width: 3px; }
+.statusbar .st-passed  { background: var(--status-passed); }
+.statusbar .st-failed  { background: var(--status-failed); }
+.statusbar .st-error   { background: var(--status-error); }
+.statusbar .st-timeout { background: var(--status-timeout); }
+.statusbar .st-skipped { background: var(--status-skipped); }
 
 /* numeric table columns */
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }

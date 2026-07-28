@@ -51,6 +51,21 @@ ATTENTION_KINDS = (
     ('production sized run', 'hits the timeout of'),
     ('style exists in no package', 'does not exist in any package'),
 )
+# what a configuration of the full regression suite actually runs.  neither
+# the name of the configuration nor the title of the run says it: "Parallel"
+# does not say how many ranks, and "MPI+OpenMP" and "KOKKOS/OpenMP" name a
+# package rather than the decomposition, which reads as if the two ran
+# something different from one another
+CONFIG_DETAILS = {
+    'serial': '1 process',
+    'parallel': '4 MPI tasks',
+    'openmp': '2 MPI tasks with 2 OpenMP threads via the OPENMP package',
+    'kokkos': '2 MPI tasks with 2 OpenMP threads via the KOKKOS package',
+}
+# the order the configurations are worth reading in: by how much they add to
+# the one before, which is not the alphabetical order
+CONFIG_ORDER = ('serial', 'parallel', 'openmp', 'kokkos')
+
 # statuses that are not verdicts: the input was not really tested, and each
 # kind implies different work, so they are counted apart from one another
 NOT_TESTED_KINDS = (
@@ -77,6 +92,13 @@ def load_run(datadir, suite, runid):
     with open(os.path.join(datadir, suite, runid, 'run.json')) as f:
         return json.load(f)
 
+def config_sort_key(config):
+    '''sort configurations the way they are worth reading where that order is
+       known (CONFIG_ORDER), alphabetically for all the others'''
+    if config in CONFIG_ORDER:
+        return (CONFIG_ORDER.index(config), '')
+    return (len(CONFIG_ORDER), config)
+
 def list_suites(datadir):
     '''return all suites that have at least one run; a suite that is run in
        several configurations keeps them in subdirectories and is listed once
@@ -94,7 +116,7 @@ def list_suites(datadir):
         # configurations later without invalidating its existing runs
         if list_runs(datadir, entry):
             suites.append(entry)
-        for config in sorted(os.listdir(path)):
+        for config in sorted(os.listdir(path), key=config_sort_key):
             if list_runs(datadir, f'{entry}/{config}'):
                 suites.append(f'{entry}/{config}')
     return suites
@@ -120,6 +142,13 @@ def config_label(suite, title):
         return ''
     label = title.split('/', 1)[1].strip()
     return '' if label.lower() == config.lower() else label
+
+def config_detail(suite):
+    '''what a configuration of a suite runs, in words (CONFIG_DETAILS), or
+       the empty string where nothing is recorded for it.  the cards on the
+       dashboard are too small to carry this, so it is shown on the run page
+       they link to'''
+    return CONFIG_DETAILS.get(suite.partition('/')[2], '')
 
 def status_of(entry):
     '''the status of one test, with a run that hit the time limit of the test

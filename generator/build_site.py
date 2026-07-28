@@ -183,7 +183,9 @@ def tiles_html(counts):
     # only where tests ran out of time, which the unit test suites never do
     if counts.get('timeout'):
         tiles.insert(4, ('Timeouts', counts['timeout'], 'st-timeout'))
-    out = '<div class="d-flex flex-wrap gap-4 my-2">'
+    # the gap is what decides whether all six tiles fit on one line in a
+    # card of a three-column dashboard; they wrap at gap-4
+    out = '<div class="d-flex flex-wrap gap-3 my-2">'
     for label, num, cls in tiles:
         out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
                 f'<div class="lbl">{label}</div></div>')
@@ -195,26 +197,41 @@ def limits_note(limits):
         return ''
     return ' / '.join(f'{limit} s' for limit in limits) + ' limit'
 
-def sparkline(history, width=220, height=36):
-    '''tiny SVG trend of the broken (failed+error) count over the recent runs'''
-    if len(history) < 2:
+# the segments of the composition bar, stacked in the order of the tiles
+BAR_SEGMENTS = (('passed', 'passed'), ('failed', 'failed'), ('error', 'errors'),
+                ('timeout', 'timed out'), ('skipped', 'skipped'))
+
+def status_bar(counts):
+    '''one stacked bar across the card: the whole bar is the number of tests
+       of the run, each segment one outcome.  the segments carry the color
+       that outcome has everywhere on the site, so the tiles above the bar
+       are its legend and it needs no axis of its own'''
+    total = sum(counts.get(key, 0) for key, _ in BAR_SEGMENTS)
+    if not total:
         return ''
-    history = history[-20:]
-    top = max(max(n for _, n in history), 1)
-    pts = []
-    for i, (runid, n) in enumerate(history):
-        x = 6 + i * (width - 12) / (len(history) - 1)
-        y = height - 6 - (n / top) * (height - 12)
-        pts.append((x, y, runid, n))
-    poly = ' '.join(f'{x:.1f},{y:.1f}' for x, y, _, _ in pts)
-    svg = (f'<svg class="spark d-block mt-2" width="{width}" height="{height}" role="img" '
-           f'aria-label="broken tests trend">')
-    svg += f'<polyline points="{poly}"/>'
-    for x, y, runid, n in pts:
-        svg += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3">'
-                f'<title>{esc(runid)}: {n} broken</title></circle>')
-    return (svg + '</svg><div class="text-body-secondary small">broken tests, last '
-            f'{len(history)} runs</div>')
+    label = ', '.join(f'{counts[key]} {name}' for key, name in BAR_SEGMENTS
+                      if counts.get(key))
+    out = (f'<div class="statusbar mt-2" role="img" '
+           f'aria-label="{esc(f"{total} tests: {label}")}">')
+    for key, name in BAR_SEGMENTS:
+        num = counts.get(key, 0)
+        if not num:
+            continue
+        out += (f'<div class="seg st-{key}" style="width:{100 * num / total:.3f}%"'
+                f' title="{num} {esc(name)} of {total}"></div>')
+    return out + '</div>'
+
+def delta_html(diff):
+    '''what changed since the previous run, as the one line a card has room
+       for: the detail behind it is on the run page the card links to.  both
+       numbers are always shown, so that the line reads the same on every
+       card, with the color carried only by the one that is not zero'''
+    new, fixed = len(diff['new_failures']), len(diff['fixed'])
+    bad = 'delta-bad' if new else 'delta-zero'
+    good = 'delta-good' if fixed else 'delta-zero'
+    return (f'<div class="mt-2"><span class="{bad}">+{new} failed</span> '
+            f'<span class="{good}">-{fixed} fixed</span> '
+            f'<span class="text-body-secondary">since last run</span></div>')
 
 def diff_summary_html(diff):
     '''one-line rendering of a run-to-run comparison'''
@@ -233,15 +250,30 @@ def diff_summary_html(diff):
         return 'no changes vs previous run'
     return ' &middot; '.join(parts) + ' vs previous run'
 
-def external_details(data):
-    '''attribution line for an external report card: branch @ commit, date'''
-    parts = []
-    if data.get('branch') or data.get('commit'):
-        commit = str(data.get('commit', ''))[:10]
-        parts.append(esc(f"{data.get('branch', '')} @ {commit}".strip(' @ ')))
-    if data.get('date'):
-        parts.append(esc(data['date']))
-    return ' &middot; '.join(parts)
+def utc_stamp(stamp):
+    '''a timestamp of a report as "YYYY-MM-DD hh:mm UTC".  the Coverity page
+       publishes a day rather than a time ("Jul 27, 2026"), which is
+       normalized to the same order without inventing a time of day; anything
+       else is passed through as it came'''
+    when = docsdata.parse_iso(stamp)
+    if when is not None:
+        return when.strftime('%Y-%m-%d %H:%M UTC')
+    try:
+        return datetime.datetime.strptime(str(stamp), '%b %d, %Y').strftime('%Y-%m-%d')
+    except ValueError:
+        return str(stamp)
+
+def card_footer(branch, commit, when):
+    '''the line every card that reports on a commit ends on: which branch and
+       commit the result is of, and when it was produced.  one shape for all
+       of them, so that the cards can be read against one another - the parts
+       a report does not record are left out rather than replaced'''
+    ident = ' @ '.join(part for part in (str(branch), str(commit)[:10]) if part)
+    parts = [esc(part) for part in (ident, when) if part]
+    if not parts:
+        return ''
+    return (f'<div class="text-body-secondary small mt-2">'
+            f'{" &middot; ".join(parts)}</div>')
 
 # live GitHub Actions status badges, mirroring data/ci.yaml on the LAMMPS
 # website (update both when a workflow file is renamed)
@@ -291,10 +323,14 @@ def activity_card(activity):
 
     weeks = activity.get('commits_per_week', [])[-26:]
     if len(weeks) > 1:
-        width, height = 234, 48
+        # the bars keep their proportions in a coordinate system of their own
+        # and are stretched to whatever width the card has; the height is in
+        # pixels, so the baseline stays one pixel thick
+        width, height = 234, 96
         top = max(max(n for _, n in weeks), 1)
         barw = width // len(weeks)
-        svg = (f'<svg class="actbar d-block mt-2" width="{width}" height="{height}" '
+        svg = (f'<svg class="actbar d-block mt-2" width="100%" height="{height}" '
+               f'viewBox="0 0 {width} {height}" preserveAspectRatio="none" '
                f'role="img" aria-label="commits per week">')
         for i, (day, n) in enumerate(weeks):
             barh = round((n / top) * (height - 10))
@@ -479,13 +515,26 @@ def not_tested_section(run):
 
 # ---------------------------------------------------------------- pages
 
-def build_run_page(datadir, outdir, suite, runs, runid):
+def build_run_page(datadir, outdir, suite, runs, runid, compare_sha=''):
     run = rundata.load_run(datadir, suite, runid)
     meta = run['metadata']
     counts = rundata.counts(run)
     tests = run['tests']
 
-    body = tiles_html(counts)
+    # what this configuration runs, and where the same inputs in the other
+    # configurations are: the dashboard cards have room for neither.  the
+    # comparison covers one commit ("compare_sha"), so only the runs of that
+    # commit link to it - it says nothing about an older run
+    overview = []
+    detail = rundata.config_detail(suite)
+    if detail:
+        overview.append(f'Configuration: {esc(detail)}')
+    if compare_sha and meta.get('sha') == compare_sha:
+        overview.append('<a href="../../compare.html">compared with the other'
+                        ' configurations at this commit</a>')
+    body = (f'<p class="text-body-secondary">{" &middot; ".join(overview)}</p>'
+            if overview else '')
+    body += tiles_html(counts)
     if counts.get('timeout'):
         body += (f'<p class="text-body-secondary small">{counts["timeout"]} test(s)'
                  f' hit the time limit of the test harness'
@@ -627,7 +676,7 @@ def same_commit(latest):
 def build_compare_page(outdir, sha, configs):
     '''compare the configurations of the full regression suite at one commit;
        returns what the dashboard needs to link to the page'''
-    names = sorted(configs)
+    names = sorted(configs, key=rundata.config_sort_key)
     runs = {name: configs[name][1] for name in names}
     tests = {name: runs[name].get('tests', {}) for name in names}
     comparable, differing = rundata.compare_configs(runs)
@@ -646,7 +695,8 @@ def build_compare_page(outdir, sha, configs):
 
     # what each configuration brings, and how much of it cannot be compared
     body += ('<table class="table table-sm w-auto mt-3"><thead><tr>'
-             '<th>Configuration</th><th class="n">Tests</th><th class="n">Needs a fix</th>'
+             '<th>Configuration</th><th>Runs on</th>'
+             '<th class="n">Tests</th><th class="n">Needs a fix</th>'
              '<th class="n">Timeouts</th><th>Run</th></tr></thead><tbody>')
     for name in names:
         runid, run = configs[name]
@@ -654,6 +704,7 @@ def build_compare_page(outdir, sha, configs):
         attention = sum(1 for entry in tests[name].values() if entry.get('attention'))
         body += (f'<tr><td><a href="{run_link("full-regression/" + name, runid)}">'
                  f'{esc(name)}</a></td>'
+                 f'<td>{esc(rundata.config_detail("full-regression/" + name))}</td>'
                  f'<td class="n">{counts["tests"]}</td>'
                  f'<td class="n">{attention}</td>'
                  f'<td class="n">{counts["timeout"]}</td>'
@@ -741,57 +792,30 @@ def build_index(datadir, outdir, summary):
     regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
     if regression:
         body += '<hr class="my-4">'
-        body += '<div class="h5 row g-3">'
+        body += '<div class="row g-3">'
         for entry in regression:
             counts = entry['counts']
             body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
             body += (f'<h3 class="h6 card-title">'
                      f'<a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(suite_title(entry["suite"]))}</a></h3>')
-            # what the configuration means, where its name does not say it
-            if entry.get('label'):
-                body += f'<div class="lbl">{esc(entry["label"])}</div>'
             body += tiles_html(counts)
-            # the work list against the examples tree is not a test outcome
-            # and does not belong among the tiles, but it is what most of
-            # the failures of this suite are about
-            if entry.get('attention'):
-                body += (f'<div><a href="{run_link(entry["suite"], entry["latest"])}">'
-                         f'{entry["attention"]} inputs</a> need a fix in the'
-                         f' examples tree</div>')
+            body += status_bar(counts)
             if entry.get('diff'):
-                body += f'<div>{diff_summary_html(entry["diff"])}</div>'
-            body += sparkline(entry['history'])
+                body += delta_html(entry['diff'])
             when, run_sha = runid_parts(entry['latest'])
-            sha = entry.get('sha', '')[:10] or run_sha
-            meta = []
-            if sha:
-                meta.append(f'commit {esc(sha)}')
-            meta.append(f'{esc(when)} UTC')
-            # the time limit differs between the configurations of a suite
-            # and is worth naming wherever tests ran into it
-            if entry.get('time_limits'):
-                meta.append(esc(limits_note(entry['time_limits'])))
-            meta.append(f'{len(entry["history"])} archived run(s)')
-            body += (f'<div class="text-body-secondary small mt-2">'
-                     f'{" &middot; ".join(meta)}</div>')
+            body += card_footer(entry.get('branch', ''),
+                                entry.get('sha', '') or run_sha, f'{when} UTC')
             body += '</div></div></div>'
         if 'activity' in summary.get('external', {}):
             body += activity_card(summary['external']['activity'])
         if 'docs' in summary.get('external', {}):
             body += docs_card(summary['external']['docs'])
         body += '</div>'
-        if summary.get('compare'):
-            entry = summary['compare']
-            body += (f'<div class="mt-3"><a href="compare.html">Configuration'
-                     f' comparison</a>: {entry["differing"]} of {entry["comparable"]}'
-                     f' comparable tests disagree across'
-                     f' {len(entry["configs"])} configurations at commit'
-                     f' <code>{esc(entry["sha"][:10])}</code></div>')
 
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
-    body += '<div class="h5 row g-3">'
+    body += '<div class="row g-3">'
     body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     body += ('<h3 class="h6 card-title"><a href="https://download.lammps.org/coverage/">'
              'Code coverage</a></h3>')
@@ -802,8 +826,8 @@ def build_index(datadir, outdir, summary):
             if label in cov:
                 body += (f'<div class="tile"><div class="num">{esc(cov[label])}%</div>'
                          f'<div class="lbl">{esc(label.split("_")[0])}</div></div>')
-        body += (f'</div><div class="text-body-secondary small">'
-                 f'{external_details(cov)}</div>')
+        body += '</div>' + card_footer(cov.get('branch', ''), cov.get('commit', ''),
+                                       utc_stamp(cov.get('date', '')))
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/coverage</div>')
@@ -817,8 +841,8 @@ def build_index(datadir, outdir, summary):
         for label, num in ana.get('counts', {}).items():
             body += (f'<div class="tile"><div class="num">{num}</div>'
                      f'<div class="lbl">{esc(label)}</div></div>')
-        body += (f'</div><div class="text-body-secondary small">'
-                 f'{external_details(ana)}</div>')
+        body += '</div>' + card_footer(ana.get('branch', ''), ana.get('commit', ''),
+                                       utc_stamp(ana.get('date', '')))
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/analysis</div>')
@@ -838,13 +862,13 @@ def build_index(datadir, outdir, summary):
             if label in metrics:
                 body += (f'<div class="tile"><div class="num">{esc(metrics[label])}</div>'
                          f'<div class="lbl">{esc(label.lower())}</div></div>')
-        body += '</div><div class="text-body-secondary small">'
-        details = []
+        body += '</div>'
         if metrics.get('Lines of Code Analyzed'):
-            details.append(f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed')
-        if cov.get('date'):
-            details.append(f'last analyzed {esc(cov["date"])}')
-        body += ' &middot; '.join(details) + '</div>'
+            body += (f'<div class="text-body-secondary small">'
+                     f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed</div>')
+        # the scan records the commit it analyzed as its "version", and no
+        # branch of its own
+        body += card_footer('', cov.get('version', ''), utc_stamp(cov.get('date', '')))
     else:
         body += ('<div class="text-body-secondary small">summary not scraped yet;'
                  ' see scan.coverity.com</div>')
@@ -863,34 +887,41 @@ if __name__ == "__main__":
 
     summary = {'generated': datetime.datetime.now().isoformat(timespec='seconds'),
                'suites': []}
+
     # latest run per configuration of the full regression suite, for the
-    # comparison between them
+    # comparison between them.  which commit that comparison covers has to be
+    # known before the run pages are written: the run pages of that commit are
+    # what links to it, the dashboard does not
     regression = {}
+    for suite in rundata.list_suites(args.datadir):
+        if suite.startswith('full-regression/'):
+            runs = rundata.list_runs(args.datadir, suite)
+            regression[suite.split('/', 1)[1]] = (
+                runs[-1], rundata.load_run(args.datadir, suite, runs[-1]))
+    compare_sha, compare_group = same_commit(regression)
+    if len(compare_group) < 2:
+        compare_sha = ''
 
     for suite in rundata.list_suites(args.datadir):
         runs = rundata.list_runs(args.datadir, suite)
-        history = []
         last_all_ok = None
         for runid in runs:
             run = rundata.load_run(args.datadir, suite, runid)
-            counts = rundata.counts(run)
-            history.append((runid, rundata.broken(counts)))
-            if rundata.broken(counts) == 0:
+            if rundata.broken(rundata.counts(run)) == 0:
                 last_all_ok = runid
-            build_run_page(args.datadir, args.outdir, suite, runs, runid)
+            build_run_page(args.datadir, args.outdir, suite, runs, runid,
+                           compare_sha)
         latest = rundata.load_run(args.datadir, suite, runs[-1])
-        if suite.startswith('full-regression/'):
-            regression[suite.split('/', 1)[1]] = (runs[-1], latest)
         entry = {
             'suite': suite,
             'latest': runs[-1],
             'counts': rundata.counts(latest),
             'sha': latest['metadata'].get('sha', ''),
+            'branch': latest['metadata'].get('branch', ''),
             'label': rundata.config_label(suite, latest['metadata'].get('title', '')),
             'time_limits': rundata.time_limits(latest),
             'attention': sum(1 for entry in latest.get('tests', {}).values()
                              if entry.get('attention')),
-            'history': history,
             'last_all_ok': last_all_ok,
         }
         if len(runs) > 1:
@@ -916,14 +947,13 @@ if __name__ == "__main__":
                         dirs_exist_ok=True)
 
     os.makedirs(os.path.join(args.outdir, 'api'), exist_ok=True)
-    sha, group = same_commit(regression)
-    if len(group) > 1:
-        summary['compare'] = build_compare_page(args.outdir, sha, group)
+    if compare_sha:
+        summary['compare'] = build_compare_page(args.outdir, compare_sha,
+                                                compare_group)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
     api = {'generated': summary['generated'],
-           'suites': [{k: v for k, v in s.items() if k != 'history'}
-                      for s in summary['suites']]}
+           'suites': [dict(s) for s in summary['suites']]}
     if summary.get('compare'):
         api['compare'] = summary['compare']
     for entry in api['suites']:

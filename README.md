@@ -78,8 +78,16 @@ is documented in `tools/rundata.py`.
 since the JSON is a superset of both). The file name is what identifies the
 configuration: the `config_file` property does not, three of the four share
 `config.yaml`, and only the title of the run spells the difference out - which
-is why the dashboard and the status issue carry it alongside the suite name
-where it says more than the name does (`rundata.config_label()`).
+is why the status issue carries it alongside the suite name where it says more
+than the name does (`rundata.config_label()`).
+
+That title is a shorthand, though (`MPI+OpenMP`, `KOKKOS/OpenMP`), and it says
+nothing about the decomposition. The website therefore does not repeat it on
+the dashboard cards but spells out what each configuration runs on the run
+page and on the comparison page (`rundata.CONFIG_DETAILS`), which is also
+where the order the configurations are listed in comes from
+(`rundata.CONFIG_ORDER`: serial, parallel, openmp, kokkos - by what each adds
+to the one before, not alphabetically).
 
 Only the most recent run is published, so a run that is not picked up
 before the next one replaces it is lost; the runs are gated by changes in the
@@ -107,11 +115,12 @@ expires depends on the limit in force (180 s serial, 60 s for the others), on
 how many tests run beside it, and on the machine - so it says nothing about
 the code. Those runs are classified as
 `timeout` (`rundata.status_of()`), counted apart from the errors, and left
-out of the broken count that drives the trend, the *last all OK* run, and the
+out of the broken count that drives the *last all OK* run and the
 notification comments. They are not swept under the carpet: they have their
-own tile, filter, and column, a run-to-run comparison lists them as *newly
-out of time*, and a test that starts hanging because of a code change shows
-up there. The limit itself is read back from the messages
+own tile, their own segment of the composition bar of a card, their own
+filter and column, a run-to-run comparison lists them as *newly out of
+time*, and a test that starts hanging because of a code change shows up
+there. The limit itself is read back from the messages
 (`rundata.time_limits()`), since the run data does not record it.
 
 ### Reading a regression result
@@ -137,7 +146,9 @@ misleading and the run pages group the results the way
   file, needs a multi-partition run, package not installed, ...), counted per
   kind, since each implies different work.
 
-`compare.html` puts the configurations of one commit side by side. A test is
+`compare.html` puts the configurations of one commit side by side. It is
+reached from the run pages of that commit rather than from the dashboard,
+since it says nothing about a run of any other commit. A test is
 only counted there where every configuration reaches a verdict on it: inputs
 that need a fix and inputs that ran out of time are left out, because most of
 the former cannot match a reference log file that was written with a different
