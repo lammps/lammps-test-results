@@ -36,6 +36,31 @@ BAD = ('failed', 'error')
 # "failed, no Total wall time in the output, timeout (180s expired)"
 TIMEOUT = re.compile(r'\btimeout \((\d+)s expired\)')
 
+# The problems the harness reports in the "attention" field of a test, as
+# (label, marker) pairs.  The marker is the part of the message that is
+# stable across its wordings: the same problem is reported as 'velocity
+# create with the default "loop all" and atoms from create_atoms: cannot
+# match log.15May22.ehex.g++.8, ...' and as 'velocity create with "loop
+# local": cannot match ...', and the rest of the message names the log file
+# of that particular test.  A field can carry several problems, separated
+# by "; ".  See tools/regression-tests/REPORTING.md in lammps/lammps.
+ATTENTION_KINDS = (
+    ('velocities depend on the MPI count', 'velocity create with'),
+    ('reference log file matches no input', 'no reference log file matches'),
+    ('production sized run', 'production sized run'),
+    ('production sized run', 'hits the timeout of'),
+    ('style exists in no package', 'does not exist in any package'),
+)
+# statuses that are not verdicts: the input was not really tested, and each
+# kind implies different work, so they are counted apart from one another
+NOT_TESTED_KINDS = (
+    ('needs a multi-partition run', 'needs a multi-partition run'),
+    ('no reference log file, run as a crash test', 'no reference log file, only checked'),
+    ('no reference log file, not shortened', 'numerical checks skipped due to missing'),
+    ('log file format not understood', 'unsupported log file format'),
+    ('package not installed', 'package not installed'),
+)
+
 def list_runs(datadir, suite):
     '''return the sorted list of run ids for a suite (oldest first)'''
     suitedir = os.path.join(datadir, suite)
@@ -122,6 +147,72 @@ def broken(counts):
        say nothing about the code (see the module docstring)'''
     return counts.get('failed', 0) + counts.get('error', 0)
 
+def attention_kinds(entry):
+    '''the problems the "attention" field of a test names, as labels. it is
+       set independently of the verdict, so a test that passes can carry one;
+       a wording that matches none of the known kinds is reported as "other"
+       rather than dropped, so that a new kind cannot go unnoticed'''
+    text = entry.get('attention') or ''
+    if not text:
+        return []
+    kinds = []
+    for label, marker in ATTENTION_KINDS:
+        if marker in text and label not in kinds:
+            kinds.append(label)
+    return kinds or ['other']
+
+def attention_groups(run):
+    '''the tests of a run that need a fix in the examples tree, grouped by
+       kind. this is a work list against the repository rather than against
+       the code: an input that cannot match its reference log file, or that
+       runs for a production number of steps, stays broken until somebody
+       edits it, however healthy the code is'''
+    groups = {}
+    for key, entry in run.get('tests', {}).items():
+        for kind in attention_kinds(entry):
+            groups.setdefault(kind, []).append(key)
+    return {kind: sorted(keys) for kind, keys in sorted(groups.items())}
+
+def divergence(entry):
+    '''when a failing test starts deviating from its reference log, as one of
+       "setup", "early", "late", "chaotic", or "nosteps"; None where the run
+       carries no divergence data at all.
+
+       a classical MD trajectory is chaotic: the smallest difference in the
+       computed forces grows until it reaches the printed precision, so a
+       deviation that appears late says nothing about the code, while one
+       that is there in the first thermo output cannot be rounding'''
+    if 'diverged_row' not in entry:
+        return None
+    if entry.get('diverged_row') == 0:
+        return 'setup'
+    at = entry.get('diverged_at')
+    if at is None:
+        # no Step column in the thermo output: when it deviates is unknown
+        return 'nosteps'
+    if at <= 200:
+        return 'early'
+    if at <= 1000:
+        return 'late'
+    return 'chaotic'
+
+def sparse_thermo(entry):
+    '''whether a run prints its thermo output too rarely for the divergence
+       rule to mean anything: the deviation cannot be seen before the first
+       output after it starts, so one that is first seen thousands of steps
+       in, at the first or second output, may have started at any time'''
+    return (entry.get('diverged_row') is not None
+            and entry.get('diverged_row') <= 1
+            and (entry.get('diverged_at') or 0) > 1000)
+
+def not_tested_kind(entry):
+    '''which kind of "was not really tested" a status is, or None'''
+    message = entry.get('message', '')
+    for label, marker in NOT_TESTED_KINDS:
+        if marker in message:
+            return label
+    return None
+
 def time_limits(run):
     '''the time limits the test harness enforced in a run, as seen in the
        messages of the tests that hit them (sorted, in seconds); empty when
@@ -132,6 +223,31 @@ def time_limits(run):
         if found:
             limits.add(int(found.group(1)))
     return sorted(limits)
+
+def compare_configs(runs):
+    '''compare the same input decks run in different configurations ("runs"
+       maps a configuration name to a run, all of the same commit); returns
+       the (comparable, differing) lists of test keys.
+
+       a test is only comparable where every configuration reaches a verdict
+       on it: one that carries an "attention" field cannot match its
+       reference log file there for a reason of its own - most of them
+       because the log was written with a different number of MPI processes -
+       and one that timed out has no verdict at all. without that filter the
+       comparison drowns in the problems of the examples tree'''
+    if len(runs) < 2:
+        return [], []
+    tests = [run.get('tests', {}) for run in runs.values()]
+    comparable, differing = [], []
+    for key in sorted(set().union(*(set(t) for t in tests))):
+        entries = [t.get(key) for t in tests]
+        if any(e is None or e.get('attention') or status_of(e) == 'timeout'
+               for e in entries):
+            continue
+        comparable.append(key)
+        if len({status_of(e) for e in entries}) > 1:
+            differing.append(key)
+    return comparable, differing
 
 def compare_runs(previous, current, earlier=()):
     '''classify the changes between two runs (run.json dicts); returns a dict

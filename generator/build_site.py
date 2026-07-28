@@ -371,6 +371,112 @@ def docs_card(docs):
                 f'{" &middot; ".join(notes)}</div>')
     return out + '</div></div></div>'
 
+# ------------------------------------------------- interpreting a result
+
+def listing_html(items, limit=50):
+    '''a capped list of test names, each with a line of detail; the groups
+       run to the hundreds and the point is to read the kind, not every
+       member of it'''
+    out = '<ul class="listing">'
+    for key, detail in items[:limit]:
+        out += f'<li><code>{esc(key)}</code>'
+        if detail:
+            out += f'<div class="lbl">{esc(detail)}</div>'
+        out += '</li>'
+    if len(items) > limit:
+        out += f'<li class="text-body-secondary">... and {len(items) - limit} more</li>'
+    return out + '</ul>'
+
+def attention_section(run):
+    '''the work list against the examples tree: what a developer has to fix
+       in the inputs themselves, grouped by kind'''
+    groups = rundata.attention_groups(run)
+    if not groups:
+        return ''
+    total = len({key for keys in groups.values() for key in keys})
+    body = (f'<h2 class="h5 mt-4">Needs a fix in the examples tree ({total})</h2>'
+            '<p class="text-body-secondary small">Problems with the input scripts'
+            ' rather than with the code. These stay until somebody edits the example,'
+            ' and they are reported independently of the verdict, so a test that'
+            ' passes can carry one.</p>')
+    for kind, keys in groups.items():
+        items = [(key, run['tests'][key].get('attention', '')) for key in keys]
+        body += (f'<details class="mb-2"><summary>{esc(kind)} ({len(keys)})</summary>'
+                 f'{listing_html(items)}</details>')
+    return body
+
+def divergence_detail(entry):
+    '''how a failing test deviates from its reference log, in words'''
+    if entry.get('diverged_row') == 0:
+        return 'differs in the very first thermo output'
+    at, row = entry.get('diverged_at'), entry.get('diverged_row')
+    if at is None:
+        return f'differs at output row {row}; no step column to say when'
+    text = f'differs from step {at} on (output row {row})'
+    if rundata.sparse_thermo(entry):
+        text += ', but the thermo output is too sparse to tell when it started'
+    return text
+
+# the divergence classes, in the order they are worth reading, with the
+# heading each gets and whether it starts folded away
+DIVERGENCE_SECTIONS = (
+    ('setup', 'Differs before the trajectory can diverge', False),
+    ('early', 'Differs within the first 200 steps', False),
+    ('late', 'Differs after 200 to 1000 steps', True),
+    ('chaotic', 'Differs only after 1000 steps, consistent with chaos', True),
+    ('nosteps', 'No step column in the thermo output', True),
+)
+
+def divergence_sections(run):
+    '''the failures a developer should look at, sorted by how early the run
+       deviates from its reference log.  tests that carry an "attention"
+       field are left out: the input cannot match its reference there, which
+       explains an early deviation on its own'''
+    buckets = {}
+    for key, entry in run.get('tests', {}).items():
+        if rundata.status_of(entry) not in rundata.BAD or entry.get('attention'):
+            continue
+        kind = rundata.divergence(entry)
+        if kind:
+            buckets.setdefault(kind, []).append(key)
+    if not buckets:
+        return ''
+    urgent = len(buckets.get('setup', [])) + len(buckets.get('early', []))
+    body = (f'<h2 class="h5 mt-4">Worth investigating ({urgent})</h2>'
+            '<p class="text-body-secondary small">A classical MD trajectory is chaotic,'
+            ' so a difference that appears late says nothing about the code, while one'
+            ' that is there in the first thermo output cannot be rounding. Inputs that'
+            ' cannot match their reference log file are listed above instead.</p>')
+    for kind, heading, folded in DIVERGENCE_SECTIONS:
+        keys = sorted(buckets.get(kind, []))
+        if not keys:
+            continue
+        items = [(key, divergence_detail(run['tests'][key])) for key in keys]
+        summary = f'{heading} ({len(keys)})'
+        if folded:
+            body += (f'<details class="mb-2"><summary>{esc(summary)}</summary>'
+                     f'{listing_html(items)}</details>')
+        else:
+            body += f'<h3 class="h6 mt-3">{esc(summary)}</h3>{listing_html(items)}'
+    return body
+
+def not_tested_section(run):
+    '''the statuses that are not verdicts, counted per kind: each of them
+       means a different piece of work, and folding them into "skipped"
+       hides that'''
+    tally = {}
+    for entry in run.get('tests', {}).values():
+        kind = rundata.not_tested_kind(entry)
+        if kind:
+            tally[kind] = tally.get(kind, 0) + 1
+    if not tally:
+        return ''
+    body = (f'<h2 class="h5 mt-4">Not really tested ({sum(tally.values())})</h2>'
+            '<table class="table table-sm w-auto"><tbody>')
+    for kind, num in sorted(tally.items(), key=lambda item: -item[1]):
+        body += (f'<tr><td class="n pe-3">{num}</td><td>{esc(kind)}</td></tr>')
+    return body + '</tbody></table>'
+
 # ---------------------------------------------------------------- pages
 
 def build_run_page(datadir, outdir, suite, runs, runid):
@@ -421,6 +527,12 @@ def build_run_page(datadir, outdir, suite, runs, runid):
                 body += (f'<h3 class="h6">{label} ({len(diff[key])})</h3>'
                          f'<ul>{items}{more}</ul>')
 
+    # what the results mean: the work list against the examples tree first,
+    # since an input that cannot match its reference explains its own failure
+    body += attention_section(run)
+    body += divergence_sections(run)
+    body += not_tested_section(run)
+
     # last-ok information for currently broken tests
     broken = sorted(k for k, v in tests.items()
                     if rundata.status_of(v) in rundata.BAD)
@@ -451,6 +563,10 @@ def build_run_page(datadir, outdir, suite, runs, runid):
         entry = tests[key]
         status = rundata.status_of(entry)
         details = esc(entry['message'])
+        if status in rundata.BAD and rundata.divergence(entry):
+            details += (f'<div class="lbl">{esc(divergence_detail(entry))}</div>')
+        if entry.get('attention'):
+            details += f'<div class="attn">{esc(entry["attention"])}</div>'
         if key in lastok and lastok[key]:
             details += (f' <span class="text-body-secondary">'
                         f'(last OK: {esc(lastok[key])})</span>')
@@ -493,6 +609,91 @@ def build_run_page(datadir, outdir, suite, runs, runid):
 
 def run_link(suite, runid):
     return f'runs/{suite_slug(suite)}/{runid}.html'
+
+def same_commit(latest):
+    '''the largest set of configurations whose latest run is of one commit
+       ("latest" maps a configuration to its (runid, run)); comparing runs of
+       different commits would report the changes between them as
+       disagreements. ties go to the newest set'''
+    by_sha = {}
+    for name, (runid, run) in latest.items():
+        by_sha.setdefault(run['metadata'].get('sha', ''), {})[name] = (runid, run)
+    if not by_sha:
+        return '', {}
+    sha = max(by_sha, key=lambda s: (len(by_sha[s]),
+                                     max(runid for runid, _ in by_sha[s].values())))
+    return sha, by_sha[sha]
+
+def build_compare_page(outdir, sha, configs):
+    '''compare the configurations of the full regression suite at one commit;
+       returns what the dashboard needs to link to the page'''
+    names = sorted(configs)
+    runs = {name: configs[name][1] for name in names}
+    tests = {name: runs[name].get('tests', {}) for name in names}
+    comparable, differing = rundata.compare_configs(runs)
+
+    body = ('<p>The same input decks, run in different configurations at commit '
+            f'<code>{esc(sha[:10])}</code>. A test counts here only where every'
+            ' configuration reaches a verdict on it: an input that needs a fix in the'
+            ' examples tree cannot match its reference log file for a reason of its'
+            ' own - most of them because that log was written with a different number'
+            ' of MPI processes - and an input that ran out of time has no verdict at'
+            ' all. Both are left out, or they bury everything else.</p>')
+    for label, num in (('Configurations', len(names)), ('Comparable', len(comparable)),
+                       ('Disagreeing', len(differing))):
+        body += ('<div class="tile d-inline-block me-4">'
+                 f'<div class="num">{num}</div><div class="lbl">{esc(label)}</div></div>')
+
+    # what each configuration brings, and how much of it cannot be compared
+    body += ('<table class="table table-sm w-auto mt-3"><thead><tr>'
+             '<th>Configuration</th><th class="n">Tests</th><th class="n">Needs a fix</th>'
+             '<th class="n">Timeouts</th><th>Run</th></tr></thead><tbody>')
+    for name in names:
+        runid, run = configs[name]
+        counts = rundata.counts(run)
+        attention = sum(1 for entry in tests[name].values() if entry.get('attention'))
+        body += (f'<tr><td><a href="{run_link("full-regression/" + name, runid)}">'
+                 f'{esc(name)}</a></td>'
+                 f'<td class="n">{counts["tests"]}</td>'
+                 f'<td class="n">{attention}</td>'
+                 f'<td class="n">{counts["timeout"]}</td>'
+                 f'<td class="lbl">{esc(runid)}</td></tr>')
+    body += '</tbody></table>'
+
+    if len(names) > 2:
+        body += '<h2 class="h5 mt-4">How the configurations differ pairwise</h2>'
+        body += ('<table class="table table-sm w-auto"><tbody>')
+        for i, first in enumerate(names):
+            for second in names[i + 1:]:
+                num = sum(1 for key in comparable
+                          if rundata.status_of(tests[first][key])
+                          != rundata.status_of(tests[second][key]))
+                body += (f'<tr><td class="n pe-3">{num}</td>'
+                         f'<td>{esc(first)} vs {esc(second)}</td></tr>')
+        body += '</tbody></table>'
+
+    body += f'<h2 class="h5 mt-4">Tests that do not agree ({len(differing)})</h2>'
+    if differing:
+        body += ('<div class="table-responsive"><table class="table table-sm '
+                 'table-striped align-middle"><thead><tr><th>Test</th>'
+                 + ''.join(f'<th>{esc(name)}</th>' for name in names)
+                 + '</tr></thead><tbody>')
+        for key in differing[:300]:
+            body += f'<tr><td><code>{esc(key)}</code></td>'
+            for name in names:
+                body += f'<td>{status_chip(rundata.status_of(tests[name][key]))}</td>'
+            body += '</tr>'
+        body += '</tbody></table></div>'
+        if len(differing) > 300:
+            body += (f'<p class="text-body-secondary small">... and'
+                     f' {len(differing) - 300} more</p>')
+    else:
+        body += '<p>None: every comparable test agrees across the configurations.</p>'
+
+    with open(os.path.join(outdir, 'compare.html'), 'w') as f:
+        f.write(page('Configuration comparison', body))
+    return {'sha': sha, 'comparable': len(comparable), 'differing': len(differing),
+            'configs': names}
 
 def build_index(datadir, outdir, summary):
     body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
@@ -551,6 +752,13 @@ def build_index(datadir, outdir, summary):
             if entry.get('label'):
                 body += f'<div class="lbl">{esc(entry["label"])}</div>'
             body += tiles_html(counts)
+            # the work list against the examples tree is not a test outcome
+            # and does not belong among the tiles, but it is what most of
+            # the failures of this suite are about
+            if entry.get('attention'):
+                body += (f'<div><a href="{run_link(entry["suite"], entry["latest"])}">'
+                         f'{entry["attention"]} inputs</a> need a fix in the'
+                         f' examples tree</div>')
             if entry.get('diff'):
                 body += f'<div>{diff_summary_html(entry["diff"])}</div>'
             body += sparkline(entry['history'])
@@ -573,6 +781,13 @@ def build_index(datadir, outdir, summary):
         if 'docs' in summary.get('external', {}):
             body += docs_card(summary['external']['docs'])
         body += '</div>'
+        if summary.get('compare'):
+            entry = summary['compare']
+            body += (f'<div class="mt-3"><a href="compare.html">Configuration'
+                     f' comparison</a>: {entry["differing"]} of {entry["comparable"]}'
+                     f' comparable tests disagree across'
+                     f' {len(entry["configs"])} configurations at commit'
+                     f' <code>{esc(entry["sha"][:10])}</code></div>')
 
     # external report summaries (coverage, static analysis)
     external = summary.get('external', {})
@@ -648,6 +863,9 @@ if __name__ == "__main__":
 
     summary = {'generated': datetime.datetime.now().isoformat(timespec='seconds'),
                'suites': []}
+    # latest run per configuration of the full regression suite, for the
+    # comparison between them
+    regression = {}
 
     for suite in rundata.list_suites(args.datadir):
         runs = rundata.list_runs(args.datadir, suite)
@@ -661,6 +879,8 @@ if __name__ == "__main__":
                 last_all_ok = runid
             build_run_page(args.datadir, args.outdir, suite, runs, runid)
         latest = rundata.load_run(args.datadir, suite, runs[-1])
+        if suite.startswith('full-regression/'):
+            regression[suite.split('/', 1)[1]] = (runs[-1], latest)
         entry = {
             'suite': suite,
             'latest': runs[-1],
@@ -668,6 +888,8 @@ if __name__ == "__main__":
             'sha': latest['metadata'].get('sha', ''),
             'label': rundata.config_label(suite, latest['metadata'].get('title', '')),
             'time_limits': rundata.time_limits(latest),
+            'attention': sum(1 for entry in latest.get('tests', {}).values()
+                             if entry.get('attention')),
             'history': history,
             'last_all_ok': last_all_ok,
         }
@@ -694,11 +916,16 @@ if __name__ == "__main__":
                         dirs_exist_ok=True)
 
     os.makedirs(os.path.join(args.outdir, 'api'), exist_ok=True)
+    sha, group = same_commit(regression)
+    if len(group) > 1:
+        summary['compare'] = build_compare_page(args.outdir, sha, group)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
     api = {'generated': summary['generated'],
            'suites': [{k: v for k, v in s.items() if k != 'history'}
                       for s in summary['suites']]}
+    if summary.get('compare'):
+        api['compare'] = summary['compare']
     for entry in api['suites']:
         if 'diff' in entry:
             entry['diff'] = {k: len(v) for k, v in entry['diff'].items()}

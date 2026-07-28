@@ -114,6 +114,35 @@ out of time*, and a test that starts hanging because of a code change shows
 up there. The limit itself is read back from the messages
 (`rundata.time_limits()`), since the run data does not record it.
 
+### Reading a regression result
+
+The example inputs were not written to be tests, so a plain pass/fail count is
+misleading and the run pages group the results the way
+`tools/regression-tests/REPORTING.md` in lammps/lammps describes:
+
+- **Needs a fix in the examples tree** - every test whose `attention` field
+  names a problem with the input script itself, grouped by kind
+  (`rundata.attention_groups()`). This is a work list against the repository,
+  not against the code, and it is set independently of the verdict, so a test
+  that passes can carry one. It is also the majority of what the regression
+  suites report: reference log files that match no input, inputs that run a
+  production number of steps, and inputs whose initial velocities depend on
+  the number of MPI processes.
+- **Worth investigating** - the remaining failures, sorted by how early the
+  run deviates from its reference log (`rundata.divergence()`). A classical MD
+  trajectory is chaotic, so a difference that first appears after a thousand
+  steps says nothing about the code, while one that is there in the very first
+  thermo output cannot be rounding. The late ones are folded away.
+- **Not really tested** - the statuses that are not verdicts (no reference log
+  file, needs a multi-partition run, package not installed, ...), counted per
+  kind, since each implies different work.
+
+`compare.html` puts the configurations of one commit side by side. A test is
+only counted there where every configuration reaches a verdict on it: inputs
+that need a fix and inputs that ran out of time are left out, because most of
+the former cannot match a reference log file that was written with a different
+number of MPI processes, and they bury everything else.
+
 Because a timeout is the *absence* of a verdict rather than one, a comparison
 against a run in which a test timed out falls back to the most recent run
 before it that did judge that test (`rundata.compare_runs()` reads older runs
