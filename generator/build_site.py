@@ -197,29 +197,64 @@ def limits_note(limits):
         return ''
     return ' / '.join(f'{limit} s' for limit in limits) + ' limit'
 
-# the segments of the composition bar, stacked in the order of the tiles
-BAR_SEGMENTS = (('passed', 'passed'), ('failed', 'failed'), ('error', 'errors'),
-                ('timeout', 'timed out'), ('skipped', 'skipped'))
+# how many runs a card shows: the test machine publishes at most once every
+# 24 h, so this is about a month of history, and 25 bars over the width of a
+# card come out as wide as the weekly commit bars of the activity card.  the
+# workflow polls twice a day, but a poll that finds the same results again
+# archives nothing (tools/fetch_regression.py), so a bar is a run and not a
+# poll
+TREND_RUNS = 25
 
-def status_bar(counts):
-    '''one stacked bar across the card: the whole bar is the number of tests
-       of the run, each segment one outcome.  the segments carry the color
-       that outcome has everywhere on the site, so the tiles above the bar
-       are its legend and it needs no axis of its own'''
-    total = sum(counts.get(key, 0) for key, _ in BAR_SEGMENTS)
-    if not total:
+# the segments of a bar, stacked from the bottom up.  the outcomes worth
+# watching sit on the baseline, where a change in one of them is a change in
+# the height of that band rather than a shift of everything above it; the
+# tests that passed float on top, so that the top edge of a bar stays the
+# number of tests of that run
+BAR_SEGMENTS = (('failed', 'failed'), ('error', 'errors'), ('timeout', 'timed out'),
+                ('skipped', 'skipped'), ('passed', 'passed'))
+
+def bar_total(counts):
+    '''the tests of a run that reached one of the states a bar is made of'''
+    return sum(counts.get(key, 0) for key, _ in BAR_SEGMENTS)
+
+def history_bars(history, width=234, height=96):
+    '''how the outcomes of a suite are distributed over its last TREND_RUNS
+       runs: one stacked bar per run, the whole bar the number of tests of
+       that run, so that both the distribution and the way it moves can be
+       read off it.  the bars keep their pitch while the archive fills, with
+       the newest run at the right edge - three runs spread over the width of
+       a card would read as a trend over a fortnight'''
+    history = history[-TREND_RUNS:]
+    if not history:
         return ''
-    label = ', '.join(f'{counts[key]} {name}' for key, name in BAR_SEGMENTS
-                      if counts.get(key))
-    out = (f'<div class="statusbar mt-2" role="img" '
-           f'aria-label="{esc(f"{total} tests: {label}")}">')
-    for key, name in BAR_SEGMENTS:
-        num = counts.get(key, 0)
-        if not num:
-            continue
-        out += (f'<div class="seg st-{key}" style="width:{100 * num / total:.3f}%"'
-                f' title="{num} {esc(name)} of {total}"></div>')
-    return out + '</div>'
+    top = max(max(bar_total(counts) for _, counts in history), 1)
+    barw = width // TREND_RUNS
+    svg = (f'<svg class="trend d-block mt-2" width="100%" height="{height}" '
+           f'viewBox="0 0 {width} {height}" preserveAspectRatio="none" role="img" '
+           f'aria-label="test outcomes of the last {len(history)} runs">')
+    for i, (runid, counts) in enumerate(history):
+        x = (TREND_RUNS - len(history) + i) * barw
+        when, sha = runid_parts(runid)
+        detail = ', '.join(f'{counts[key]} {name}' for key, name in BAR_SEGMENTS
+                           if counts.get(key))
+        svg += (f'<g><title>{esc(when)} {esc(sha)}: {bar_total(counts)} tests'
+                f' ({esc(detail)})</title>')
+        # stacked from the baseline up, one pixel of margin above and below
+        y = height - 1
+        for key, _ in BAR_SEGMENTS:
+            num = counts.get(key, 0)
+            if not num:
+                continue
+            # a handful of tests out of a thousand is under a pixel tall and
+            # would disappear; it is drawn as a sliver instead
+            barh = max(num / top * (height - 2), 0.75)
+            y -= barh
+            svg += (f'<rect class="st-{key}" x="{x}" y="{y:.2f}" '
+                    f'width="{barw - 2}" height="{barh:.2f}"/>')
+        svg += '</g>'
+    svg += f'<line x1="0" y1="{height - 0.5}" x2="{width}" y2="{height - 0.5}"/></svg>'
+    return svg + (f'<div class="text-body-secondary small">test outcomes, last '
+                  f'{len(history)} run(s)</div>')
 
 def delta_html(diff):
     '''what changed since the previous run, as the one line a card has room
@@ -800,7 +835,7 @@ def build_index(datadir, outdir, summary):
                      f'<a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(suite_title(entry["suite"]))}</a></h3>')
             body += tiles_html(counts)
-            body += status_bar(counts)
+            body += history_bars(entry['history'])
             if entry.get('diff'):
                 body += delta_html(entry['diff'])
             when, run_sha = runid_parts(entry['latest'])
@@ -865,10 +900,8 @@ def build_index(datadir, outdir, summary):
         body += '</div>'
         if metrics.get('Lines of Code Analyzed'):
             body += (f'<div class="text-body-secondary small">'
-                     f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed</div>')
-        # the scan records the commit it analyzed as its "version", and no
-        # branch of its own
-        body += card_footer('', cov.get('version', ''), utc_stamp(cov.get('date', '')))
+                     f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed'
+                     f' &middot; {str(cov.get('version',''))[:10]} &middot; {cov.get('date', '')}</div>')
     else:
         body += ('<div class="text-body-secondary small">summary not scraped yet;'
                  ' see scan.coverity.com</div>')
@@ -904,10 +937,14 @@ if __name__ == "__main__":
 
     for suite in rundata.list_suites(args.datadir):
         runs = rundata.list_runs(args.datadir, suite)
+        # the counts of every archived run, for the trend bars of a card
+        history = []
         last_all_ok = None
         for runid in runs:
             run = rundata.load_run(args.datadir, suite, runid)
-            if rundata.broken(rundata.counts(run)) == 0:
+            counts = rundata.counts(run)
+            history.append((runid, counts))
+            if rundata.broken(counts) == 0:
                 last_all_ok = runid
             build_run_page(args.datadir, args.outdir, suite, runs, runid,
                            compare_sha)
@@ -922,6 +959,7 @@ if __name__ == "__main__":
             'time_limits': rundata.time_limits(latest),
             'attention': sum(1 for entry in latest.get('tests', {}).values()
                              if entry.get('attention')),
+            'history': history,
             'last_all_ok': last_all_ok,
         }
         if len(runs) > 1:
@@ -952,8 +990,11 @@ if __name__ == "__main__":
                                                 compare_group)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
+    # the trend bars of the dashboard read every archived run; the snapshot
+    # reports the latest one, and keeps the history out of it
     api = {'generated': summary['generated'],
-           'suites': [dict(s) for s in summary['suites']]}
+           'suites': [{k: v for k, v in s.items() if k != 'history'}
+                      for s in summary['suites']]}
     if summary.get('compare'):
         api['compare'] = summary['compare']
     for entry in api['suites']:

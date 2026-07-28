@@ -20,6 +20,13 @@ on the contents rather than on the file being new: results whose generation
 time and commit are already archived are skipped, and this script can run from
 a schedule as often as necessary.
 
+Beyond that, the archive keeps one run per commit, since every archived run
+is a point of the trend on the dashboard. Results that repeat a commit
+already archived replace the run archived for it (the last publication of a
+commit is the one run with the test scripts as they ended up), and results
+that repeat its every verdict as well are not archived at all - that is a
+re-publication rather than a run.
+
 The commit and the branch are taken from the "commit" and "branch" metadata
 fields; where those are absent they are recovered from the "git_info"
 property ("Git info (<branch> / <describe>)"), which is also the only source
@@ -45,6 +52,7 @@ import email.utils
 import json
 import os
 import re
+import shutil
 import sys
 import urllib.request
 
@@ -140,6 +148,37 @@ def already_archived(datadir, suite, generated, sha):
             return runid
     return None
 
+def verdicts(tests):
+    '''the outcome of every test of a run, which is what a change consists
+       of: the wall times differ between two runs of the same code, and the
+       messages carry them, so neither can be compared'''
+    return {key: rundata.status_of(entry) for key, entry in tests.items()}
+
+def archived_with_commit(datadir, suite, sha):
+    '''the archived runs of one commit, oldest first.
+
+       the test machine only runs when the monitored branch has changed, so a
+       commit that appears twice was run again while the test scripts
+       themselves were being worked on.  the archive keeps one run per commit
+       - the last one published of it, which is the one run with the scripts
+       as they ended up - so that every bar of the trend on the dashboard is
+       a commit of its own'''
+    found = []
+    if not sha:
+        return found
+    for runid in rundata.list_runs(datadir, suite):
+        meta = rundata.load_run(datadir, suite, runid)['metadata']
+        if meta.get('sha', '')[:10] == sha[:10]:
+            found.append(runid)
+    return found
+
+def verdicts_moved(datadir, suite, runid, tests):
+    '''how many verdicts of an archived run these results change'''
+    before = verdicts(rundata.load_run(datadir, suite, runid).get('tests', {}))
+    now = verdicts(tests)
+    return sum(1 for key in set(before) | set(now)
+               if before.get(key) != now.get(key))
+
 def ingest(url, datadir, config, dry_run=False):
     '''archive one configuration; returns 1 if a new run was written'''
     suite = f'{SUITE}/{config}'
@@ -167,7 +206,14 @@ def ingest(url, datadir, config, dry_run=False):
     branch = meta.get('branch') or branch
     seen = already_archived(datadir, suite, generated, sha)
     if seen:
-        print(f"{suite}: unchanged since {seen}")
+        print(f"{suite}: already archived as {seen}")
+        return 0
+    # one run per commit: results that repeat a commit replace the run
+    # archived for it, and are not archived at all where they repeat its
+    # every verdict as well - that is a re-publication and not a run
+    superseded = archived_with_commit(datadir, suite, sha)
+    if superseded and not verdicts_moved(datadir, suite, superseded[-1], tests):
+        print(f"{suite}: unchanged since {superseded[-1]}")
         return 0
 
     runid = run_id_string(published, generated, sha)
@@ -188,6 +234,8 @@ def ingest(url, datadir, config, dry_run=False):
     if dry_run:
         print(f"would ingest {suite}/{runid}: {counts.get('tests')} tests,"
               f" {counts.get('failed')} failed, {counts.get('error')} errors")
+        for old in superseded:
+            print(f"would replace {suite}/{old}: same commit {sha[:10]}")
         return 1
 
     os.makedirs(rundir, exist_ok=True)
@@ -195,6 +243,15 @@ def ingest(url, datadir, config, dry_run=False):
         json.dump({'metadata': meta, 'tests': tests}, f, indent=2)
         f.write('\n')
     print(f"ingested {suite}/{runid} from {url}")
+    # after the new run is on disk, never before: a failure in between leaves
+    # the commit archived twice, which the next ingest cleans up, rather than
+    # not at all
+    for old in superseded:
+        shutil.rmtree(os.path.join(datadir, suite, old))
+        print(f"{suite}: replaced {old}, same commit {sha[:10]}")
+    if superseded:
+        # a run that is gone must not be answered for out of the read cache
+        rundata.load_run.cache_clear()
     return 1
 
 if __name__ == "__main__":

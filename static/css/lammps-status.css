@@ -118,16 +118,15 @@ ul.listing li { margin-bottom: .25rem; }
    set apart from the message without borrowing an outcome color */
 .attn { color: var(--bs-secondary-color); font-size: .78rem; font-style: italic; }
 
-/* composition bar in the suite cards: the whole bar is the number of tests
-   of the run, one segment per outcome.  a segment of a handful of tests out
-   of a thousand is still given a sliver wide enough to see and to hover */
-.statusbar { display: flex; height: 1.1rem; overflow: hidden; border-radius: .2rem; }
-.statusbar .seg { min-width: 3px; }
-.statusbar .st-passed  { background: var(--status-passed); }
-.statusbar .st-failed  { background: var(--status-failed); }
-.statusbar .st-error   { background: var(--status-error); }
-.statusbar .st-timeout { background: var(--status-timeout); }
-.statusbar .st-skipped { background: var(--status-skipped); }
+/* outcome trend in the suite cards: one stacked bar per archived run, the
+   whole bar the number of tests of that run.  the colors are the ones the
+   tiles above carry, which is what makes the tiles the legend of the chart */
+.trend rect.st-passed  { fill: var(--status-passed); }
+.trend rect.st-failed  { fill: var(--status-failed); }
+.trend rect.st-error   { fill: var(--status-error); }
+.trend rect.st-timeout { fill: var(--status-timeout); }
+.trend rect.st-skipped { fill: var(--status-skipped); }
+.trend line { stroke: var(--bs-border-color); stroke-width: 1; }
 
 /* numeric table columns */
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }

@@ -26,6 +26,7 @@ does not read as a regression. They stay visible in their own right, since
 a test that starts hanging because of a code change lands there too.
 '''
 
+import functools
 import json
 import os
 import re
@@ -87,8 +88,16 @@ def list_runs(datadir, suite):
             runs.append(entry)
     return runs
 
+@functools.lru_cache(maxsize=256)
 def load_run(datadir, suite, runid):
-    '''load one run.json'''
+    '''load one run.json.
+
+       the result is cached: building the website reads the archive in nested
+       passes - every run page walks back through the older runs to find when
+       each of its broken tests last passed - which parses the same files
+       dozens of times over.  the runs are read and never modified, so one
+       parsed copy can be shared; the cache is bounded so that a growing
+       archive cannot hold all of it in memory at once'''
     with open(os.path.join(datadir, suite, runid, 'run.json')) as f:
         return json.load(f)
 

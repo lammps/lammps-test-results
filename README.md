@@ -96,6 +96,15 @@ published files are rewritten even when no new test run happened, ingestion
 deduplicates on the generation time and commit recorded in the file rather
 than on its modification time.
 
+Beyond that, the archive keeps one run per commit, since every archived run is
+a bar of the trend on the dashboard. The test machine only runs when the
+monitored branch has changed, so a commit that is published twice was run
+again while the test scripts themselves were being worked on: those results
+replace the run archived for that commit
+(`fetch_regression.archived_with_commit()`, the new run is written before the
+old one is removed), and where they repeat its every verdict as well they are
+not archived at all - that is a re-publication rather than a run.
+
 The commit and the branch are read from the `commit` and `branch` metadata
 fields, and recovered from the `git_info` property where those are missing;
 that property is also the source of the git describe string kept as
@@ -117,11 +126,25 @@ the code. Those runs are classified as
 `timeout` (`rundata.status_of()`), counted apart from the errors, and left
 out of the broken count that drives the *last all OK* run and the
 notification comments. They are not swept under the carpet: they have their
-own tile, their own segment of the composition bar of a card, their own
+own tile, their own band in the trend bars of a card, their own
 filter and column, a run-to-run comparison lists them as *newly out of
 time*, and a test that starts hanging because of a code change shows up
 there. The limit itself is read back from the messages
 (`rundata.time_limits()`), since the run data does not record it.
+
+### What a dashboard card shows
+
+The numbers of the latest run as tiles, the last `TREND_RUNS` (25) archived
+runs as one stacked bar each, what changed since the run before, and which
+branch, commit and time the numbers are of. A bar is as tall as the number of
+tests of that run and is stacked from the baseline up in the order failed,
+errors, timed out, skipped, passed: the outcomes worth watching sit on the
+baseline, where a change in one of them changes the height of that band
+rather than shifting everything above it, and the tests that passed float on
+top, so the top edge of a bar stays the number of tests. The bars keep their
+pitch while the archive fills, with the newest run at the right edge, and
+they carry the color each outcome has everywhere on the site - which is what
+makes the tiles above them the legend of the chart.
 
 ### Reading a regression result
 
