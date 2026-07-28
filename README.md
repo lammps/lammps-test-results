@@ -208,29 +208,46 @@ place - so the same rules apply, and they are implemented by the same helpers
 in `tools/rundata.py`: deduplication on the generation time and commit
 recorded in the file, and one run per commit.
 
-What the JUnit format does *not* carry is the commit and the branch, and it
-stamps the run in the local time of the test machine, which cannot be compared
-with the UTC stamps of the other suites. All three come from
+What the JUnit format does *not* carry is the commit and the branch; it stamps
+the run in the local time of the test machine, which cannot be compared with
+the UTC stamps of the other suites, and it says nothing about the build beyond
+the host name. All of that comes from
 <https://download.lammps.org/coverage/summary.json> instead - the second set
 of data published by this same run, already fetched for the coverage numbers
 on the dashboard (`tools/fetch_external.py`). It records the commit in full,
-the branch, and the date of the run as UTC, which is what the run id is
-stamped with.
+the branch, the date of the run as UTC (which is what the run id is stamped
+with), and the compiler and operating system, kept as properties of the run
+under the names the full regression runs report the same two in
+(`fetch_unittest.SUMMARY_PROPERTIES`).
+
+The two files are the two halves of one run only once it has finished
+publishing: a run wipes the webroot and fills it again, so both are absent for
+the length of that (which is why all four regression results can read as 404
+for a while), and a summary fetched in between can still be the one of the run
+before. The abbreviated commit in the test output is of the binary those very
+tests ran, so a summary that disagrees with it is not the other half of this
+run: that read is dropped with a warning and retried on the next poll, since
+what is published stays in place until the next run replaces it.
 
 The git describe string kept as `version` is read from a `version` field of
 the summary where it carries one, and otherwise from the output of the tests
-themselves: every LAMMPS run prints a `Git info (<branch> / <describe>)`
-banner, and the JUnit file quotes the output of each test, so it appears
-hundreds of times over. The most frequent value wins
-(`fetch_unittest.git_info_of()`), so that a test printing a recorded banner of
-its own cannot outvote the binary that actually ran. That banner also names
-the branch and the abbreviated commit, which is what carries a run whose
-summary could not be fetched - with the `Last-Modified` header of the JUnit
-file for a stamp, so that a fetch that fails on the summary alone still
-archives the run instead of dropping it.
+themselves: `lmp -h` prints a `Git info (<branch> / <describe>)` banner, and
+the JUnit file quotes what each test printed (`fetch_unittest.git_info_of()`).
+That banner also names the branch and the abbreviated commit, which is what
+carries a run whose summary could not be fetched - with the `Last-Modified`
+header of the JUnit file for a stamp, so that a fetch that fails on the
+summary alone still archives the run instead of dropping it.
 
-The name of the `ctest` suite (e.g. `Linux-g++-15`) is kept as a property,
-since nothing else in the document records the compiler.
+That fallback is thin, and deliberately not relied on for anything else:
+`ctest` cuts the output it quotes off at 1024 bytes per test (719 of the 991
+tests of the run archived on 2026-07-28 are truncated), so the banner survives
+only because it is printed near the top of the help text. The compiler and the
+operating system, printed at the end of the same help text, do not survive at
+all - which is why the summary is the only source for those two.
+
+The name of the `ctest` suite (e.g. `Linux-g++-15`) is kept as a property
+beside them: it names the compiler in short, and it is the only such record
+for a run archived before the summary reported one.
 
 ## Documentation build status
 

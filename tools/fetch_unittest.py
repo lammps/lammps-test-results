@@ -11,11 +11,15 @@ more than any of the configurations ingested from there
 (tools/ingest_actions.py). It is published next to the coverage report as
 junit.xml, in the "ctest --output-junit" format.
 
-That format records neither the commit nor the branch, and stamps the run in
-the local time of the test machine. All three are taken from the summary.json
-of the coverage report instead: it is the second set of data published by this
-same run, and it records the commit in full, the branch, and a date on the UTC
-time line.
+That format records neither the commit nor the branch, stamps the run in the
+local time of the test machine, and says nothing about the build beyond the
+host name. All of it is taken from the summary.json of the coverage report
+instead: it is the second set of data published by this same run, and it
+records the commit in full, the branch, a date on the UTC time line, and the
+compiler and operating system the tests ran on. Publishing wipes the webroot
+and fills it again, though, so the two files are only the two halves of one
+run once that has finished; a summary read mid-rsync can still be the one of
+the run before, which the commit in the test output catches (see ingest()).
 
 The git describe string is taken from a "version" field of the summary where
 it carries one, and otherwise from the output of the tests themselves, where
@@ -42,7 +46,6 @@ Usage: python3 tools/fetch_unittest.py [--datadir data] [--dry-run]
 '''
 
 from argparse import ArgumentParser
-import collections
 import email.utils
 import io
 import json
@@ -65,6 +68,10 @@ CONFIG = 'linux-x86_64-gcc'
 SUITE = 'unit-tests'
 # the banner every LAMMPS run prints, quoted in the captured test output
 GIT_INFO = re.compile(r'Git info \([^)]*\)')
+# fields of the summary that describe the machine and the build rather than
+# the run itself, and are kept as properties of it. the names and the wording
+# are those the full regression runs report the same two in
+SUMMARY_PROPERTIES = ('operating_system', 'compiler')
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import junit_to_json
@@ -114,15 +121,16 @@ def suite_header(raw):
 
 def git_info_of(raw):
     '''the "Git info (...)" banner of the binary under test, from the output
-       the JUnit file quotes for every test.
+       the JUnit file quotes for the tests.
 
-       the banner appears once per LAMMPS run and hence hundreds of times over;
-       the most frequent value is taken so that a test which prints a recorded
-       banner of its own cannot outvote the binary that was actually run'''
-    found = GIT_INFO.findall(raw.decode('utf-8', errors='replace'))
-    if not found:
-        return ''
-    return collections.Counter(found).most_common(1)[0][0]
+       only "lmp -h" prints the banner, so it appears exactly once in the
+       document, in the output of the test that runs it - and only because it
+       is printed near the top of that output: ctest cuts what it quotes off
+       at 1024 bytes per test, which is also why the compiler and the
+       operating system, printed at the end of the same help text, cannot be
+       recovered from here at all'''
+    found = GIT_INFO.search(raw.decode('utf-8', errors='replace'))
+    return found.group(0) if found else ''
 
 def ingest(url, summary_url, datadir, config, dry_run=False):
     '''archive the published unit test run; returns 1 if it was new'''
@@ -150,7 +158,19 @@ def ingest(url, summary_url, datadir, config, dry_run=False):
     # summary is published without a "version" field of its own
     branch, version, sha = rundata.parse_git_info(git_info_of(raw))
     summary = fetch_summary(summary_url)
-    sha = summary.get('commit') or sha
+    # publishing wipes the webroot and fills it again, so the two files can be
+    # read a moment apart and be of different runs. the abbreviated commit of
+    # the banner is of the binary these very tests ran and settles it: a
+    # summary that disagrees is not the other half of this run, and the read is
+    # simply retried on the next poll - what is published stays in place until
+    # the next run replaces it
+    commit = str(summary.get('commit', ''))
+    if commit and sha and not commit.startswith(sha):
+        print(f"WARNING: skipping {suite}: {summary_url} is of commit"
+              f" {commit[:10]} but the tests ran {sha}; retrying on the"
+              f" next poll", file=sys.stderr)
+        return 0
+    sha = commit or sha
     branch = summary.get('branch') or branch
     version = summary.get('version') or version
     # the timestamp of the JUnit file is the local time of the test machine
@@ -186,8 +206,12 @@ def ingest(url, summary_url, datadir, config, dry_run=False):
     for entry in tests.values():
         counts[entry['status']] += 1
         counts['time'] += entry['time']
-    # the name of the ctest suite records the compiler and its version, which
-    # nothing else in the document does
+    # the JUnit document knows nothing about the machine or the build beyond
+    # the host name; the summary describes both, and the name of the ctest
+    # suite (e.g. "Linux-g++-15") names the compiler in short
+    for key in SUMMARY_PROPERTIES:
+        if summary.get(key):
+            properties.setdefault(key, summary[key])
     if name:
         properties.setdefault('testsuite', name)
     meta = {'title': f'Unit Tests {config}',
