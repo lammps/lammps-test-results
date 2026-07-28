@@ -16,9 +16,16 @@ website and a rolling GitHub status issue.
   task), `parallel` (4 MPI tasks), `openmp` (2 MPI tasks with 2 OpenMP
   threads each, through the OPENMP package), and `kokkos` (the same through
   KOKKOS/OpenMP).
+- The same machine runs the unit tests in its native GCC build of x86_64
+  Linux and publishes them as a JUnit XML file next to the coverage report
+  (`tools/fetch_unittest.py`, see below). That build has a far more complete
+  package selection than the GitHub Actions runners compile, so it covers
+  several hundred tests more than any of the configurations ingested from
+  there.
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
-  regression results (`tools/fetch_regression.py`), archives one `run.json`
+  regression and unit test results (`tools/fetch_regression.py`,
+  `tools/fetch_unittest.py`), archives one `run.json`
   per run under `data/<suite>/<runid>/`, rebuilds the website
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
   rolling status issue (`tools/update_issue.py`). It runs twice a day.
@@ -101,9 +108,9 @@ a bar of the trend on the dashboard. The test machine only runs when the
 monitored branch has changed, so a commit that is published twice was run
 again while the test scripts themselves were being worked on: those results
 replace the run archived for that commit
-(`fetch_regression.archived_with_commit()`, the new run is written before the
-old one is removed), and where they repeat its every verdict as well they are
-not archived at all - that is a re-publication rather than a run.
+(`rundata.archived_with_commit()`, the new run is written before the old one
+is removed), and where they repeat its every verdict as well they are not
+archived at all - that is a re-publication rather than a run.
 
 The commit and the branch are read from the `commit` and `branch` metadata
 fields, and recovered from the `git_info` property where those are missing;
@@ -183,6 +190,47 @@ before it that did judge that test (`rundata.compare_runs()` reads older runs
 lazily, only as far as it needs them). Otherwise a test that keeps failing but
 flaps through a timeout would be announced as a new failure every time it came
 back - which is exactly what the archived parallel runs did on 2026-07-27.
+
+## Published unit test run
+
+`tools/fetch_unittest.py` archives
+<https://download.lammps.org/coverage/junit.xml> under
+`unit-tests/linux-x86_64-gcc`. This is the unit test suite run in the same
+pass as the coverage report, in the machine's native GCC build of x86_64
+Linux: a package selection far more complete than the GitHub Actions runners
+compile, and the only configuration in the matrix that is not ingested from
+there. It is published in the `ctest --output-junit` format, which the
+converter for the GitHub Actions artifacts already reads
+(`tools/junit_to_json.py`).
+
+Publication works as for the regression results - a single file rewritten in
+place - so the same rules apply, and they are implemented by the same helpers
+in `tools/rundata.py`: deduplication on the generation time and commit
+recorded in the file, and one run per commit.
+
+What the JUnit format does *not* carry is the commit and the branch, and it
+stamps the run in the local time of the test machine, which cannot be compared
+with the UTC stamps of the other suites. All three come from
+<https://download.lammps.org/coverage/summary.json> instead - the second set
+of data published by this same run, already fetched for the coverage numbers
+on the dashboard (`tools/fetch_external.py`). It records the commit in full,
+the branch, and the date of the run as UTC, which is what the run id is
+stamped with.
+
+The git describe string kept as `version` is read from a `version` field of
+the summary where it carries one, and otherwise from the output of the tests
+themselves: every LAMMPS run prints a `Git info (<branch> / <describe>)`
+banner, and the JUnit file quotes the output of each test, so it appears
+hundreds of times over. The most frequent value wins
+(`fetch_unittest.git_info_of()`), so that a test printing a recorded banner of
+its own cannot outvote the binary that actually ran. That banner also names
+the branch and the abbreviated commit, which is what carries a run whose
+summary could not be fetched - with the `Last-Modified` header of the JUnit
+file for a stamp, so that a fetch that fails on the summary alone still
+archives the run instead of dropping it.
+
+The name of the `ctest` suite (e.g. `Linux-g++-15`) is kept as a property,
+since nothing else in the document records the compiler.
 
 ## Documentation build status
 

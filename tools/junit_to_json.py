@@ -21,11 +21,13 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
-def parse_junit(filename):
+def parse_junit(source):
     '''parse a JUnit XML file into (properties, tests) dicts; handles both a
        <testsuite> root and a <testsuites> wrapper, and the "status" attribute
-       convention used by ctest --output-junit'''
-    root = ET.parse(filename).getroot()
+       convention used by ctest --output-junit. "source" is anything
+       ElementTree parses: a file name, or a file object holding a document
+       that was fetched rather than downloaded to disk'''
+    root = ET.parse(source).getroot()
     if root.tag == 'testsuites':
         suites = root.findall('testsuite')
     elif root.tag == 'testsuite':

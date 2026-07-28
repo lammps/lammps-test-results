@@ -24,8 +24,15 @@ the machine. Those runs are classified as "timeout" here (status_of()) and
 counted apart from the errors, so that a slower machine or a lowered limit
 does not read as a regression. They stay visible in their own right, since
 a test that starts hanging because of a code change lands there too.
+
+Beside reading the archive, this module carries the helpers the tools that
+add to it share (tools/fetch_regression.py, tools/fetch_unittest.py): the
+results they pick up are published as a single "latest" file that is
+rewritten in place, so what is new has to be decided from the contents of a
+run rather than from the file being new.
 '''
 
+import datetime
 import functools
 import json
 import os
@@ -342,3 +349,100 @@ def last_ok_run(datadir, suite, runs, test):
         if entry and entry['status'] == 'passed':
             return runid
     return None
+
+# --------------------------------------------------------------------------
+# helpers for archiving newly published runs, shared by the fetch tools
+
+def parse_git_info(info):
+    '''split a "Git info (<branch> / <describe>)" string into branch, describe
+       string, and commit; the value looks like
+       "Git info (develop / patch_4Jul2026-856-g961d389cc7)" where the last
+       part may also be a plain (short) commit hash and may carry a
+       "-modified" suffix when the working tree was not clean. a value that
+       comes without the "Git info (...)" wrapper is parsed just the same.
+
+       the regression runs publish this as a property of the run and the unit
+       test runs print it in the output of the tests themselves; either way it
+       is the only place the branch of a published run is recorded'''
+    match = re.search(r'\((.*)\)\s*$', info)
+    if match:
+        info = match.group(1)
+    branch, _, version = (part.strip() for part in info.partition('/'))
+    sha = ''
+    described = re.search(r'-g([0-9a-f]{7,40})', version)
+    if described:
+        sha = described.group(1)
+    elif re.fullmatch(r'[0-9a-f]{7,40}', version):
+        sha = version
+    return branch, version, sha
+
+def utc_stamp(text):
+    '''an ISO timestamp as UTC, or None if it is unparsable or carries no
+       time zone (and hence cannot be placed on the UTC time line)'''
+    try:
+        when = datetime.datetime.fromisoformat(str(text).replace('Z', '+00:00'))
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        return None
+    return when.astimezone(datetime.timezone.utc)
+
+def run_id_string(published, generated, sha):
+    '''directory name for a run: sortable UTC timestamp + short commit hash.
+       the Z marks the timestamp as UTC, as for the runs that used to come
+       from GitHub Actions.  the time the results were generated is preferred
+       over the time they were published, so that re-publishing the same
+       results unchanged does not look like another run; if neither is on the
+       UTC time line, the local time of the test machine is the best stamp
+       available and is left unmarked'''
+    when = utc_stamp(generated) or published
+    if when:
+        stamp = when.astimezone(datetime.timezone.utc).strftime(
+            '%Y-%m-%dT%H-%M-%SZ')
+    else:
+        stamp = str(generated).replace(':', '-')
+    return f'{stamp}_{sha[:10]}' if sha else stamp
+
+def verdicts(tests):
+    '''the outcome of every test of a run, which is what a change consists
+       of: the wall times differ between two runs of the same code, and the
+       messages carry them, so neither can be compared'''
+    return {key: status_of(entry) for key, entry in tests.items()}
+
+def already_archived(datadir, suite, generated, sha):
+    '''whether these results have been archived before; the published file is
+       rewritten (with a new modification time) even when a run was skipped
+       for lack of changes, so the contents decide, not the run id'''
+    for runid in list_runs(datadir, suite):
+        meta = load_run(datadir, suite, runid)['metadata']
+        # the commit is compared abbreviated: the same run republished with
+        # more complete metadata reports the same commit at a different length
+        if (meta.get('generated') == generated
+                and meta.get('sha', '')[:10] == sha[:10]):
+            return runid
+    return None
+
+def archived_with_commit(datadir, suite, sha):
+    '''the archived runs of one commit, oldest first.
+
+       the test machine only runs when the monitored branch has changed, so a
+       commit that appears twice was run again while the test scripts
+       themselves were being worked on.  the archive keeps one run per commit
+       - the last one published of it, which is the one run with the scripts
+       as they ended up - so that every bar of the trend on the dashboard is
+       a commit of its own'''
+    found = []
+    if not sha:
+        return found
+    for runid in list_runs(datadir, suite):
+        meta = load_run(datadir, suite, runid)['metadata']
+        if meta.get('sha', '')[:10] == sha[:10]:
+            found.append(runid)
+    return found
+
+def verdicts_moved(datadir, suite, runid, tests):
+    '''how many verdicts of an archived run these results change'''
+    before = verdicts(load_run(datadir, suite, runid).get('tests', {}))
+    now = verdicts(tests)
+    return sum(1 for key in set(before) | set(now)
+               if before.get(key) != now.get(key))

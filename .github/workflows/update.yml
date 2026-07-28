@@ -9,10 +9,11 @@ on:
     # is not picked up before the next one replaces it is lost.  the test
     # machine runs at most once every 24 h and only when the monitored
     # branch has changed, which makes the time of day it publishes drift;
-    # polling every 12 h keeps the margin.  the same schedule refreshes the
-    # coverage and static analysis summaries from that machine, the manual
-    # build status (rebuilt hourly at 23 minutes past), and the GitHub
-    # Actions unit test artifacts
+    # polling every 12 h keeps the margin.  the unit test run published by
+    # the same machine (junit.xml, next to the coverage report) is picked up
+    # on the same schedule and for the same reason.  so are the coverage and
+    # static analysis summaries from it, the manual build status (rebuilt
+    # hourly at 23 minutes past), and the GitHub Actions unit test artifacts
     - cron: '45 9,21 * * *'
   workflow_dispatch:
   push:
@@ -57,6 +58,7 @@ jobs:
         run: |
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
           python3 tools/fetch_regression.py --datadir data
+          python3 tools/fetch_unittest.py --datadir data
           python3 tools/scrape_coverity.py --output data/external/coverity.json
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json
