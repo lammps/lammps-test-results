@@ -56,6 +56,13 @@ URL_BASE = 'https://download.lammps.org/coverage/'
 # config.yaml, and only the title of the run spells the difference out
 CONFIGS = ('serial', 'parallel', 'openmp', 'kokkos')
 SUITE = 'full-regression'
+# published results that must not be archived, as (configuration, generation
+# time) pairs.  a misconfigured run is only noticed after it has been
+# published, and it stays published until the next run replaces it; listing
+# it here keeps it out of the archive in the meantime.  a generation time
+# identifies one publication and no other, so an entry cannot reject the run
+# that replaces it, and it can be dropped once that has been archived
+DISCARDED = set()
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import rundata
@@ -150,6 +157,9 @@ def ingest(url, datadir, config, dry_run=False):
         return 0
 
     generated = meta.get('generated', '')
+    if (config, generated) in DISCARDED:
+        print(f"{suite}: skipping the discarded results of {generated}")
+        return 0
     # the git_info property is the fallback for results published before the
     # commit and the branch were reported as metadata in their own right
     branch, version, sha = parse_git_info(meta.get('properties', {}))
