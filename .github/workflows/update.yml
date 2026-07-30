@@ -12,8 +12,10 @@ on:
     # polling every 12 h keeps the margin.  the unit test run published by
     # the same machine (junit.xml, next to the coverage report) is picked up
     # on the same schedule and for the same reason.  so are the coverage and
-    # static analysis summaries from it, the manual build status (rebuilt
-    # hourly at 23 minutes past), and the GitHub Actions unit test artifacts
+    # static analysis summaries from it, the state of the Coverity Scan (whose
+    # build is submitted twice a week, and analyzed whenever the Coverity
+    # servers get to it), the manual build status (rebuilt hourly at 23
+    # minutes past), and the GitHub Actions unit test artifacts
     - cron: '45 9,21 * * *'
   workflow_dispatch:
   push:
@@ -59,7 +61,7 @@ jobs:
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
           python3 tools/fetch_regression.py --datadir data
           python3 tools/fetch_unittest.py --datadir data
-          python3 tools/scrape_coverity.py --output data/external/coverity.json
+          python3 tools/fetch_coverity.py --output data/external/coverity.json
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json
           python3 tools/fetch_docs.py --output data/external/docs.json

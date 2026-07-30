@@ -30,9 +30,10 @@ website and a rolling GitHub status issue.
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
   rolling status issue (`tools/update_issue.py`). It runs twice a day.
 - Summaries of the server-side reports (code coverage, static analysis) can
-  be ingested as `data/external/*.json`; the publicly visible Coverity Scan
-  analysis metrics are scraped nightly from the project overview page
-  (`tools/scrape_coverity.py`).
+  be ingested as `data/external/*.json`; the state of the Coverity Scan is
+  collected from two sources, the analysis metrics of the project overview
+  page and the summary of the build that was submitted for scanning
+  (`tools/fetch_coverity.py`, see below).
 - The status of the automated manual builds is collected from the
   `status.json` files published with the three manual variants
   (`tools/fetch_docs.py`, see below), including the words the spellchecker
@@ -293,3 +294,33 @@ names, and syntax the checker cannot know belong in
 the number is reported but does not enter the verdict on the build. What the
 `spelling` step reports is whether the checker ran, the same as for the html,
 pdf, and publish steps.
+
+## Coverity Scan
+
+`tools/fetch_coverity.py` collects `data/external/coverity.json` from the two
+ends of the scan, which know different things about it:
+
+- **metrics** - the publicly visible *Analysis Metrics* of
+  <https://scan.coverity.com/projects/lammps-lammps>, scraped from the project
+  overview page: outstanding, newly detected and fixed defects, defect
+  density, lines analyzed, and the day of the last analysis. This is the
+  outcome of an analysis, and the page does not say which state of the source
+  tree it was run on.
+- **build** - <https://download.lammps.org/analysis/coverity.json>, written by
+  the script that builds and submits LAMMPS for scanning (`coverity.sh` in the
+  lammps-analyze repository, run twice a week and only when the monitored
+  branch has changed). It records the branch, commit, and version that were
+  built, when, and with which compiler on which operating system - the input
+  of an analysis, and none of it visible on the Coverity side.
+
+The two halves are not two views of one run and are not merged into one: the
+build is submitted from the LAMMPS side, the analysis runs on the Coverity
+servers and can be delayed considerably, so the metrics usually describe an
+earlier submission than the last one recorded. The dashboard card states them
+as two things, and where the last submission postdates the day of the last
+analysis - which is as precisely as the project page dates it - it is marked
+*analysis pending* rather than compared against numbers it cannot be part of.
+
+Whichever half cannot be read keeps the values it had, so a Coverity page that
+refuses the scrape does not take the recorded submission down with it, and an
+unreachable summary file does not blank out the metrics.

@@ -301,6 +301,18 @@ def utc_stamp(stamp):
     except ValueError:
         return str(stamp)
 
+def report_day(stamp):
+    '''the day a report timestamp falls on, or None where it cannot be read.
+       the Coverity page dates its analysis by the day, the build summaries
+       carry a full ISO timestamp; the day is all the two have in common'''
+    when = docsdata.parse_iso(stamp)
+    if when is not None:
+        return when.date()
+    try:
+        return datetime.datetime.strptime(str(stamp), '%b %d, %Y').date()
+    except ValueError:
+        return None
+
 def card_footer(branch, commit, when):
     '''the line every card that reports on a commit ends on: which branch and
        commit the result is of, and when it was produced.  one shape for all
@@ -381,6 +393,49 @@ def activity_card(activity):
         out += (f'<div class="text-body-secondary small">commits per week, last '
                 f'{len(weeks)} weeks</div>')
     return out + '</div></div></div>'
+
+def coverity_body(coverity):
+    '''the contents of the Coverity Scan card: the metrics of the analysis the
+       project page reports, and below them the last build that was submitted
+       for one.  those are the two ends of a long pipeline - the build is
+       submitted from here, the analysis runs on the Coverity servers and can
+       take days to appear - so they are stated as two things, and a
+       submission that postdates the last analysis says so'''
+    metrics = coverity.get('metrics', {})
+    out = ''
+    if metrics:
+        out += '<div class="d-flex flex-wrap gap-4 my-2">'
+        for label in ('Outstanding', 'Newly detected', 'Fixed', 'Defect Density'):
+            if label in metrics:
+                out += (f'<div class="tile"><div class="num">{esc(metrics[label])}</div>'
+                        f'<div class="lbl">{esc(label.lower())}</div></div>')
+        out += '</div>'
+        if metrics.get('Lines of Code Analyzed'):
+            # the day is named here rather than left as a bare date: the line
+            # below carries one of its own, of a different event
+            analyzed = utc_stamp(coverity.get('date', ''))
+            parts = [f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed'
+                     + (f' on {esc(analyzed)}' if analyzed else '')]
+            if coverity.get('version'):
+                parts.append(esc(str(coverity['version'])[:10]))
+            out += ('<div class="text-body-secondary small">'
+                    + ' &middot; '.join(parts) + '</div>')
+    else:
+        out += ('<div class="text-body-secondary small">metrics not scraped yet;'
+                ' see scan.coverity.com</div>')
+
+    build = coverity.get('build') or {}
+    if build:
+        stamp = utc_stamp(build.get('built', ''))
+        when = f'submitted {stamp}' if stamp else ''
+        submitted = report_day(build.get('built'))
+        analyzed = report_day(coverity.get('date'))
+        # the numbers above are of an analysis of a day the build machine had
+        # not even built this commit on, so they cannot be of this one
+        if submitted and analyzed and submitted > analyzed:
+            when += ', analysis pending'
+        out += card_footer(build.get('branch', ''), build.get('commit', ''), when)
+    return out
 
 DOCS_URL = 'https://docs.lammps.org/'
 
@@ -1004,20 +1059,9 @@ def build_index(datadir, outdir, summary):
              '<img alt="Coverity Scan Build Status" height="18" loading="lazy" '
              'src="https://scan.coverity.com/projects/33115/badge.svg"></a></h3>')
     if 'coverity' in external:
-        cov = external['coverity']
-        metrics = cov.get('metrics', {})
-        body += '<div class="d-flex flex-wrap gap-4 my-2">'
-        for label in ('Outstanding', 'Newly detected', 'Fixed', 'Defect Density'):
-            if label in metrics:
-                body += (f'<div class="tile"><div class="num">{esc(metrics[label])}</div>'
-                         f'<div class="lbl">{esc(label.lower())}</div></div>')
-        body += '</div>'
-        if metrics.get('Lines of Code Analyzed'):
-            body += (f'<div class="text-body-secondary small">'
-                     f'{esc(metrics["Lines of Code Analyzed"])} lines analyzed'
-                     f' &middot; {str(cov.get('version',''))[:10]} &middot; {cov.get('date', '')}</div>')
+        body += coverity_body(external['coverity'])
     else:
-        body += ('<div class="text-body-secondary small">summary not scraped yet;'
+        body += ('<div class="text-body-secondary small">summary not collected yet;'
                  ' see scan.coverity.com</div>')
     body += '</div></div></div></div>'
 
