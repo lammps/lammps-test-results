@@ -6,7 +6,10 @@ data/external/docs.json for the dashboard.
 Three variants of the manual are built and published independently, one per
 tracked branch (see SOURCES below).  Each of them carries a status.json in
 its document root that records the branch, the documented commit, the build
-time, and the outcome and duration of the individual build steps.
+time, and the outcome and duration of the individual build steps.  The build
+of the development version also runs the spellchecker and lists the words it
+flagged; that list is carried over as it is and rendered on a page of its own
+(see tools/docsdata.py).
 
 The build is attempted at most once per commit hash, so an unchanged
 status.json does not mean the build machine is alive - it usually means
@@ -151,7 +154,7 @@ if __name__ == "__main__":
                 print(f"WARNING: {url}status.json: unexpected schema version "
                       f"{status.get('schema')!r}, reading it anyway",
                       file=sys.stderr)
-            for key in ('commit', 'version', 'built', 'steps'):
+            for key in ('commit', 'version', 'built', 'steps', 'spelling'):
                 if key in status:
                     entry[key] = status[key]
             if status.get('branch') not in (None, branch):

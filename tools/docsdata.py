@@ -18,6 +18,7 @@ data/external/docs.json:
           "version": <LAMMPS version string, git describe style>,
           "built":   <ISO timestamp of that build>,
           "steps":   {<step>: {"status": <status>, "seconds": <duration>}},
+          "spelling": [<"<file>:<line>: (<word>)  <context>">, ...],
           "head":    {"commit": <current branch head>, "date": <its date>},
           "checked": <ISO timestamp of the last successful read>,
           "error":       <why the status file could not be read, if so>,
@@ -30,6 +31,14 @@ data/external/docs.json:
 freshness check below is then skipped rather than run against a possibly
 outdated commit.  "error" is present when the status file could not be
 fetched; the other fields then still hold the last known values.
+
+"spelling" is the verbatim output of the spellchecker, one line per word it
+did not recognize, and comes with a "spelling" build step that carries their
+number as an extra "count" property.  Only the build of the development
+version runs it, since that is the only branch where a typo can still be
+fixed.  A flagged word is not necessarily a misspelling, so their number is
+reported but does not enter the verdict below: the status of the "spelling"
+step says whether the checker ran, the same as for every other step.
 
 The manual is rebuilt hourly but only once per commit hash, so an unchanged
 status file usually means there was nothing to do and its age says nothing
@@ -51,9 +60,10 @@ comparing the documented commit against the head of the branch it tracks:
 import datetime
 import json
 import os
+import re
 
 STALE_HOURS = 6
-STEPS = ('html', 'pdf', 'publish')
+STEPS = ('html', 'pdf', 'publish', 'spelling')
 STEP_LABELS = {'publish': 'sync'}
 # states worth notifying subscribers about, as opposed to merely displaying
 NOTIFY = ('failed', 'stale')
@@ -109,6 +119,48 @@ def timing(entry):
     steps = entry.get('steps') or {}
     return ', '.join(f'{STEP_LABELS.get(name, name)} {seconds(steps[name])} s'
                      for name in step_order(steps))
+
+# "src/fix_gcmc.rst:84: (gasses)  atomic gasses, these exchanges can be ..."
+SPELLING_LINE = re.compile(r'(?P<file>[^\s:]+):(?P<line>\d+):\s*'
+                           r'\((?P<word>[^)]*)\)\s*(?P<context>.*)')
+
+def spelling_lines(entry):
+    '''the raw output of the spellchecker, empty for a manual that does not
+    run it (and for one that ran it without finding anything to report)'''
+    lines = entry.get('spelling')
+    if not isinstance(lines, list):
+        return []
+    return [str(line) for line in lines if str(line).strip()]
+
+def spelling_ran(entry):
+    '''whether this manual was spellchecked at all, which is what tells a
+    clean run apart from a build that does not run the checker'''
+    return (isinstance((entry.get('steps') or {}).get('spelling'), dict)
+            or bool(spelling_lines(entry)))
+
+def spelling_count(entry):
+    '''how many words the spellchecker flagged.  the build machine counts
+    them itself; the list is the fallback, and the two only differ if the
+    output was truncated somewhere along the way'''
+    count = ((entry.get('steps') or {}).get('spelling') or {}).get('count')
+    if isinstance(count, bool) or not isinstance(count, int):
+        return len(spelling_lines(entry))
+    return count
+
+def spelling_items(entry):
+    '''the flagged words as {file, line, word, context} records.  the format
+    is what sphinxcontrib-spelling prints, so a line that does not parse is
+    kept whole as the context rather than dropped'''
+    items = []
+    for raw in spelling_lines(entry):
+        match = SPELLING_LINE.fullmatch(raw.strip())
+        if match:
+            items.append({'file': match['file'], 'line': int(match['line']),
+                          'word': match['word'], 'context': match['context'].strip()})
+        else:
+            items.append({'file': '', 'line': 0, 'word': '',
+                          'context': raw.strip()})
+    return items
 
 def documents(entry):
     '''short "<version> @ <commit>" description of what the published manual

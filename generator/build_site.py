@@ -7,6 +7,8 @@ Reads:  data/<suite>/<runid>/run.json   (see tools/rundata.py for the layout)
         static/                         (vendored Bootstrap, brand CSS, logo)
 Writes: _site/index.html                (dashboard)
         _site/runs/<suite-slug>/<runid>.html  (per-run detail pages)
+        _site/compare.html              (configurations of one commit)
+        _site/spelling.html             (spellchecker findings of the manual)
         _site/api/summary.json          (machine readable snapshot)
         _site/static/                   (copy of the static assets)
 
@@ -24,6 +26,7 @@ import datetime
 import html
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -434,6 +437,21 @@ def docs_card(docs):
             notes.append(f'{esc(branch)}: status file unreachable{when}')
     out += '</tbody></table>'
 
+    # the spellchecker runs with the manual but says nothing about the build
+    # itself, so its findings are a line of their own rather than a verdict
+    flagged = []
+    for entry in docs.get('branches', []):
+        if docsdata.spelling_ran(entry):
+            count = docsdata.spelling_count(entry)
+            text = f'{count} flagged word{"" if count == 1 else "s"}'
+            # a clean run is worth saying; a page listing nothing is not
+            if docsdata.spelling_lines(entry):
+                text = f'<a href="spelling.html">{text}</a>'
+            flagged.append(f'{text} in {esc(entry.get("branch", "?"))}')
+    if flagged:
+        out += (f'<div class="small mb-1">spellchecker: '
+                f'{" &middot; ".join(flagged)}</div>')
+
     fetched = time_tag(docs.get('fetched'))
     if fetched:
         notes.append(f'checked {fetched}')
@@ -441,6 +459,102 @@ def docs_card(docs):
         out += (f'<div class="text-body-secondary small">'
                 f'{" &middot; ".join(notes)}</div>')
     return out + '</div></div></div>'
+
+SPELLING_LIMIT = 1000
+
+def spelling_source(entry, item):
+    '''link to the flagged line in the documentation source on GitHub; the
+       paths the checker prints are relative to the doc directory'''
+    if not item['file']:
+        return ''
+    where = f'{item["file"]}:{item["line"]}'
+    ref = entry.get('commit') or entry.get('branch') or CI_BRANCH
+    url = (f'https://github.com/{CI_REPO}/blob/{esc(str(ref))}/doc/'
+           f'{esc(item["file"])}#L{item["line"]}')
+    return f'<a href="{url}"><code>{esc(where)}</code></a>'
+
+def mark_word(context, word):
+    '''the context with the flagged word picked out.  both sides are escaped
+       before the substitution, so the markup cannot come from the data; the
+       word is matched on its own, or a short one lights up half the line
+       (the "es" of "address(es)")'''
+    text = esc(context)
+    target = esc(word)
+    if not target:
+        return text
+    return re.sub(r'(?<![\w-])' + re.escape(target) + r'(?![\w-])',
+                  f'<mark>{target}</mark>', text)
+
+def build_spelling_page(outdir, docs):
+    '''page listing the words the spellchecker flagged in the documentation
+       sources, one section per manual variant that runs it (in practice only
+       the development version).  returns the number of words per branch, or
+       an empty dict when no manual reported any'''
+    entries = [entry for entry in docs.get('branches', [])
+               if docsdata.spelling_lines(entry)]
+    if not entries:
+        return {}
+
+    body = ('<p>The automated manual build runs the spellchecker over the'
+            ' documentation sources and records every word it does not know.'
+            ' Not all of them are misspellings: technical terms, author names,'
+            ' and syntax the checker cannot recognize are collected in'
+            f' <a href="https://github.com/{CI_REPO}/blob/{CI_BRANCH}/doc/utils/'
+            'sphinx-config/false_positives.txt"><code>doc/utils/sphinx-config/'
+            'false_positives.txt</code></a> and belong there rather than in the'
+            ' text. A genuine typo is fixed in the <code>.rst</code> source'
+            ' itself. Both are reproduced locally with <code>make spelling</code>'
+            ' in the <code>doc</code> directory.</p>')
+
+    counts = {}
+    for entry in entries:
+        branch = entry.get('branch', '?')
+        items = docsdata.spelling_items(entry)
+        counts[branch] = docsdata.spelling_count(entry)
+
+        ident = ' &middot; '.join(f'<code>{esc(part)}</code>'
+                                  for part in docsdata.documents(entry))
+        body += (f'<h2 class="h5 mt-4"><a href="{esc(entry.get("url", DOCS_URL))}">'
+                 f'{esc(branch)}</a> manual</h2>')
+        if ident or entry.get('built'):
+            built = f' &middot; built {time_tag(entry["built"])}' if entry.get('built') else ''
+            body += f'<div class="lbl mb-2">{ident}{built}</div>'
+
+        words = {}
+        for item in items:
+            words[item['word']] = words.get(item['word'], 0) + 1
+        files = {item['file'] for item in items if item['file']}
+        for label, num in (('Flagged words', counts[branch]),
+                           ('Distinct words', len(words)),
+                           ('Files', len(files))):
+            body += ('<div class="tile d-inline-block me-4">'
+                     f'<div class="num">{num}</div>'
+                     f'<div class="lbl">{esc(label)}</div></div>')
+
+        # a word flagged over and over is either a habit worth correcting
+        # everywhere at once or a false positive worth declaring as one
+        repeats = sorted(((num, word) for word, num in words.items() if num > 1),
+                         key=lambda pair: (-pair[0], pair[1].lower()))
+        if repeats:
+            body += ('<div class="mt-3">Flagged more than once: '
+                     + ', '.join(f'<code>{esc(word)}</code>&nbsp;&times;{num}'
+                                 for num, word in repeats) + '</div>')
+
+        body += ('<div class="table-responsive mt-3"><table class="table table-sm '
+                 'table-striped align-middle spell"><thead><tr><th>Word</th>'
+                 '<th>Source</th><th>Context</th></tr></thead><tbody>')
+        for item in sorted(items, key=lambda i: (i['file'], i['line']))[:SPELLING_LIMIT]:
+            body += (f'<tr><td><code>{esc(item["word"])}</code></td>'
+                     f'<td class="src">{spelling_source(entry, item)}</td>'
+                     f'<td class="ctx">{mark_word(item["context"], item["word"])}</td></tr>')
+        body += '</tbody></table></div>'
+        if len(items) > SPELLING_LIMIT:
+            body += (f'<p class="text-body-secondary small">... and'
+                     f' {len(items) - SPELLING_LIMIT} more</p>')
+
+    with open(os.path.join(outdir, 'spelling.html'), 'w') as f:
+        f.write(page('Documentation spellchecker', body))
+    return counts
 
 # ------------------------------------------------- interpreting a result
 
@@ -988,6 +1102,9 @@ if __name__ == "__main__":
     if compare_sha:
         summary['compare'] = build_compare_page(args.outdir, compare_sha,
                                                 compare_group)
+    spelling = {}
+    if 'docs' in summary['external']:
+        spelling = build_spelling_page(args.outdir, summary['external']['docs'])
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
     # the trend bars of the dashboard read every archived run; the snapshot
@@ -1006,3 +1123,6 @@ if __name__ == "__main__":
 
     nsuites = len(summary['suites'])
     print(f"Generated site for {nsuites} suite(s) in {args.outdir}/")
+    if spelling:
+        print("Spellchecker: " + ', '.join(f"{branch} {count} word(s)"
+                                           for branch, count in spelling.items()))

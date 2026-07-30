@@ -17,7 +17,9 @@ the same way: the body always shows the current state of all three published
 variants, and a comment is posted when one of them starts failing or falls
 behind its branch, and again when it recovers. Which of the two was announced
 last is recorded per manual in a hidden marker in the comment, so a build that
-stays broken is announced once rather than every night.
+stays broken is announced once rather than every night. The words the
+spellchecker flagged in the development version are counted in the body as
+well, but never announced: they are a to-do list, not a broken build.
 
 The issue is identified by the "test-status" label (created if missing).
 Requires the "gh" CLI with permission to write issues in the target repo.
@@ -93,10 +95,11 @@ def docs_status_text(state):
         text = f"{text} {docsdata.fmt_utc(state['stamp'])}".strip()
     return text or state['status']
 
-def docs_table(docs, now=None):
+def docs_table(docs, site_url='', now=None):
     '''current state of all three published manual variants'''
     body = "\n### Documentation builds\n\n"
     body += "| Manual | Status | Documents | Built |\n|---|---|---|---|\n"
+    flagged = []
     for entry in docs.get('branches', []):
         state = docsdata.state(entry, now)
         icon = DOCS_ICONS.get(state['status'], ':grey_question:')
@@ -107,6 +110,18 @@ def docs_table(docs, now=None):
         built = docsdata.fmt_utc(entry.get('built')) or '-'
         body += (f"| {icon} {name} | {docs_status_text(state)} |"
                  f" {contents or '-'} | {built} |\n")
+        if docsdata.spelling_lines(entry):
+            count = docsdata.spelling_count(entry)
+            flagged.append(f"{count} word{'' if count == 1 else 's'} in the"
+                           f" {entry.get('branch', '?')} manual")
+    # not a build failure and not announced: a flagged word is as often a
+    # technical term the checker does not know as it is a typo
+    if flagged:
+        words = ', '.join(flagged)
+        if site_url:
+            words = f"[{words}]({site_url.rstrip('/')}/spelling.html)"
+        body += (f"\nThe spellchecker flagged {words}. Not every one of them is"
+                 f" a typo, so this is a to-do list rather than a failure.\n")
     return body
 
 def build_body(snapshot, docs, site_url):
@@ -150,7 +165,7 @@ def build_body(snapshot, docs, site_url):
                  " depends on the limit in force and on the load of the machine,"
                  " so they are reported but not announced as new failures.\n")
     if docs:
-        body += docs_table(docs)
+        body += docs_table(docs, site_url)
     body += f"\n_Last updated: {now}_\n"
     return body
 

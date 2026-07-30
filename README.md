@@ -35,7 +35,8 @@ website and a rolling GitHub status issue.
   (`tools/scrape_coverity.py`).
 - The status of the automated manual builds is collected from the
   `status.json` files published with the three manual variants
-  (`tools/fetch_docs.py`, see below).
+  (`tools/fetch_docs.py`, see below), including the words the spellchecker
+  flagged in the development version.
 
 ## Notifications
 
@@ -255,9 +256,10 @@ The three published variants of the manual - `develop`
 (<https://docs.lammps.org/latest/>), `release` (<https://docs.lammps.org/>),
 and `stable` (<https://docs.lammps.org/stable/>) - each carry a `status.json`
 in their document root with the documented commit, the build time, and the
-outcome and duration of the html, pdf, and publish steps. `tools/fetch_docs.py`
-collects those into `data/external/docs.json`, together with the current head
-commit of each branch as queried from GitHub.
+outcome and duration of the build steps (html, pdf, publish, and, on
+`develop`, spelling; see below). `tools/fetch_docs.py` collects those into
+`data/external/docs.json`, together with the current head commit of each
+branch as queried from GitHub.
 
 The manual is rebuilt hourly but only once per commit hash, so an unchanged
 `status.json` normally means there was nothing to do and its age says nothing
@@ -271,3 +273,23 @@ interval, the entry is shown as *unknown* rather than as a stale success.
 Those rules and the `docs.json` layout live in `tools/docsdata.py` (the
 counterpart of `tools/rundata.py`), so the website and the status issue judge
 a build the same way and report the same state.
+
+### Spellchecker
+
+The build of the development version also runs the spellchecker (`make
+spelling` in the `doc` directory) and lists every word it did not recognize in
+`status.json`, one line of `<file>:<line>: (<word>)  <context>` per hit, with
+their number in the `spelling` build step. The other two manuals do not run
+it: a typo can only be fixed on `develop`.
+
+The list is carried into `docs.json` as it stands and rendered on a page of
+its own, `spelling.html`, which links each hit to the documentation source on
+GitHub at the commit that was built. The dashboard card and the status issue
+only say how many words were flagged and link to that page.
+
+A flagged word is not necessarily a misspelling - technical terms, author
+names, and syntax the checker cannot know belong in
+`doc/utils/sphinx-config/false_positives.txt` in the LAMMPS repository - so
+the number is reported but does not enter the verdict on the build. What the
+`spelling` step reports is whether the checker ran, the same as for the html,
+pdf, and publish steps.
