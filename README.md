@@ -347,7 +347,7 @@ bucketed here:
 | **commits** | the GraphQL commit history of the default branch |
 | **PRs opened**, **issues opened** | one GraphQL search per month, by creation date |
 | **PRs merged** | a second search per month; there is no `merged-by:` qualifier, so the merged pull requests are listed and their `mergedBy` counted |
-| **reviews**, **approvals** | the reviewer's contributions collection, the only source indexed by review date |
+| **reviews**, **approvals** | the reviews themselves, read off the pull requests each member reviewed |
 | **comments** | the two repository-wide comment listings, conversation and inline |
 
 Three of those need care when reading them:
@@ -364,13 +364,25 @@ Three of those need care when reading them:
   beside them.
 
 Every count is bucketed by the UTC month of the event itself rather than read
-off an aggregate endpoint. That is deliberate. The totals of the GraphQL
-contributions collection are bucketed by day *in the contributor's own profile
-timezone*, and it snaps a query window out to whole days in that timezone -
-for a US/Eastern member, one boundary day alone moved 39 commits across a
-month queried as UTC. Only the reviews are read from that collection, and even
-there the individual submission timestamps are re-bucketed here, over windows
-padded by a day so the snapping cannot drop one.
+off an aggregate endpoint. That is deliberate, and it is worth saying why: the
+two aggregates GitHub offers for this are both wrong for a monthly breakdown,
+neither of them noisily.
+
+- The totals of a GraphQL contributions collection are bucketed by day *in the
+  contributor's own profile timezone*, and a query window snaps out to whole
+  days in that timezone. For a US/Eastern member, one boundary day alone moved
+  39 commits across a month queried as UTC.
+- Its `pullRequestReviewContributions` report one contribution per pull request
+  rather than one per review, deduplicated across the whole window asked for. A
+  pull request reviewed in two months is credited to one of them, so the count
+  of a fixed month *falls* as the surrounding window grows. One member's
+  November came out as 14 reviews read from the pull requests, 10 from a
+  one-month collection, and 7 from an eleven-month one.
+
+Neither is used. Every number is counted from the individual events and their
+own timestamps, so the same month gives the same answer however wide a window
+it was asked for - which is checked by sweeping a short window and a long one
+and comparing the months they share.
 
 A full sweep is about 150 requests and takes a couple of minutes, well inside
 both rate budgets; the REST search API and its 30 requests per minute are

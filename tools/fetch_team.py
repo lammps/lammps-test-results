@@ -18,22 +18,31 @@ swept separately and bucketed here:
                       qualifier, so the merged pull requests of the month are
                       listed and their mergedBy is counted
   reviews, approvals  pull request reviews submitted, and the subset of them
-                      that approved, from the reviewer's contributions
-                      collection (the only date-indexed source for reviews)
+                      that approved, read off the pull requests the member
+                      reviewed
   comments            issue and pull request conversation comments plus
                       inline review comments, from the two repository-wide
                       comment endpoints.  the summary body of a review is not
                       counted here; it is counted as a review above
 
 Every count is bucketed by the UTC month of the event itself rather than
-taken from an aggregate endpoint.  That matters: the totals of the GraphQL
-contributions collection are bucketed by day in the *contributor's own
-profile timezone*, which shifts commits across a month boundary for anyone
-not on UTC (for a US/Eastern member, a month queried as UTC came out 39
-commits short on one boundary day alone).  Only the review contributions are
-read from that collection, and even there the individual submission
-timestamps are re-bucketed here, with the query windows padded by a day so
-that the snapping cannot drop one.
+taken from an aggregate endpoint.  The aggregates GitHub offers for this are
+both wrong for a monthly breakdown, in ways that do not announce themselves:
+
+  - the totals of a contributions collection are bucketed by day in the
+    *contributor's own profile timezone*, which moves work across a month
+    boundary for anyone not on UTC.  For a US/Eastern member, one boundary
+    day alone accounted for 39 commits of a month queried as UTC.
+  - its pullRequestReviewContributions report one contribution per pull
+    request rather than one per review, deduplicated over the whole window
+    asked for.  A pull request reviewed in two months is credited to one of
+    them, so the count of a fixed month *falls* as the surrounding window
+    grows: one member's November came out as 14 reviews when read from the
+    pull requests, 10 from a one-month collection, and 7 from an eleven-month
+    one.
+
+Neither is used here.  Every number comes from the individual events and
+their own timestamps, so it does not depend on how it was asked for.
 
 A full sweep is about 150 requests, well inside both the 5000/h REST budget
 and the GraphQL one; the REST search API and its 30/min limit are avoided
@@ -258,44 +267,58 @@ def sweep_merged(repo, month, start, end, counts, totals, months, seen):
         if key in months:
             totals['merges'][key] = totals['merges'].get(key, 0) + 1
 
-def sweep_reviews(repo, login, window, counts, months):
-    '''the reviews one member submitted, from their contributions collection.
-       that collection is the only source indexed by review date, but it
-       spans at most a year and snaps its bounds to whole days in the
-       member's own timezone, so the caller passes padded sub-windows and the
-       submission timestamps are re-bucketed here as UTC'''
-    start, end = window
+def sweep_reviews(repo, login, start, counts, months):
+    '''the reviews one member submitted, read off the pull requests they
+       reviewed.  a pull request counts as updated no earlier than the last
+       review on it, so everything updated since the window opened carries
+       every review submitted inside it.
+
+       the obvious source, the member's contributions collection, is wrong
+       for this and quietly so: it reports one contribution per pull request
+       rather than one per review, and it deduplicates over the whole window
+       it is asked for, so a pull request reviewed in two months is credited
+       to one of them and the count of a given month falls as the surrounding
+       window grows.  reading the reviews themselves gives one number that
+       does not depend on how it was asked for'''
     cursor = 'null'
     while True:
         data = gh_graphql(f'''
 query {{
-  user(login: "{login}") {{
-    contributionsCollection(from: "{start}", to: "{end}") {{
-      pullRequestReviewContributions(first: 100, after: {cursor}) {{
-        pageInfo {{ hasNextPage endCursor }}
-        nodes {{
-          repository {{ nameWithOwner }}
-          pullRequestReview {{ state submittedAt }}
+  search(query: "repo:{repo} is:pr reviewed-by:{login} updated:>={start[:10]}",
+         type: ISSUE, first: 50, after: {cursor}) {{
+    issueCount
+    pageInfo {{ hasNextPage endCursor }}
+    nodes {{
+      ... on PullRequest {{
+        number
+        reviews(first: 100, author: "{login}") {{
+          totalCount
+          nodes {{ state submittedAt }}
         }}
       }}
     }}
   }}
 }}''')
-        user = data.get('user')
-        if not user:
-            raise RuntimeError(f'no such user: {login}')
-        block = user['contributionsCollection']['pullRequestReviewContributions']
-        for node in block['nodes']:
-            if node['repository']['nameWithOwner'] != repo:
-                continue
-            review = node['pullRequestReview'] or {}
-            bucket(counts, login, review.get('submittedAt'), 'reviews', months)
-            if review.get('state') == 'APPROVED':
-                bucket(counts, login, review.get('submittedAt'), 'approvals',
+        result = data['search']
+        if result['issueCount'] > 1000 and cursor == 'null':
+            print(f"WARNING: {login}: {result['issueCount']} reviewed pull "
+                  "requests, only the first 1000 are counted", file=sys.stderr)
+        for node in result['nodes']:
+            reviews = node.get('reviews') or {}
+            listed = reviews.get('nodes') or []
+            if reviews.get('totalCount', 0) > len(listed):
+                print(f"WARNING: {login}: pull request {node.get('number')} "
+                      f"carries {reviews['totalCount']} of their reviews, "
+                      f"only {len(listed)} are counted", file=sys.stderr)
+            for review in listed:
+                bucket(counts, login, review.get('submittedAt'), 'reviews',
                        months)
-        if not block['pageInfo']['hasNextPage']:
+                if review.get('state') == 'APPROVED':
+                    bucket(counts, login, review.get('submittedAt'),
+                           'approvals', months)
+        if not result['pageInfo']['hasNextPage']:
             return
-        cursor = json.dumps(block['pageInfo']['endCursor'])
+        cursor = json.dumps(result['pageInfo']['endCursor'])
 
 def sweep_comments(repo, start, counts, totals, months):
     '''every comment written in the window, from the two repository-wide
@@ -321,30 +344,6 @@ def sweep_comments(repo, start, counts, totals, months):
                 break
             page += 1
 
-# the contributions collection refuses a window spanning more than a year, so
-# the reviews are asked for in chunks of at most this many months.  eleven
-# leaves room for the padding below however long the months are
-REVIEW_CHUNK = 11
-
-def review_windows(window):
-    '''the sub-windows the reviews are collected over: consecutive chunks of
-       the month list, each padded by a day.  the padding is there because the
-       collection snaps its bounds to whole days in the member's own timezone,
-       which can pull a bound the wrong way by a few hours; widening it can
-       only add reviews outside the months asked for, and those are dropped
-       again when they are bucketed'''
-    pad = datetime.timedelta(days=1)
-    def stamp(when):
-        return when.strftime('%Y-%m-%dT%H:%M:%SZ')
-    def parse(text):
-        return datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%SZ')
-    spans = []
-    for first in range(0, len(window), REVIEW_CHUNK):
-        chunk = window[first:first + REVIEW_CHUNK]
-        spans.append((stamp(parse(chunk[0][1]) - pad),
-                      stamp(parse(chunk[-1][2]) + pad)))
-    return spans
-
 # ------------------------------------------------------------------ main
 
 def collect(repo, org, team, nmonths, today):
@@ -367,8 +366,7 @@ def collect(repo, org, team, nmonths, today):
     sweep_comments(repo, start, counts, totals, months)
 
     for login in logins:
-        for span in review_windows(window):
-            sweep_reviews(repo, login, span, counts, months)
+        sweep_reviews(repo, login, start, counts, months)
 
     labels = [label for label, _, _ in window]
     for member in members:
