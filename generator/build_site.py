@@ -9,6 +9,7 @@ Writes: _site/index.html                (dashboard)
         _site/runs/<suite-slug>/<runid>.html  (per-run detail pages)
         _site/compare.html              (configurations of one commit)
         _site/spelling.html             (spellchecker findings of the manual)
+        _site/team.html                 (monthly activity of the core team)
         _site/api/summary.json          (machine readable snapshot)
         _site/static/                   (copy of the static assets)
 
@@ -357,7 +358,7 @@ def ci_badges_html():
                 f'height="20" loading="lazy"></a>')
     return out + '</div>'
 
-def activity_card(activity):
+def activity_card(activity, team_page=False):
     '''dashboard card with repository activity: open work tiles and a
        bar chart of weekly commit counts (last half year)'''
     out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
@@ -392,6 +393,11 @@ def activity_card(activity):
         out += svg
         out += (f'<div class="text-body-secondary small">commits per week, last '
                 f'{len(weeks)} weeks</div>')
+    # the card counts the repository as a whole; who did the work is a page
+    # of its own, because it needs a chart per person and metric
+    if team_page:
+        out += ('<div class="mt-2 small"><a href="team.html">'
+                'Core developer activity</a></div>')
     return out + '</div></div></div>'
 
 def coverity_body(coverity):
@@ -610,6 +616,175 @@ def build_spelling_page(outdir, docs):
     with open(os.path.join(outdir, 'spelling.html'), 'w') as f:
         f.write(page('Documentation spellchecker', body))
     return counts
+
+# the counts tools/fetch_team.py collects, in the order they are shown, with
+# the wording the GitHub interface uses for each of them
+TEAM_METRICS = (
+    ('commits', 'commits'),
+    ('prs', 'PRs opened'),
+    ('issues', 'issues opened'),
+    ('reviews', 'reviews'),
+    ('approvals', 'approvals'),
+    ('merges', 'PRs merged'),
+    ('comments', 'comments'),
+)
+
+def spark_line(values, months, label):
+    '''one small line chart of a monthly count.  every chart is scaled to its
+       own peak: the counts range from a handful of issues to hundreds of
+       commits, and on a shared scale everything but the commits would be a
+       flat line along the bottom.  what the shapes therefore say is how a
+       number moved, not how it compares to the one beside it - the sum and
+       the peak are printed next to the chart to carry that'''
+    width, height, pad = 152, 40, 5
+    base = height - pad
+    top = max(max(values), 1)
+    step = (width - 2 * pad) / max(len(values) - 1, 1)
+    points = [(pad + i * step, base - (value / top) * (height - 2 * pad))
+              for i, value in enumerate(values)]
+    svg = (f'<svg class="spark" width="100%" height="{height}" '
+           f'viewBox="0 0 {width} {height}" role="img" '
+           f'aria-label="{esc(label)} per month">')
+    svg += f'<line class="base" x1="0" y1="{base}" x2="{width}" y2="{base}"/>'
+    svg += ('<polyline class="ln" points="'
+            + ' '.join(f'{x:.1f},{y:.1f}' for x, y in points) + '"/>')
+    for i, ((x, y), value) in enumerate(zip(points, values)):
+        # the last month has not finished, so its point is left open
+        opened = ' class="open"' if i == len(values) - 1 else ''
+        svg += (f'<circle{opened} cx="{x:.1f}" cy="{y:.1f}" r="1.7">'
+                f'<title>{esc(months[i])}: {value} {esc(label)}</title></circle>')
+    return svg + '</svg>'
+
+def build_team_page(outdir, team):
+    '''page with the monthly GitHub activity of the core developers: a table
+       of the sums over the last twelve completed months, and below it one
+       chart per member and count.  returns the number of members reported'''
+    months = team.get('months', [])
+    members = team.get('members', [])
+    if not months or not members:
+        return 0
+
+    # the month the site is built in has not finished, so it is drawn but
+    # left out of the sums; a partial month next to twelve whole ones would
+    # read as a drop in activity that has not happened
+    whole = len(months) - 1
+    if whole < 1:
+        return 0
+    span = f'{months[0]} to {months[whole - 1]}'
+
+    def series(counts, key):
+        '''one count of one member, as one value per month.  a file written by
+           another version of the collector can carry a series that does not
+           line up with the months; it is padded and trimmed to fit rather
+           than refused, so that one odd entry cannot take the page down'''
+        values = [int(value) for value in (counts.get(key) or [])][:len(months)]
+        return values + [0] * (len(months) - len(values))
+
+    def total(counts, key):
+        '''the sum over the completed months, which is what the table reports'''
+        return sum(series(counts, key)[:whole])
+
+    repo = team.get('repo', f'{CI_REPO}')
+    body = (f'<p>What the members of the <a href="{esc(team.get("url", ""))}">'
+            f'<code>{esc(team.get("team", "core"))}</code></a> team did in'
+            f' <a href="https://github.com/{esc(repo)}">{esc(repo)}</a>, by'
+            ' calendar month. Each count is bucketed by the UTC month of the'
+            ' event itself, so the columns line up with one another and with'
+            ' the rest of the site.</p>')
+    body += ('<ul class="small text-body-secondary">'
+             f'<li><b>commits</b> land on the <code>{esc(team.get("branch", "develop"))}</code>'
+             ' branch and count for whoever wrote them, not for whoever merged'
+             ' them, so work contributed through a pull request counts for its'
+             ' author.</li>'
+             '<li><b>PRs merged</b> is the opposite: it counts the pull requests'
+             ' a member merged, whoever wrote them. It measures who presses the'
+             ' button, and in a repository where one maintainer does most of the'
+             ' merging it says so.</li>'
+             '<li><b>reviews</b> counts every review submitted, <b>approvals</b>'
+             ' only those that approved; a review that requested changes or only'
+             ' commented is in the first number and not in the second.</li>'
+             '<li><b>comments</b> counts conversation comments on issues and pull'
+             ' requests together with inline comments on a diff. The summary text'
+             ' of a review is counted as a review rather than as a comment.</li>'
+             '</ul>')
+
+    order = sorted(members, key=lambda m: (-total(m.get('counts', {}), 'commits'),
+                                           m.get('login', '').lower()))
+
+    body += f'<h2 class="h5 mt-4">Twelve month summary &middot; {esc(span)}</h2>'
+    body += ('<div class="table-responsive"><table class="table table-sm '
+             'table-striped table-hover align-middle team"><thead><tr>'
+             '<th>Member</th>')
+    for _, label in TEAM_METRICS:
+        body += f'<th class="n">{esc(label)}</th>'
+    body += '</tr></thead><tbody>'
+    for member in order:
+        counts = member.get('counts', {})
+        name = member.get('name', '')
+        body += (f'<tr><td><a href="{esc(member.get("url", ""))}">'
+                 f'{esc(member.get("login", "?"))}</a>'
+                 + (f' <span class="text-body-secondary">{esc(name)}</span>'
+                    if name else '') + '</td>')
+        for key, _ in TEAM_METRICS:
+            body += f'<td class="n">{total(counts, key)}</td>'
+        body += '</tr>'
+    body += '</tbody><tfoot><tr><td>Core team</td>'
+    for key, _ in TEAM_METRICS:
+        body += (f'<td class="n">'
+                 f'{sum(total(m.get("counts", {}), key) for m in members)}</td>')
+    body += '</tr><tr><td>Repository, all contributors</td>'
+    for key, _ in TEAM_METRICS:
+        # the reviews are collected one member at a time, from the
+        # contributions of that member, so there is no repository-wide number
+        # to put beside them; a blank says so rather than a misleading zero
+        body += (f'<td class="n">{total(team.get("totals", {}), key)}</td>'
+                 if team.get('totals', {}).get(key)
+                 else '<td class="n">&mdash;</td>')
+    body += '</tr></tfoot></table></div>'
+
+    body += '<h2 class="h5 mt-4">Monthly activity</h2>'
+    body += (f'<p class="text-body-secondary small">{esc(months[0])} to'
+             f' {esc(months[-1])}, oldest on the left. Every chart is scaled to'
+             ' its own peak; the last point is the month still running and is'
+             ' drawn hollow. Hover a point for its month and value.</p>')
+    for member in order:
+        counts = member.get('counts', {})
+        name = member.get('name', '')
+        body += '<div class="card mb-3"><div class="card-body">'
+        body += '<div class="team-head d-flex align-items-center gap-2 mb-3">'
+        if member.get('avatar'):
+            # the avatars are served at 460 px unless a size is asked for
+            avatar = member['avatar']
+            avatar += ('&' if '?' in avatar else '?') + 's=64'
+            body += (f'<img src="{esc(avatar)}" width="32" height="32" alt=""'
+                     ' loading="lazy">')
+        body += (f'<div><a href="{esc(member.get("url", ""))}"><b>'
+                 f'{esc(member.get("login", "?"))}</b></a>'
+                 + (f' <span class="text-body-secondary">{esc(name)}</span>'
+                    if name else '') + '</div></div>')
+        body += '<div class="teamgrid">'
+        for key, label in TEAM_METRICS:
+            values = series(counts, key)
+            # the peak is looked for in the completed months only, so that a
+            # month still filling up cannot be reported as one
+            peak = max(values[:whole])
+            when = months[values.index(peak)] if peak else ''
+            body += (f'<div><div class="num">{total(counts, key)}</div>'
+                     f'<div class="lbl">{esc(label)}</div>'
+                     + spark_line(values, months, label)
+                     + '<div class="lbl">'
+                     + (f'peak {peak} in {esc(when)}' if peak else 'none')
+                     + '</div></div>')
+        body += '</div></div></div>'
+
+    collected = time_tag(team.get('fetched', ''))
+    if collected:
+        body += (f'<p class="text-body-secondary small">Collected {collected}'
+                 ' from the GitHub API.</p>')
+
+    with open(os.path.join(outdir, 'team.html'), 'w') as f:
+        f.write(page('Core developer activity', body))
+    return len(members)
 
 # ------------------------------------------------- interpreting a result
 
@@ -1012,7 +1187,8 @@ def build_index(datadir, outdir, summary):
                                 entry.get('sha', '') or run_sha, f'{when} UTC')
             body += '</div></div></div>'
         if 'activity' in summary.get('external', {}):
-            body += activity_card(summary['external']['activity'])
+            body += activity_card(summary['external']['activity'],
+                                  summary.get('team_page'))
         if 'docs' in summary.get('external', {}):
             body += docs_card(summary['external']['docs'])
         body += '</div>'
@@ -1149,6 +1325,11 @@ if __name__ == "__main__":
     spelling = {}
     if 'docs' in summary['external']:
         spelling = build_spelling_page(args.outdir, summary['external']['docs'])
+    team = 0
+    if 'team' in summary['external']:
+        team = build_team_page(args.outdir, summary['external']['team'])
+    # the dashboard only links the page when there is one to link
+    summary['team_page'] = bool(team)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
     # the trend bars of the dashboard read every archived run; the snapshot
@@ -1170,3 +1351,6 @@ if __name__ == "__main__":
     if spelling:
         print("Spellchecker: " + ', '.join(f"{branch} {count} word(s)"
                                            for branch, count in spelling.items()))
+    if team:
+        months = summary['external']['team'].get('months', [])
+        print(f"Core developer activity: {team} member(s), {len(months)} months")

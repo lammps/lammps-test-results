@@ -148,3 +148,27 @@ tr.hidden { display: none; }
 /* repository activity bar chart */
 .actbar rect { fill: var(--lammps-accent); }
 .actbar line { stroke: var(--bs-border-color); stroke-width: 1; }
+
+/* core developer activity: one small line chart per member and metric.  each
+   chart is scaled to its own peak, so the shapes may be compared but the
+   heights may not - the printed sum and peak are what carry the magnitude */
+.teamgrid {
+  display: grid; gap: .9rem 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+}
+.spark { display: block; max-width: 100%; }
+.spark .ln {
+  fill: none; stroke: var(--lammps-accent); stroke-width: 1.5;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.spark .base { stroke: var(--bs-border-color); stroke-width: 1; }
+.spark circle { fill: var(--lammps-accent); }
+/* the month still running is drawn hollow: its value is not comparable to
+   the completed ones next to it */
+.spark circle.open {
+  fill: var(--bs-body-bg); stroke: var(--lammps-accent); stroke-width: 1.2;
+}
+.team-head img { border-radius: 50%; }
+/* the two summed rows are set apart from the members they sum */
+.team tfoot td { border-top: 2px solid var(--bs-border-color); font-weight: 600; }
+.team tfoot tr + tr td { border-top-width: 1px; font-weight: 400; }

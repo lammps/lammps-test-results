@@ -15,7 +15,9 @@ on:
     # static analysis summaries from it, the state of the Coverity Scan (whose
     # build is submitted twice a week, and analyzed whenever the Coverity
     # servers get to it), the manual build status (rebuilt hourly at 23
-    # minutes past), and the GitHub Actions unit test artifacts
+    # minutes past), the GitHub Actions unit test artifacts, and the monthly
+    # activity of the core developers (which only moves as the month fills up,
+    # but is swept whole each time rather than kept up to date incrementally)
     - cron: '45 9,21 * * *'
   workflow_dispatch:
   push:
@@ -65,6 +67,19 @@ jobs:
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json
           python3 tools/fetch_docs.py --output data/external/docs.json
+
+      # the per-member activity is the one collector that cannot run on the
+      # repository token: reading who is on a team needs the read:org scope,
+      # which only a personal access token carries (put one in the TEAM_TOKEN
+      # secret).  without it the collector warns and leaves the data alone,
+      # so the page keeps showing the last counts rather than empty ones
+      - name: Ingest core developer activity
+        if: ${{ github.event_name != 'push' }}
+        env:
+          GH_TOKEN: ${{ secrets.TEAM_TOKEN || secrets.ISSUE_TOKEN || github.token }}
+        run: |
+          python3 tools/fetch_team.py --repo lammps/lammps --org lammps \
+                 --team core --output data/external/team.json
 
       - name: Commit new data
         if: ${{ github.event_name != 'push' }}

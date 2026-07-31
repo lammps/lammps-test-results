@@ -38,6 +38,9 @@ website and a rolling GitHub status issue.
   `status.json` files published with the three manual variants
   (`tools/fetch_docs.py`, see below), including the words the spellchecker
   flagged in the development version.
+- The monthly GitHub activity of the members of the `core` team is swept from
+  the GitHub API (`tools/fetch_team.py`, see below) and reported on a page of
+  its own, linked from the repository activity card.
 
 ## Notifications
 
@@ -61,6 +64,7 @@ scripts that talk to GitHub):
     python3 tools/ingest_actions.py --dry-run   # what would be ingested
     python3 tools/fetch_regression.py --dry-run # latest regression results
     python3 tools/fetch_docs.py                 # manual build status
+    python3 tools/fetch_team.py                 # core developer activity
     python3 tools/update_issue.py --repo <owner/repo> --site-url <url> --dry-run
 
 `run.json` files can also be produced manually from local test runs with
@@ -324,3 +328,61 @@ analysis - which is as precisely as the project page dates it - it is marked
 Whichever half cannot be read keeps the values it had, so a Coverity page that
 refuses the scrape does not take the recorded submission down with it, and an
 unreachable summary file does not blank out the metrics.
+
+## Core developer activity
+
+`tools/fetch_team.py` collects `data/external/team.json`: seven counts per
+member of the `core` team and calendar month, over the last 13 months. The
+site renders them on `team.html`, linked from the repository activity card of
+the dashboard - a table of the sums over the twelve completed months, and one
+line chart per member and count below it. The thirteenth month is the one
+still running: it is drawn, with its last point left hollow, but left out of
+every sum, so that a partial month cannot read as a drop in activity.
+
+GitHub has no single activity endpoint, so each count is swept separately and
+bucketed here:
+
+| count | where it comes from |
+| --- | --- |
+| **commits** | the GraphQL commit history of the default branch |
+| **PRs opened**, **issues opened** | one GraphQL search per month, by creation date |
+| **PRs merged** | a second search per month; there is no `merged-by:` qualifier, so the merged pull requests are listed and their `mergedBy` counted |
+| **reviews**, **approvals** | the reviewer's contributions collection, the only source indexed by review date |
+| **comments** | the two repository-wide comment listings, conversation and inline |
+
+Three of those need care when reading them:
+
+- **commits** count for whoever wrote them, **PRs merged** for whoever merged
+  them. In a repository where one maintainer does most of the merging, the
+  merge column says so and is not a measure of the others' activity.
+- **approvals** are the subset of **reviews** that approved; a review that
+  requested changes or only commented is in the first number and not in the
+  second. The summary text of a review counts as a review, not as a comment.
+- the **repository, all contributors** row of the table has no entry for
+  reviews and approvals: those are collected one member at a time, from that
+  member's own contributions, so there is no repository-wide number to put
+  beside them.
+
+Every count is bucketed by the UTC month of the event itself rather than read
+off an aggregate endpoint. That is deliberate. The totals of the GraphQL
+contributions collection are bucketed by day *in the contributor's own profile
+timezone*, and it snaps a query window out to whole days in that timezone -
+for a US/Eastern member, one boundary day alone moved 39 commits across a
+month queried as UTC. Only the reviews are read from that collection, and even
+there the individual submission timestamps are re-bucketed here, over windows
+padded by a day so the snapping cannot drop one.
+
+A full sweep is about 150 requests and takes a couple of minutes, well inside
+both rate budgets; the REST search API and its 30 requests per minute are
+avoided throughout in favour of GraphQL search. Nothing is collected
+incrementally - the whole window is swept each time, so a month that gains a
+late edit or loses a deleted comment stays correct.
+
+Reading team membership needs a token with the `read:org` scope, which the
+repository `GITHUB_TOKEN` of Actions does not have; the workflow takes one
+from the `TEAM_TOKEN` secret (falling back to `ISSUE_TOKEN`). As in
+`tools/fetch_activity.py`, an incomplete sweep is never published: any failure
+warns and leaves an existing file untouched, so the page keeps showing the
+last complete set of counts rather than one in which some members silently
+dropped to zero. Without the file the page is not built and the dashboard does
+not link it.
