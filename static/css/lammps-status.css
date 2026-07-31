@@ -163,6 +163,10 @@ tr.hidden { display: none; }
 }
 .spark .base { stroke: var(--bs-border-color); stroke-width: 1; }
 .spark circle { fill: var(--lammps-accent); }
+/* the invisible hover target around each point.  "transparent" rather than
+   "none" is what makes it catch the pointer at all, and pointer-events says
+   so outright rather than relying on that */
+.spark circle.hit { fill: transparent; stroke: none; pointer-events: all; }
 /* the month still running is drawn hollow: its value is not comparable to
    the completed ones next to it */
 .spark circle.open {

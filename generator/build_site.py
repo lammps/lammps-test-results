@@ -640,6 +640,9 @@ def spark_line(values, months, label):
     base = height - pad
     top = max(max(values), 1)
     step = (width - 2 * pad) / max(len(values) - 1, 1)
+    # half the spacing, so that neighbouring targets meet but never overlap,
+    # and never so large that a chart of few months becomes one wide target
+    hit = min(step / 2, 6.0)
     points = [(pad + i * step, base - (value / top) * (height - 2 * pad))
               for i, value in enumerate(values)]
     svg = (f'<svg class="spark" width="100%" height="{height}" '
@@ -648,11 +651,18 @@ def spark_line(values, months, label):
     svg += f'<line class="base" x1="0" y1="{base}" x2="{width}" y2="{base}"/>'
     svg += ('<polyline class="ln" points="'
             + ' '.join(f'{x:.1f},{y:.1f}' for x, y in points) + '"/>')
-    for i, ((x, y), value) in enumerate(zip(points, values)):
+    for i, (x, y) in enumerate(points):
         # the last month has not finished, so its point is left open
-        opened = ' class="open"' if i == len(values) - 1 else ''
-        svg += (f'<circle{opened} cx="{x:.1f}" cy="{y:.1f}" r="1.7">'
-                f'<title>{esc(months[i])}: {value} {esc(label)}</title></circle>')
+        opened = ' class="open"' if i == len(points) - 1 else ''
+        svg += f'<circle{opened} cx="{x:.1f}" cy="{y:.1f}" r="2.2"/>'
+    # the tooltip hangs off an invisible disc around each point rather than
+    # off the point itself: a dot big enough to be an easy target with the
+    # mouse would be a chart of dots rather than a line.  drawn last, so they
+    # sit on top of the line and take the hover wherever they overlap it, and
+    # kept just inside half the spacing so that two never compete for it
+    for (x, y), value, month in zip(points, values, months):
+        svg += (f'<circle class="hit" cx="{x:.1f}" cy="{y:.1f}" r="{hit:.1f}">'
+                f'<title>{esc(month)}: {value} {esc(label)}</title></circle>')
     return svg + '</svg>'
 
 def build_team_page(outdir, team):
