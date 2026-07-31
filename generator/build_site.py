@@ -685,27 +685,20 @@ def build_team_page(outdir, team):
         return sum(series(counts, key)[:whole])
 
     repo = team.get('repo', f'{CI_REPO}')
-    body = (f'<p>What the members of the <a href="{esc(team.get("url", ""))}">'
-            f'<code>{esc(team.get("team", "core"))}</code></a> team did in'
-            f' <a href="https://github.com/{esc(repo)}">{esc(repo)}</a>, by'
-            ' calendar month. Each count is bucketed by the UTC month of the'
-            ' event itself, so the columns line up with one another and with'
-            ' the rest of the site.</p>')
-    body += ('<ul class="small text-body-secondary">'
-             f'<li><b>commits</b> land on the <code>{esc(team.get("branch", "develop"))}</code>'
-             ' branch and count for whoever wrote them, not for whoever merged'
-             ' them, so work contributed through a pull request counts for its'
-             ' author.</li>'
+    body = ('<p>This page shows the GitHub activity of the members of the LAMMPS '
+            f'<a href="{esc(team.get("url", ""))}"><code>{esc(team.get("team", "core"))}</code>'
+            f'</a> developer team in <a href="https://github.com/{esc(repo)}">{esc(repo)}</a>, by'
+            ' calendar month.</p>')
+    body += ('<ul class="small text-body-secondary"><li><b>commits</b> is counting'
+             f' commits in the <code>{esc(team.get("branch", "develop"))}</code>'
+             ' branch and count for whoever <b>wrote</b> them, not for whoever merged'
+             ' them.</li>'
              '<li><b>PRs merged</b> is the opposite: it counts the pull requests'
-             ' a member merged, whoever wrote them. It measures who presses the'
-             ' button, and in a repository where one maintainer does most of the'
-             ' merging it says so.</li>'
-             '<li><b>reviews</b> counts every review submitted, <b>approvals</b>'
-             ' only those that approved; a review that requested changes or only'
-             ' commented is in the first number and not in the second.</li>'
+             ' a member <b>merged</b>, whoever wrote them.</li>'
+             '<li><b>reviews</b> counts every review submitted.</li>'
+             '<li><b>approvals</b> only those that approved.</li>'
              '<li><b>comments</b> counts conversation comments on issues and pull'
-             ' requests together with inline comments on a diff. The summary text'
-             ' of a review is counted as a review rather than as a comment.</li>'
+             ' requests together with inline comments on a diff.</li>'
              '</ul>')
 
     order = sorted(members, key=lambda m: (-total(m.get('counts', {}), 'commits'),
