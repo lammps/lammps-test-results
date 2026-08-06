@@ -706,7 +706,7 @@ def build_team_page(outdir, team):
              '<li><b>PRs merged</b> is the opposite: it counts the pull requests'
              ' a member <b>merged</b>, whoever wrote them.</li>'
              '<li><b>reviews</b> counts every review submitted.</li>'
-             '<li><b>approvals</b> only those that approved.</li>'
+             '<li><b>approvals</b> counts reviews that approved a pull request.</li>'
              '<li><b>comments</b> counts conversation comments on issues and pull'
              ' requests together with inline comments on a diff.</li>'
              '</ul>')
