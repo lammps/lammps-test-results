@@ -6,6 +6,7 @@ Reads:  data/<suite>/<runid>/run.json   (see tools/rundata.py for the layout)
         data/external/*.json            (optional summaries, e.g. coverage)
         static/                         (vendored Bootstrap, brand CSS, logo)
 Writes: _site/index.html                (dashboard)
+        _site/trends.html               (outcome history, selectable range)
         _site/runs/<suite-slug>/<runid>.html  (per-run detail pages)
         _site/compare.html              (configurations of one commit)
         _site/spelling.html             (spellchecker findings of the manual)
@@ -85,6 +86,7 @@ def page(title, body, root=''):
     <span class="navbar-text text-white me-auto">Test Status</span>
     <ul class="navbar-nav flex-row gap-3 me-3">
       <li class="nav-item"><a class="nav-link" href="{root}index.html">Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="{root}trends.html">Trends</a></li>
       <li class="nav-item"><a class="nav-link" href="https://www.lammps.org/">lammps.org</a></li>
       <li class="nav-item"><a class="nav-link" href="https://docs.lammps.org/">Docs</a></li>
       <li class="nav-item"><a class="nav-link" href="https://github.com/lammps/lammps">GitHub</a></li>
@@ -1169,6 +1171,215 @@ def build_compare_page(outdir, sha, configs):
     return {'sha': sha, 'comparable': len(comparable), 'differing': len(differing),
             'configs': names}
 
+# the time ranges the trends page offers, as (key, button wording, days);
+# 0 days means the whole archive.  the suites publish at most one run a
+# day, so the days of a range are also the bar slots its chart reserves,
+# which keeps the bar pitch steady while the archive fills into it
+TREND_RANGES = (('2w', '2 weeks', 14), ('3m', '3 months', 91),
+                ('1y', '1 year', 365), ('all', 'all data', 0))
+
+# the trends charts are drawn in the browser from the counts embedded in
+# the page: the range switch then needs no rebuild and no copy of the
+# markup per range, and the page keeps its whole history even after the
+# per-run archive is pruned down to these counts one day.  the drawing
+# mirrors history_bars(); the placeholders are filled in from the same
+# constants that function reads, so the two cannot drift apart
+TRENDS_JS = '''
+(function () {
+  var data = JSON.parse(document.getElementById('trend-data').textContent);
+  var ranges = __RANGES__;      // range key -> days, 0 = whole archive
+  var segments = __SEGMENTS__;  // (status, wording), stacked bottom up
+  var minslots = __MINSLOTS__;  // pitch of "all data" while the archive is short
+  var current = '3m';
+  try { current = localStorage.getItem('trend-range') || current; } catch (e) {}
+  if (!(current in ranges)) current = '3m';
+  var SVG = 'http://www.w3.org/2000/svg';
+
+  function el(name, attrs, parent) {
+    var node = document.createElementNS(SVG, name);
+    for (var key in attrs) node.setAttribute(key, attrs[key]);
+    parent.appendChild(node);
+    return node;
+  }
+
+  function cutoff(range) {
+    var days = ranges[range];
+    if (!days) return '';
+    // the run stamps are "YYYY-MM-DD hh:mm" in UTC, so the cutoff can be
+    // written the same way and compared as text
+    return new Date(Date.now() - days * 86400000)
+      .toISOString().slice(0, 16).replace('T', ' ');
+  }
+
+  function total(run) {
+    var sum = 0;
+    for (var i = 0; i < segments.length; i++) sum += run[2 + i];
+    return sum;
+  }
+
+  function detail(run) {
+    var parts = [];
+    for (var i = 0; i < segments.length; i++)
+      if (run[2 + i]) parts.push(run[2 + i] + ' ' + segments[i][1]);
+    return parts.join(', ');
+  }
+
+  function draw(box, runs) {
+    box.textContent = '';
+    if (!runs.length) return;
+    // drawn at the width the page gives the chart, and redrawn when that
+    // changes: stretching a fixed drawing would distort the date labels
+    var width = Math.max(box.clientWidth, 300);
+    var height = 150, base = height - 18;
+    var slots = Math.max(runs.length, ranges[current] || minslots);
+    var pitch = width / slots;
+    var barw = Math.max(pitch * 0.8, 0.5);
+    var top = 1;
+    runs.forEach(function (run) { top = Math.max(top, total(run)); });
+
+    var svg = el('svg', {class: 'trend d-block', width: width, height: height,
+                         role: 'img',
+                         'aria-label': 'test outcomes over the selected range'},
+                 box);
+    runs.forEach(function (run, i) {
+      // the newest run sits at the right edge, like on the dashboard cards
+      var x = width - (runs.length - i) * pitch;
+      var g = el('g', {}, svg);
+      var title = document.createElementNS(SVG, 'title');
+      title.textContent = run[0] + ' ' + run[1] + ': ' + total(run) +
+                          ' tests (' + detail(run) + ')';
+      g.appendChild(title);
+      var y = base - 1;
+      for (var s = 0; s < segments.length; s++) {
+        var num = run[2 + s];
+        if (!num) continue;
+        // a handful of tests out of a thousand would vanish; a sliver stays
+        var barh = Math.max(num / top * (base - 2), 0.75);
+        y -= barh;
+        el('rect', {class: 'st-' + segments[s][0], x: x.toFixed(2),
+                    y: y.toFixed(2), width: barw.toFixed(2),
+                    height: barh.toFixed(2)}, g);
+      }
+    });
+    el('line', {x1: 0, y1: base - 0.5, x2: width, y2: base - 0.5}, svg);
+
+    // a few dates along the bottom for orientation, spread over the bars
+    // that exist; the tooltips carry the full timestamp of every run
+    var span = runs.length * pitch;
+    var ticks = Math.min(Math.max(Math.floor(span / 180), 1), runs.length);
+    var lastx = -1000;
+    for (var t = 0; t < ticks; t++) {
+      var i = ticks === 1 ? runs.length - 1
+                          : Math.round(t * (runs.length - 1) / (ticks - 1));
+      var x = width - (runs.length - i) * pitch + barw / 2;
+      if (x - lastx < 70) continue;
+      lastx = x;
+      var anchor = 'middle';
+      if (x > width - 40) anchor = 'end';
+      else if (x < 40) anchor = 'start';
+      var text = el('text', {x: x.toFixed(1), y: height - 4,
+                             'text-anchor': anchor}, svg);
+      text.textContent = runs[i][0].slice(0, 10);
+    }
+  }
+
+  function render() {
+    var cut = cutoff(current);
+    document.querySelectorAll('[data-trend]').forEach(function (box) {
+      var runs = data[box.dataset.trend].filter(function (run) {
+        return run[0] >= cut;
+      });
+      draw(box.querySelector('.chart'), runs);
+      box.querySelector('.caption').textContent = runs.length
+        ? 'test outcomes, ' + runs.length + ' run(s)'
+        : 'no runs in this range';
+    });
+  }
+
+  document.querySelectorAll('[data-range]').forEach(function (btn) {
+    btn.classList.toggle('active', btn.dataset.range === current);
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-range]').forEach(function (other) {
+        other.classList.remove('active');
+      });
+      btn.classList.add('active');
+      current = btn.dataset.range;
+      try { localStorage.setItem('trend-range', current); } catch (e) {}
+      render();
+    });
+  });
+
+  var timer = null;
+  addEventListener('resize', function () {
+    clearTimeout(timer);
+    timer = setTimeout(render, 150);
+  });
+  render();
+})();
+'''
+
+def build_trends_page(outdir, summary):
+    '''page with the outcome history of every suite over a selectable time
+       range.  the dashboard cards stop at TREND_RUNS runs; this page draws
+       the whole archive, in the browser, from the counts embedded in it.
+       returns the number of suites plotted'''
+    matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
+    regression = [s for s in summary['suites']
+                  if not s['suite'].startswith('unit-tests/')]
+
+    body = ('<p>Every archived run of every suite, as the stacked bars of the'
+            ' dashboard cards: one bar per run with the newest at the right'
+            ' edge, the height of a bar the number of tests of that run, and'
+            ' the colors the outcomes. Hover a bar for the run and its counts;'
+            ' the name above a chart leads to the latest run of that suite.'
+            ' Every chart is scaled to its own largest run.</p>')
+    body += ('<div class="btn-group btn-group-sm my-2" role="group" '
+             'aria-label="Time range">'
+             + ''.join(f'<button type="button" class="btn btn-outline-primary" '
+                       f'data-range="{key}">{esc(label)}</button>'
+                       for key, label, _ in TREND_RANGES)
+             + '</div>')
+    body += ('<noscript><p class="text-body-secondary">The charts are drawn in'
+             ' the browser and need JavaScript; the dashboard cards show the'
+             ' most recent runs without it.</p></noscript>')
+
+    data = []
+    for heading, entries, unit in (('Unit tests', matrix, True),
+                                   ('Regression tests', regression, False)):
+        if not entries:
+            continue
+        body += f'<h2 class="h5 mt-4">{esc(heading)}</h2>'
+        for entry in entries:
+            runs = []
+            for runid, counts in entry['history']:
+                stamp, sha = runid_parts(runid)
+                runs.append([stamp, sha]
+                            + [counts.get(key, 0) for key, _ in BAR_SEGMENTS])
+            name = entry['suite'].split('/', 1)[1] if unit \
+                else suite_title(entry['suite'])
+            body += (f'<div class="mb-4" data-trend="{len(data)}">'
+                     f'<h3 class="h6 mb-1">'
+                     f'<a href="{run_link(entry["suite"], entry["latest"])}">'
+                     f'{esc(name)}</a></h3>'
+                     '<div class="chart"></div>'
+                     '<div class="caption text-body-secondary small"></div>'
+                     '</div>')
+            data.append(runs)
+
+    # "</" must not appear inside a script element, not even inside JSON
+    blob = json.dumps(data, separators=(',', ':')).replace('</', '<\\/')
+    body += f'<script type="application/json" id="trend-data">{blob}</script>'
+    js = (TRENDS_JS
+          .replace('__RANGES__',
+                   json.dumps({key: days for key, _, days in TREND_RANGES}))
+          .replace('__SEGMENTS__', json.dumps(BAR_SEGMENTS))
+          .replace('__MINSLOTS__', str(TREND_RUNS)))
+    body += f'<script>{js}</script>'
+
+    with open(os.path.join(outdir, 'trends.html'), 'w') as f:
+        f.write(page('Test outcome trends', body))
+    return len(data)
+
 def build_index(datadir, outdir, summary):
     stale = stale_chain_parts(summary)
     body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
@@ -1383,6 +1594,7 @@ if __name__ == "__main__":
         team = build_team_page(args.outdir, summary['external']['team'])
     # the dashboard only links the page when there is one to link
     summary['team_page'] = bool(team)
+    build_trends_page(args.outdir, summary)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
     # the trend bars of the dashboard read every archived run; the snapshot
