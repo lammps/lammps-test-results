@@ -314,17 +314,58 @@ def report_day(stamp):
     except ValueError:
         return None
 
-def card_footer(branch, commit, when):
+def card_footer(branch, commit, when, stale=''):
     '''the line every card that reports on a commit ends on: which branch and
        commit the result is of, and when it was produced.  one shape for all
        of them, so that the cards can be read against one another - the parts
-       a report does not record are left out rather than replaced'''
+       a report does not record are left out rather than replaced.  "stale"
+       is the explanation of a result that a part of the same cron job has
+       overtaken (stale_chain_parts): the line turns red and carries the
+       explanation as its tooltip'''
     ident = ' @ '.join(part for part in (str(branch), str(commit)[:10]) if part)
     parts = [esc(part) for part in (ident, when) if part]
     if not parts:
         return ''
+    if stale:
+        return (f'<div class="stale small mt-2" title="{esc(stale)}">'
+                f'{" &middot; ".join(parts)}</div>')
     return (f'<div class="text-body-secondary small mt-2">'
             f'{" &middot; ".join(parts)}</div>')
+
+# the static analysis, the linux-x86_64-gcc unit tests, and the code
+# coverage analysis run back to back in one cron job, from one checkout of
+# the repository, so a healthy night reports the same branch and commit
+# three times.  the parts finish in that order: one of them naming an older
+# commit than a part before it means the job broke off partway, and what it
+# shows is left over from an earlier night
+CHAIN_SUITE = 'unit-tests/linux-x86_64-gcc'
+STALE_NOTE = ('does not match the commit of an earlier part of the same cron '
+              'job (static analysis, unit tests, code coverage share one '
+              'checkout): that run did not get this far')
+
+def stale_chain_parts(summary):
+    '''which parts of that cron job report a different commit than a part
+       that ran before them, as a set of "analysis", "unittest", "coverage".
+       an empty set is a consistent dashboard'''
+    external = summary.get('external', {})
+    chain = (('analysis', external.get('analysis', {})),
+             ('unittest', next((s for s in summary['suites']
+                                if s['suite'] == CHAIN_SUITE), {})),
+             ('coverage', external.get('coverage', {})))
+    stale = set()
+    seen = []
+    for name, info in chain:
+        sha = str(info.get('commit') or info.get('sha') or '')
+        if not sha:
+            continue
+        # the reports may abbreviate the hash; the branch belongs to the
+        # identity too, because a checkout that switched branches can sit
+        # on the very commit the old branch was left at
+        ident = (str(info.get('branch') or ''), sha[:10])
+        if any(ident != earlier for earlier in seen):
+            stale.add(name)
+        seen.append(ident)
+    return stale
 
 # live GitHub Actions status badges, mirroring data/ci.yaml on the LAMMPS
 # website (update both when a workflow file is renamed)
@@ -1129,6 +1170,7 @@ def build_compare_page(outdir, sha, configs):
             'configs': names}
 
 def build_index(datadir, outdir, summary):
+    stale = stale_chain_parts(summary)
     body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
     body += ci_badges_html()
 
@@ -1157,6 +1199,12 @@ def build_index(datadir, outdir, summary):
                 all_ok = esc(f'{when} / {ok_sha}') if ok_sha else esc(when)
             else:
                 all_ok = '&mdash;'
+            # this run is a part of the analysis/coverage cron job: where it
+            # fell behind the static analysis, its commit and timestamp turn
+            # red (stale_chain_parts)
+            behind = (f' class="stale" title="{esc(STALE_NOTE)}"'
+                      if entry['suite'] == CHAIN_SUITE and 'unittest' in stale
+                      else '')
             body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(config)}</a></td>'
                      f'<td>{status}</td>'
@@ -1165,8 +1213,8 @@ def build_index(datadir, outdir, summary):
                      f'<td class="n">{counts["failed"]}</td>'
                      f'<td class="n">{counts["error"]}</td>'
                      f'<td class="n">{counts["skipped"]}</td>'
-                     f'<td>{sha}</td>'
-                     f'<td>{latest}</td>'
+                     f'<td{behind}>{sha}</td>'
+                     f'<td{behind}>{latest}</td>'
                      f'<td>{all_ok}</td></tr>')
         body += '</tbody></table></div>'
 
@@ -1210,7 +1258,8 @@ def build_index(datadir, outdir, summary):
                 body += (f'<div class="tile"><div class="num">{esc(cov[label])}%</div>'
                          f'<div class="lbl">{esc(label.split("_")[0])}</div></div>')
         body += '</div>' + card_footer(cov.get('branch', ''), cov.get('commit', ''),
-                                       utc_stamp(cov.get('date', '')))
+                                       utc_stamp(cov.get('date', '')),
+                                       STALE_NOTE if 'coverage' in stale else '')
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/coverage</div>')
@@ -1225,7 +1274,8 @@ def build_index(datadir, outdir, summary):
             body += (f'<div class="tile"><div class="num">{num}</div>'
                      f'<div class="lbl">{esc(label)}</div></div>')
         body += '</div>' + card_footer(ana.get('branch', ''), ana.get('commit', ''),
-                                       utc_stamp(ana.get('date', '')))
+                                       utc_stamp(ana.get('date', '')),
+                                       STALE_NOTE if 'analysis' in stale else '')
     else:
         body += ('<div class="text-body-secondary small">summary not ingested yet;'
                  ' see download.lammps.org/analysis</div>')
