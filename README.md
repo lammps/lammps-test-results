@@ -8,7 +8,9 @@ website and a rolling GitHub status issue.
 - GitHub Actions workflows in [lammps/lammps](https://github.com/lammps/lammps)
   upload JUnit XML test results as artifacts for post-merge runs on the
   `develop` branch (regression tests: merged `run.json` + JUnit XML; unit
-  tests: one `junit-<config>` artifact per platform/configuration).
+  tests: one `junit-<config>` artifact per platform/configuration; the
+  example input check: the JUnit XML of the test harness as it is, see
+  below).
 - The full regression tests are no longer run in GitHub Actions but on a
   dedicated machine with a much more complete LAMMPS configuration, and
   published on download.lammps.org (`tools/fetch_regression.py`, see below).
@@ -76,8 +78,8 @@ or `tools/junit_to_json.py` (any JUnit XML file, e.g. from
 
     data/<suite>/<runid>/run.json
 
-`<suite>` is `quick-regression`, `full-regression/<config>`, or
-`unit-tests/<config>`: a suite that is run in more than one configuration
+`<suite>` is `quick-regression`, `check-examples`, `full-regression/<config>`,
+or `unit-tests/<config>`: a suite that is run in more than one configuration
 keeps them in subdirectories and appears once per configuration. `<runid>` is
 `<ISO timestamp>_<short sha>` and sorts chronologically. The `run.json` format
 is documented in `tools/rundata.py`; a test is recorded there as `passed`,
@@ -237,6 +239,43 @@ before it that did judge that test (`rundata.compare_runs()` reads older runs
 lazily, only as far as it needs them). Otherwise a test that keeps failing but
 flaps through a timeout would be announced as a new failure every time it came
 back - which is exactly what the archived parallel runs did on 2026-07-27.
+
+## Example input check
+
+`check-examples.yml` in lammps/lammps (*Check example inputs /w -skiprun*,
+added with the same pull request as the `runtest` status) runs every input
+script of the examples tree with `-skiprun` appended, on 2 MPI tasks of a
+GitHub Actions build: the whole script is parsed, every style instantiated,
+the system set up, and one step taken - the loops of all `run` and `minimize`
+commands end after one step. That finds inputs that no longer parse or crash
+in setup at a small fraction of the cost of the regression runs, and on every
+push rather than once a day; it checks nothing numerically. The workflow's
+own verdict is the `failure.yaml` it stops on; what is archived here is the
+JUnit XML it uploads in `check-examples-results`, converted by
+`tools/junit_to_json.py` into `data/check-examples/<runid>/run.json`
+(`ingest_actions.JUNIT_WORKFLOWS`; the commit, the branch and the time are
+those of the workflow run, since the `git_info` the harness records is the
+detached HEAD of the checkout).
+
+By design, every input that completes is a `runtest` (*only a -skiprun
+check*) and none passes, so the card of the suite shows zero passed and zero
+failed and the suite is all OK exactly when no input errors out. The inputs
+it cannot judge are skipped and counted per kind on the run page: the ones
+excluded in `config_skiprun.yaml`, the ones whose post-run analysis cannot
+work with a run cut short (*cannot be checked with -skiprun*, an error
+message that names a variable or a tally that needs the full run), the
+multi-partition inputs, and the ones that use a package or feature the
+Actions build lacks. The dashboard sorts the suite after the full regression
+cards (`rundata.SUITE_ORDER`), names it *Example Input Check*
+(`rundata.SUITE_TITLES`), and spells out on its run pages what it runs
+(`rundata.SUITE_DETAILS`), since the name of the suite says neither.
+
+The same pull request adds `unittest-fftw.yaml` (*Unittest for Linux, FFTW3
+and KOKKOS OpenMP*): the unit tests in the build configuration the example
+check uses - MPI enabled, FFTW3 instead of KISS FFT, the KOKKOS package with
+its OpenMP backend, and the default (smallbig) integer sizes, which no other
+Actions configuration has. Its results are ingested like those of the other
+unit test workflows, as `unit-tests/linux-x86_64-fftw`.
 
 ## Published unit test run
 

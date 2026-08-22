@@ -171,9 +171,9 @@ def build_body(snapshot, docs, site_url):
                  " so they are reported but not announced as new failures.\n")
     if runtests:
         body += ("\nA runtest ran to completion but could not be checked against"
-                 " anything (most of them have no reference log file): only the"
-                 " run itself was tested, so it is counted as neither passed nor"
-                 " skipped.\n")
+                 " anything (no reference log file, or a `-skiprun` dry run): only"
+                 " the run itself was tested, so it is counted as neither passed"
+                 " nor skipped.\n")
     if docs:
         body += docs_table(docs, site_url)
     body += f"\n_Last updated: {now}_\n"

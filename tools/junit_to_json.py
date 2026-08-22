@@ -69,6 +69,8 @@ def parse_junit(source):
                     # in lammps/lammps)
                     if tag == 'skipped' and case.get('status') == 'runtest':
                         entry['status'] = 'runtest'
+                    if elem.text and elem.text.strip():
+                        entry['details'] = elem.text.strip()
                     break
             else:
                 # ctest encodes the outcome in a "status" attribute
@@ -77,8 +79,28 @@ def parse_junit(source):
                     entry['status'] = 'failed'
                 elif status in ('disabled', 'notrun', 'skipped'):
                     entry['status'] = 'skipped'
+            # the regression test harness annotates a test case with what
+            # needs attention in the input and where the run deviates from
+            # its reference (tools/regression-tests/REPORTING.md), which
+            # merge_results.py carries into a run.json under these names
+            if case.get('attention'):
+                entry['attention'] = case.get('attention')
+            if case.get('diverged'):
+                entry['diverged'] = int(case.get('diverged'))
+                entry['diverged_row'] = int(case.get('diverged-row', 0))
+                if case.get('diverged-at') is not None:
+                    entry['diverged_at'] = int(case.get('diverged-at'))
             tests[key] = entry
     return properties, tests
+
+def run_json(properties, tests, title, generated, **metadata):
+    '''the run.json document for the tests parsed from a JUnit file, with the
+       counts the regression test harness records in its metadata and any
+       further metadata the caller knows (sha, branch, run_url, ...)'''
+    meta = {'title': title, 'generated': generated, 'properties': properties,
+            'counts': rundata.metadata_counts(tests)}
+    meta.update(metadata)
+    return {'metadata': meta, 'tests': tests}
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Convert a JUnit XML file to run.json")
@@ -95,21 +117,17 @@ if __name__ == "__main__":
         print(f"ERROR: cannot parse {args.xmlfile}: {err}", file=sys.stderr)
         sys.exit(1)
 
-    counts = rundata.metadata_counts(tests)
-
-    metadata = {
-        'title': args.title,
-        'generated': datetime.datetime.now().isoformat(timespec='seconds'),
-        'properties': properties,
-        'counts': counts,
-    }
+    metadata = {}
     for item in args.meta:
         key, _, value = item.partition('=')
         metadata[key] = value
+    data = run_json(properties, tests, args.title,
+                    datetime.datetime.now().isoformat(timespec='seconds'), **metadata)
+    counts = data['metadata']['counts']
 
     os.makedirs(os.path.dirname(os.path.abspath(args.jsonfile)), exist_ok=True)
     with open(args.jsonfile, 'w') as f:
-        json.dump({'metadata': metadata, 'tests': tests}, f, indent=2)
+        json.dump(data, f, indent=2)
         f.write('\n')
     print(f"{args.jsonfile}: {counts['tests']} tests, {counts['passed']} passed,"
           f" {counts['failed']} failed, {counts['error']} errors,"

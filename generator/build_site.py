@@ -50,9 +50,9 @@ LABELS = {'passed': 'passed', 'failed': 'failed',
           'pending': 'pending', 'stale': 'stale', 'unknown': 'unknown'}
 # what a runtest is, in one sentence, for wherever the word is first met
 RUNTEST_NOTE = ('A "runtest" ran to completion but could not be checked against'
-                ' anything - most of them have no reference log file - so only'
-                ' the run itself was tested: it is neither passed nor skipped,'
-                ' and counted apart from both.')
+                ' anything - there is no reference log file, or the run was a'
+                ' "-skiprun" dry run - so only the run itself was tested: it is'
+                ' neither passed nor skipped, and counted apart from both.')
 
 def esc(text):
     return html.escape(str(text), quote=True)
@@ -400,7 +400,9 @@ CI_BADGES = (
     ('macOS', 'unittest-macos.yml'),
     ('Linux ARM64', 'unittest-arm64.yml'),
     ('Linux single-FFT', 'unittest-single.yml'),
+    ('Linux FFTW3 MPI', 'unittest-fftw.yaml'),
     ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
+    ('Example inputs', 'check-examples.yml'),
     ('Style check', 'style-check.yml'),
     ('C++23', 'check-cpp23.yml'),
     ('GNU make', 'check-gnu-make.yml'),

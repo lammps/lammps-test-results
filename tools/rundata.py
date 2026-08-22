@@ -95,6 +95,20 @@ CONFIG_DETAILS = {
 # the order the configurations are worth reading in: by how much they add to
 # the one before, which is not the alphabetical order
 CONFIG_ORDER = ('serial', 'parallel', 'openmp', 'kokkos')
+# the same for the suites: the verdicts first, then the check that reaches
+# none, then the unit test matrix (which the dashboard sets apart anyway)
+SUITE_ORDER = ('full-regression', 'quick-regression', 'check-examples', 'unit-tests')
+# what a suite run in a single configuration does, where the name does not
+# say (CONFIG_DETAILS is the same for the configurations of a suite), and
+# the title to give it where the name reads badly as one
+SUITE_DETAILS = {
+    'check-examples': 'every example input run with "-skiprun" on 2 MPI tasks in'
+                      ' the GitHub Actions build: parsed, set up, and taken one'
+                      ' step, with nothing checked numerically',
+}
+SUITE_TITLES = {
+    'check-examples': 'Example Input Check',
+}
 
 # statuses that are not verdicts, as (label, marker) pairs: the input was
 # not really tested, and each kind implies different work, so they are
@@ -116,8 +130,8 @@ NOT_TESTED_KINDS = (
     ('numerical checks turned off', 'skipping numerical checks'),
     ('needs a multi-partition run', 'needs a multi-partition run'),
     ('package not installed', 'package not installed'),
-    ('style not in the binary', 'not included in the tested binary'),
-    ('style not in the binary', '-skiprun check:'),
+    ('needs a package or feature the binary lacks', 'not included in the tested binary'),
+    ('needs a package or feature the binary lacks', '-skiprun check:'),
     ('cannot be checked with -skiprun', 'cannot be checked with -skiprun'),
     ('couples to another code or graphics demo', 'couples LAMMPS'),
     ('excluded by the test configuration', 'as specified in the test'),
@@ -156,6 +170,12 @@ def config_sort_key(config):
         return (CONFIG_ORDER.index(config), '')
     return (len(CONFIG_ORDER), config)
 
+def suite_sort_key(suite):
+    '''the same for the suites (SUITE_ORDER)'''
+    if suite in SUITE_ORDER:
+        return (SUITE_ORDER.index(suite), '')
+    return (len(SUITE_ORDER), suite)
+
 def list_suites(datadir):
     '''return all suites that have at least one run; a suite that is run in
        several configurations keeps them in subdirectories and is listed once
@@ -164,7 +184,7 @@ def list_suites(datadir):
     suites = []
     if not os.path.isdir(datadir):
         return suites
-    for entry in sorted(os.listdir(datadir)):
+    for entry in sorted(os.listdir(datadir), key=suite_sort_key):
         path = os.path.join(datadir, entry)
         if not os.path.isdir(path) or entry == 'external':
             continue
@@ -181,9 +201,9 @@ def list_suites(datadir):
 def suite_title(suite):
     '''readable name of a suite: "unit-tests/linux-arm64" becomes
        "Unit Tests: linux-arm64", "full-regression" becomes
-       "Full Regression"'''
+       "Full Regression", and "check-examples" what SUITE_TITLES says'''
     base, _, config = suite.partition('/')
-    title = base.replace('-', ' ').title()
+    title = SUITE_TITLES.get(base) or base.replace('-', ' ').title()
     return f'{title}: {config}' if config else title
 
 def config_label(suite, title):
@@ -202,10 +222,11 @@ def config_label(suite, title):
 
 def config_detail(suite):
     '''what a configuration of a suite runs, in words (CONFIG_DETAILS), or
-       the empty string where nothing is recorded for it.  the cards on the
+       what a suite of a single configuration does (SUITE_DETAILS), or the
+       empty string where nothing is recorded for it.  the cards on the
        dashboard are too small to carry this, so it is shown on the run page
        they link to'''
-    return CONFIG_DETAILS.get(suite.partition('/')[2], '')
+    return CONFIG_DETAILS.get(suite.partition('/')[2], '') or SUITE_DETAILS.get(suite, '')
 
 def status_of(entry):
     '''the status of one test, with a run that hit the time limit of the test
