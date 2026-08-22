@@ -15,7 +15,8 @@ and parallel full regression runs), and <runid> sorts chronologically
 Each run.json follows the format written by merge_results.py in
 lammps/lammps (tools/regression-tests): a "metadata" object with
 "counts" and "properties", and a "tests" object keyed by
-"classname/name" with {"status", "time", "message"} values.
+"classname/name" with {"status", "time", "message"} values, where
+"status" is one of passed, failed, error, runtest, skipped.
 
 A test that ran into the time limit of the test harness is reported as an
 error like any other, but says nothing about the code: whether it expires
@@ -24,6 +25,16 @@ the machine. Those runs are classified as "timeout" here (status_of()) and
 counted apart from the errors, so that a slower machine or a lowered limit
 does not read as a regression. They stay visible in their own right, since
 a test that starts hanging because of a code change lands there too.
+
+A test that ran to completion but could not be checked against anything -
+no reference log file, a log file the harness cannot parse, no thermo output
+at all, or a "-skiprun" dry run that only parses the input and takes one
+step - is reported as "runtest" by the harness since lammps/lammps#5144:
+only the run itself was tested, so it is neither passed nor skipped.  The
+runs archived before that reported the same outcomes as "skipped", with a
+message that starts with "completed"; status_of() reads those as "runtest"
+as well, so that the archive is one vocabulary from end to end and the
+trend bars do not jump where the harness changed its wording.
 
 Beside reading the archive, this module carries the helpers the tools that
 add to it share (tools/fetch_regression.py, tools/fetch_unittest.py): the
@@ -40,6 +51,17 @@ import re
 
 # statuses that count as broken; a timeout is not among them, see above
 BAD = ('failed', 'error')
+# statuses a test can be classified as (status_of()), in the order they are
+# worth reading: the verdicts, then the runs that are not verdicts
+STATUSES = ('passed', 'failed', 'error', 'timeout', 'runtest', 'skipped')
+# statuses a broken test is counted as mended by: a run that completes
+# without a check (e.g. because the reference log file went away) has still
+# stopped crashing, which is what merge_results.py in lammps/lammps reports
+# as fixed too
+OK = ('passed', 'runtest')
+# how the harness worded the outcomes it now reports as "runtest" while it
+# still reported them as skipped: every one of them says the run completed
+LEGACY_RUNTEST = re.compile(r'^completed\b')
 # how the test harness reports hitting its time limit, e.g.
 # "failed, no Total wall time in the output, timeout (180s expired)"
 TIMEOUT = re.compile(r'\btimeout \((\d+)s expired\)')
@@ -74,15 +96,34 @@ CONFIG_DETAILS = {
 # the one before, which is not the alphabetical order
 CONFIG_ORDER = ('serial', 'parallel', 'openmp', 'kokkos')
 
-# statuses that are not verdicts: the input was not really tested, and each
-# kind implies different work, so they are counted apart from one another
+# statuses that are not verdicts, as (label, marker) pairs: the input was
+# not really tested, and each kind implies different work, so they are
+# counted apart from one another.  most of them are "runtest" results, which
+# ran to completion and only lack a check - a reference log file, usually -
+# or "skipped" ones, which were never run; a few are reported as errors by
+# the harness ("package not installed") and are not verdicts on the code
+# either.  the marker is the part of the message that is stable across
+# tests: the rest names the log file or the command of that particular
+# input.  the first marker that matches wins, so the more specific wording
+# of a kind is listed before the more general one it also contains
 NOT_TESTED_KINDS = (
-    ('needs a multi-partition run', 'needs a multi-partition run'),
     ('no reference log file, run as a crash test', 'no reference log file, only checked'),
     ('no reference log file, not shortened', 'numerical checks skipped due to missing'),
     ('log file format not understood', 'unsupported log file format'),
+    ('log file could not be parsed', 'error parsing log.'),
+    ('no thermo output to compare', 'no Step nor Loop'),
+    ('only a -skiprun check', '-skiprun check only'),
+    ('numerical checks turned off', 'skipping numerical checks'),
+    ('needs a multi-partition run', 'needs a multi-partition run'),
     ('package not installed', 'package not installed'),
+    ('style not in the binary', 'not included in the tested binary'),
+    ('style not in the binary', '-skiprun check:'),
+    ('cannot be checked with -skiprun', 'cannot be checked with -skiprun'),
+    ('couples to another code or graphics demo', 'couples LAMMPS'),
+    ('excluded by the test configuration', 'as specified in the test'),
 )
+# the statuses that are never verdicts, in the order they are worth reading
+NOT_TESTED = ('runtest', 'skipped')
 
 def list_runs(datadir, suite):
     '''return the sorted list of run ids for a suite (oldest first)'''
@@ -168,18 +209,36 @@ def config_detail(suite):
 
 def status_of(entry):
     '''the status of one test, with a run that hit the time limit of the test
-       harness classified as "timeout" rather than as an error'''
+       harness classified as "timeout" rather than as an error, and a run
+       that completed without a check classified as "runtest" whether the
+       harness reported it so or, before it had the word, as skipped'''
     status = entry.get('status', '')
-    if status in BAD and TIMEOUT.search(entry.get('message', '')):
+    message = entry.get('message', '')
+    if status in BAD and TIMEOUT.search(message):
         return 'timeout'
+    if status == 'skipped' and LEGACY_RUNTEST.match(message):
+        return 'runtest'
     return status
+
+def metadata_counts(tests):
+    '''the counts the harness records in the metadata of a run: the tests by
+       their reported status, and the walltime.  this is what the tools that
+       build a run.json from a JUnit file write there; counts() is what the
+       archive is read with, and classifies further'''
+    tally = {'tests': len(tests), 'passed': 0, 'failed': 0, 'error': 0,
+             'runtest': 0, 'skipped': 0, 'time': 0.0}
+    for entry in tests.values():
+        tally[entry['status']] = tally.get(entry['status'], 0) + 1
+        tally['time'] += entry.get('time', 0.0)
+    return tally
 
 def counts(run):
     '''the test counts of a run by classified status. the totals are counted
        from the results rather than taken from the metadata, which knows
-       nothing about timeouts; the number of tests and the walltime are read
-       from the metadata, which is where the harness records them'''
-    tally = dict.fromkeys(('passed', 'failed', 'error', 'timeout', 'skipped'), 0)
+       nothing about timeouts and, before the harness had the word, nothing
+       about runtests; the number of tests and the walltime are read from
+       the metadata, which is where the harness records them'''
+    tally = dict.fromkeys(STATUSES, 0)
     for entry in run.get('tests', {}).values():
         status = status_of(entry)
         tally[status] = tally.get(status, 0) + 1
@@ -251,12 +310,35 @@ def sparse_thermo(entry):
             and (entry.get('diverged_at') or 0) > 1000)
 
 def not_tested_kind(entry):
-    '''which kind of "was not really tested" a status is, or None'''
+    '''which kind of "was not really tested" a test is, as a label, or None
+       for a test that reached a verdict (or ran out of time).  the kinds are
+       read off the message, so that the errors the harness reports for a
+       missing package count too; a test that was not run, or ran without a
+       check, with a wording that matches none of the known kinds is reported
+       as "other" rather than dropped, so that a new kind cannot go unnoticed'''
     message = entry.get('message', '')
     for label, marker in NOT_TESTED_KINDS:
         if marker in message:
             return label
+    if status_of(entry) in NOT_TESTED:
+        return 'other'
     return None
+
+def not_tested_groups(run):
+    '''the tests of a run that were not really tested, counted per kind and
+       grouped by classified status - {"runtest": {label: count}, "skipped":
+       {...}, ...} - with the statuses that are never verdicts first
+       (NOT_TESTED), the rest in the order of STATUSES, and the kinds of
+       each status by count'''
+    tally = {}
+    for entry in run.get('tests', {}).values():
+        label = not_tested_kind(entry)
+        if label:
+            group = tally.setdefault(status_of(entry), {})
+            group[label] = group.get(label, 0) + 1
+    order = NOT_TESTED + tuple(s for s in STATUSES if s not in NOT_TESTED)
+    return {status: dict(sorted(tally[status].items(), key=lambda item: -item[1]))
+            for status in order if status in tally}
 
 def time_limits(run):
     '''the time limits the test harness enforced in a run, as seen in the
@@ -329,7 +411,7 @@ def compare_runs(previous, current, earlier=()):
                                and prev[k] not in BAD),
         'still_failing': sorted(k for k in both if curr[k] in BAD
                                 and prev[k] in BAD),
-        'fixed': sorted(k for k in both if curr[k] == 'passed'
+        'fixed': sorted(k for k in both if curr[k] in OK
                         and prev[k] in BAD),
         # a test that newly runs out of time is reported apart from the
         # failures: it is as likely to be the machine as it is the code.
@@ -342,11 +424,12 @@ def compare_runs(previous, current, earlier=()):
     }
 
 def last_ok_run(datadir, suite, runs, test):
-    '''return the most recent run id in which the given test passed, or None'''
+    '''return the most recent run id in which the given test was not broken
+       (OK: passed, or completed without a check), or None'''
     for runid in reversed(runs):
         run = load_run(datadir, suite, runid)
         entry = run.get('tests', {}).get(test)
-        if entry and entry['status'] == 'passed':
+        if entry and status_of(entry) in OK:
             return runid
     return None
 

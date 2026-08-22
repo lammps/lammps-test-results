@@ -29,6 +29,7 @@ import zipfile
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import junit_to_json
+import rundata
 
 # workflow name -> how to ingest its artifacts. the full regression tests
 # have moved off GitHub Actions to a dedicated machine and are collected by
@@ -144,11 +145,7 @@ def ingest_run(repo, run, datadir, dry_run=False):
                     continue
                 properties, tests = junit_to_json.parse_junit(
                     os.path.join(tmpdir, xmls[0]))
-                counts = {'tests': len(tests), 'passed': 0, 'failed': 0,
-                          'error': 0, 'skipped': 0, 'time': 0.0}
-                for entry in tests.values():
-                    counts[entry['status']] += 1
-                    counts['time'] += entry['time']
+                counts = rundata.metadata_counts(tests)
                 data = {'metadata': {
                             'title': f'Unit Tests {config}',
                             'generated': run['run_started_at'],

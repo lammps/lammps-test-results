@@ -131,14 +131,18 @@ def build_body(snapshot, docs, site_url):
             f"This status table is updated in place (no notifications); a comment is posted"
             f" only when new failures appear or failures are fixed - subscribe to this"
             f" issue to be notified about regressions.\n\n")
-    # the timeout column is carried only where tests ran out of time, which
-    # keeps it out of the table on the days the unit test suites are alone
+    # the timeout and runtest columns are carried only where a suite has
+    # any, which keeps them out of the table on the days the unit test
+    # suites are alone
     timeouts = any(entry['counts'].get('timeout') for entry in snapshot)
-    column = " Timeouts |" if timeouts else ""
+    runtests = any(entry['counts'].get('runtest') for entry in snapshot)
+    extra = [name for name, present in (('Timeouts', timeouts),
+                                        ('Runtest', runtests)) if present]
     if snapshot:
-        body += (f"| Suite | Tests | Passed | Failed | Errors |{column}"
-                 f" Skipped | Changes |\n")
-        body += f"|---|---:|---:|---:|---:|{'---:|' if timeouts else ''}---:|---|\n"
+        body += ("| Suite | Tests | Passed | Failed | Errors |"
+                 + ''.join(f" {name} |" for name in extra)
+                 + " Skipped | Changes |\n")
+        body += "|---|---:|---:|---:|---:|" + '---:|' * len(extra) + "---:|---|\n"
     for entry in snapshot:
         counts = entry['counts']
         icon = ':white_check_mark:' if rundata.broken(counts) == 0 else ':x:'
@@ -150,7 +154,8 @@ def build_body(snapshot, docs, site_url):
                 changes.append(f"{len(entry['diff']['fixed'])} fixed")
             if entry['diff']['new_timeouts']:
                 changes.append(f"{len(entry['diff']['new_timeouts'])} newly out of time")
-        cell = f" {counts['timeout']} |" if timeouts else ""
+        cell = f" {counts.get('timeout', 0)} |" if timeouts else ""
+        cell += f" {counts.get('runtest', 0)} |" if runtests else ""
         # the suite name alone does not say what a configuration does, and
         # several of them run the same inputs in different ways
         name = suite_title(entry['suite'])
@@ -164,6 +169,11 @@ def build_body(snapshot, docs, site_url):
                  " counted as timeouts rather than as errors: whether they expire"
                  " depends on the limit in force and on the load of the machine,"
                  " so they are reported but not announced as new failures.\n")
+    if runtests:
+        body += ("\nA runtest ran to completion but could not be checked against"
+                 " anything (most of them have no reference log file): only the"
+                 " run itself was tested, so it is counted as neither passed nor"
+                 " skipped.\n")
     if docs:
         body += docs_table(docs, site_url)
     body += f"\n_Last updated: {now}_\n"

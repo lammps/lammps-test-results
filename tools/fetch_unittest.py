@@ -201,11 +201,7 @@ def ingest(url, summary_url, datadir, config, dry_run=False):
         print(f"{suite}: {runid} already archived")
         return 0
 
-    counts = {'tests': len(tests), 'passed': 0, 'failed': 0, 'error': 0,
-              'skipped': 0, 'time': 0.0}
-    for entry in tests.values():
-        counts[entry['status']] += 1
-        counts['time'] += entry['time']
+    counts = rundata.metadata_counts(tests)
     # the JUnit document knows nothing about the machine or the build beyond
     # the host name; the summary describes both, and the name of the ctest
     # suite (e.g. "Linux-g++-15") names the compiler in short

@@ -80,7 +80,11 @@ or `tools/junit_to_json.py` (any JUnit XML file, e.g. from
 `unit-tests/<config>`: a suite that is run in more than one configuration
 keeps them in subdirectories and appears once per configuration. `<runid>` is
 `<ISO timestamp>_<short sha>` and sorts chronologically. The `run.json` format
-is documented in `tools/rundata.py`.
+is documented in `tools/rundata.py`; a test is recorded there as `passed`,
+`failed`, `error`, `runtest`, or `skipped`, and the website classifies some
+of them further as it reads them: the errors that hit the time limit of the
+harness as timeouts, and the skipped tests of the runs archived before the
+harness had the word `runtest` as what they are (see below).
 
 ## Full regression tests
 
@@ -145,16 +149,47 @@ time*, and a test that starts hanging because of a code change shows up
 there. The limit itself is read back from the messages
 (`rundata.time_limits()`), since the run data does not record it.
 
+### Runs that complete without a check
+
+Since [lammps/lammps#5144](https://github.com/lammps/lammps/pull/5144) the
+harness reports a test that ran to completion but could not be checked
+against anything as `runtest`: an input without a reference log file (run
+either shortened to a few steps as a crash test, or in full), a reference log
+the harness cannot parse, a run without thermo output, or a `--preflight-only`
+run in which every input is only parsed and taken one step with `-skiprun`.
+Only the run itself was tested, so it is neither passed nor skipped, and the
+website keeps it apart from both: its own tile and band on the cards, its own
+column in the status issue, its own filter on the run pages. It is the bulk of
+what the regression suites report that is not a verdict - 184 of the 811
+inputs of the first serial run that carried the word.
+
+Before that, the harness reported the same outcomes as `skipped`, with a
+message that starts with `completed`. `rundata.status_of()` reads those as
+`runtest` as well, so that the archive is one vocabulary from end to end: the
+band on the trend bars runs through unbroken where the harness changed its
+wording, and a re-publication of a commit that was archived before the change
+is not mistaken for a run with hundreds of moved verdicts. In JUnit XML, which
+has no element for the outcome, the harness writes a runtest as `<skipped>`
+with a `status="runtest"` attribute on the test case, which
+`tools/junit_to_json.py` reads back apart.
+
+A test that was broken and now completes as a runtest counts as fixed, in the
+run-to-run comparison and as the *last OK* run of a test that breaks again
+later: the crash is gone, whatever became of the reference log file. This is
+what `merge_results.py` upstream reports as fixed too.
+
 ### What a dashboard card shows
 
 The numbers of the latest run as tiles, the last `TREND_RUNS` (25) archived
 runs as one stacked bar each, what changed since the run before, and which
 branch, commit and time the numbers are of. A bar is as tall as the number of
 tests of that run and is stacked from the baseline up in the order failed,
-errors, timed out, skipped, passed: the outcomes worth watching sit on the
-baseline, where a change in one of them changes the height of that band
-rather than shifting everything above it, and the tests that passed float on
-top, so the top edge of a bar stays the number of tests. The bars keep their
+errors, timed out, skipped, runtest, passed: the outcomes worth watching sit
+on the baseline, where a change in one of them changes the height of that
+band rather than shifting everything above it, and the tests that passed
+float on top, with the runs that completed unchecked right below them, so the
+top edge of a bar stays the number of tests and the two bands together are
+what did not break. The bars keep their
 pitch while the archive fills, with the newest run at the right edge, and
 they carry the color each outcome has everywhere on the site - which is what
 makes the tiles above them the legend of the chart.
@@ -178,9 +213,15 @@ misleading and the run pages group the results the way
   trajectory is chaotic, so a difference that first appears after a thousand
   steps says nothing about the code, while one that is there in the very first
   thermo output cannot be rounding. The late ones are folded away.
-- **Not really tested** - the statuses that are not verdicts (no reference log
-  file, needs a multi-partition run, package not installed, ...), counted per
-  kind, since each implies different work.
+- **Not really tested** - the statuses that are not verdicts, counted per
+  kind, since each implies different work, and grouped by what the harness
+  made of them: the runtests, which ran and only lack a check (no reference
+  log file, a log file the harness cannot parse, no thermo output), the
+  skipped inputs, which were never run (needs a multi-partition run, excluded
+  by the test configuration, a style the binary does not have), and the
+  errors that are not about the code either (package not installed). A
+  wording the site does not know is counted as *other* rather than dropped
+  (`rundata.NOT_TESTED_KINDS`), so that a new kind cannot go unnoticed.
 
 `compare.html` puts the configurations of one commit side by side. It is
 reached from the run pages of that commit rather than from the dashboard,

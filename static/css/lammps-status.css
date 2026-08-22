@@ -29,6 +29,10 @@
   --status-failed: #b22222;
   --status-error: #a67c00;
   --status-timeout: #3b6fa8;
+  /* a run that completed but could not be checked: a teal between the green
+     of a pass and the blue of a timeout, and as far from the grey of a skip
+     as the two are - it did run */
+  --status-runtest: #1f8a7a;
   --status-skipped: #6c757d;
 }
 [data-bs-theme="dark"] {
@@ -43,6 +47,7 @@
   --status-failed: #e06c6c;
   --status-error: #d9a92e;
   --status-timeout: #6fa8dc;
+  --status-runtest: #4fbfae;
   --status-skipped: #9a9a9a;
 }
 
@@ -93,6 +98,7 @@
 .st-failed  .ico { color: var(--status-failed); }
 .st-error   .ico { color: var(--status-error); }
 .st-timeout .ico { color: var(--status-timeout); }
+.st-runtest .ico { color: var(--status-runtest); }
 .st-skipped .ico { color: var(--status-skipped); }
 .st-pending .ico { color: var(--lammps-accent); }
 .st-stale   .ico { color: var(--status-error); }
@@ -104,6 +110,7 @@
 .tile.st-failed  .num { color: var(--status-failed); }
 .tile.st-error   .num { color: var(--status-error); }
 .tile.st-timeout .num { color: var(--status-timeout); }
+.tile.st-runtest .num { color: var(--status-runtest); }
 .tile.st-skipped .num { color: var(--status-skipped); }
 
 .delta-bad  { color: var(--status-failed); font-weight: 600; }
@@ -130,6 +137,7 @@ ul.listing li { margin-bottom: .25rem; }
 .trend rect.st-failed  { fill: var(--status-failed); }
 .trend rect.st-error   { fill: var(--status-error); }
 .trend rect.st-timeout { fill: var(--status-timeout); }
+.trend rect.st-runtest { fill: var(--status-runtest); }
 .trend rect.st-skipped { fill: var(--status-skipped); }
 .trend line { stroke: var(--bs-border-color); stroke-width: 1; }
 /* the dates the trends page writes along the bottom of its charts */

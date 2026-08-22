@@ -37,12 +37,22 @@ sys.path.append(os.path.join(TOPDIR, 'tools'))
 import docsdata
 import rundata
 
+# a runtest is a run that completed without being checked: the empty circle
+# of a skip with a dot in it, short of the tick of a pass.  (the half-filled
+# circles of the same block come out a third of the size in the site font)
 ICONS = {'passed': '&#10003;', 'failed': '&#10007;',
-         'error': '&#9888;', 'timeout': '&#9716;', 'skipped': '&#9675;',
+         'error': '&#9888;', 'timeout': '&#9716;', 'runtest': '&#9673;',
+         'skipped': '&#9675;',
          'pending': '&#8635;', 'stale': '&#9888;', 'unknown': '&#8212;'}
 LABELS = {'passed': 'passed', 'failed': 'failed',
-          'error': 'error', 'timeout': 'timeout', 'skipped': 'skipped',
+          'error': 'error', 'timeout': 'timeout', 'runtest': 'runtest',
+          'skipped': 'skipped',
           'pending': 'pending', 'stale': 'stale', 'unknown': 'unknown'}
+# what a runtest is, in one sentence, for wherever the word is first met
+RUNTEST_NOTE = ('A "runtest" ran to completion but could not be checked against'
+                ' anything - most of them have no reference log file - so only'
+                ' the run itself was tested: it is neither passed nor skipped,'
+                ' and counted apart from both.')
 
 def esc(text):
     return html.escape(str(text), quote=True)
@@ -183,15 +193,24 @@ def runid_parts(runid):
     return runid, ''
 
 def tiles_html(counts):
+    '''the counts of a run as a row of tiles, in the order of the columns of
+       the status issue: the verdicts first, then the runs that are not
+       verdicts.  the timeout and runtest tiles are only carried where a run
+       has any, which the unit test suites never do, so that their rows stay
+       short'''
     tiles = [('Tests', counts['tests'], ''), ('Passed', counts['passed'], 'st-passed'),
-             ('Failed', counts['failed'], 'st-failed'), ('Errors', counts['error'], 'st-error'),
-             ('Skipped', counts['skipped'], 'st-skipped')]
-    # only where tests ran out of time, which the unit test suites never do
+             ('Failed', counts['failed'], 'st-failed'), ('Errors', counts['error'], 'st-error')]
     if counts.get('timeout'):
-        tiles.insert(4, ('Timeouts', counts['timeout'], 'st-timeout'))
-    # the gap is what decides whether all six tiles fit on one line in a
-    # card of a three-column dashboard; they wrap at gap-4
-    out = '<div class="d-flex flex-wrap gap-3 my-2">'
+        tiles.append(('Timeouts', counts['timeout'], 'st-timeout'))
+    if counts.get('runtest'):
+        tiles.append(('Runtest', counts['runtest'], 'st-runtest'))
+    tiles.append(('Skipped', counts['skipped'], 'st-skipped'))
+    # the gap is what decides whether the tiles fit on one line in a card of
+    # a three-column dashboard: six do at gap-3, the seven of a regression
+    # run only at gap-2 - with the wider gap the last one wraps alone onto a
+    # line of its own, which reads as if it were something else
+    gap = 'gap-2' if len(tiles) > 6 else 'gap-3'
+    out = f'<div class="d-flex flex-wrap {gap} my-2">'
     for label, num, cls in tiles:
         out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
                 f'<div class="lbl">{label}</div></div>')
@@ -215,9 +234,11 @@ TREND_RUNS = 25
 # watching sit on the baseline, where a change in one of them is a change in
 # the height of that band rather than a shift of everything above it; the
 # tests that passed float on top, so that the top edge of a bar stays the
-# number of tests of that run
+# number of tests of that run, with the runs that completed unchecked right
+# below them: the two bands together are what did not break
 BAR_SEGMENTS = (('failed', 'failed'), ('error', 'errors'), ('timeout', 'timed out'),
-                ('skipped', 'skipped'), ('passed', 'passed'))
+                ('skipped', 'skipped'), ('runtest', 'ran unchecked'),
+                ('passed', 'passed'))
 
 def bar_total(counts):
     '''the tests of a run that reached one of the states a bar is made of'''
@@ -921,22 +942,35 @@ def divergence_sections(run):
             body += f'<h3 class="h6 mt-3">{esc(summary)}</h3>{listing_html(items)}'
     return body
 
+# what each group of the "not really tested" section holds, by status
+NOT_TESTED_HEADINGS = {
+    'runtest': 'Ran to completion, but nothing could be checked',
+    'skipped': 'Not run at all',
+    'error': 'Could not run for a reason outside the code',
+}
+
 def not_tested_section(run):
-    '''the statuses that are not verdicts, counted per kind: each of them
-       means a different piece of work, and folding them into "skipped"
-       hides that'''
-    tally = {}
-    for entry in run.get('tests', {}).values():
-        kind = rundata.not_tested_kind(entry)
-        if kind:
-            tally[kind] = tally.get(kind, 0) + 1
-    if not tally:
+    '''the statuses that are not verdicts, counted per kind and grouped by
+       what the harness made of them: each kind means a different piece of
+       work, and folding them all into "skipped" hides that.  the runs that
+       completed without a check come first - they are the bulk of it, and
+       the ones a reference log file would turn into verdicts'''
+    groups = rundata.not_tested_groups(run)
+    if not groups:
         return ''
-    body = (f'<h2 class="h5 mt-4">Not really tested ({sum(tally.values())})</h2>'
-            '<table class="table table-sm w-auto"><tbody>')
-    for kind, num in sorted(tally.items(), key=lambda item: -item[1]):
-        body += (f'<tr><td class="n pe-3">{num}</td><td>{esc(kind)}</td></tr>')
-    return body + '</tbody></table>'
+    total = sum(sum(group.values()) for group in groups.values())
+    body = f'<h2 class="h5 mt-4">Not really tested ({total})</h2>'
+    if 'runtest' in groups:
+        body += f'<p class="text-body-secondary small">{esc(RUNTEST_NOTE)}</p>'
+    for status, group in groups.items():
+        heading = NOT_TESTED_HEADINGS.get(status, status)
+        body += (f'<h3 class="h6 mt-3">{status_chip(status)} &ndash; {esc(heading)}'
+                 f' ({sum(group.values())})</h3>'
+                 '<table class="table table-sm w-auto"><tbody>')
+        for kind, num in group.items():
+            body += f'<tr><td class="n pe-3">{num}</td><td>{esc(kind)}</td></tr>'
+        body += '</tbody></table>'
+    return body
 
 # ---------------------------------------------------------------- pages
 
@@ -966,6 +1000,10 @@ def build_run_page(datadir, outdir, suite, runs, runid, compare_sha=''):
                  f' ({esc(limits_note(rundata.time_limits(run)))}) and are counted'
                  f' apart from the errors: whether they expire depends on the'
                  f' limit in force and on the load of the machine.</p>')
+    if counts.get('runtest'):
+        body += (f'<p class="text-body-secondary small">{counts["runtest"]} test(s)'
+                 f' are runtests. {esc(RUNTEST_NOTE)} What each of them lacks is'
+                 f' counted under <em>not really tested</em> below.</p>')
 
     # metadata table
     body += '<table class="table table-sm table-borderless w-auto small text-body-secondary mb-4"><tbody>'
@@ -1023,6 +1061,7 @@ def build_run_page(datadir, outdir, suite, runs, runid, compare_sha=''):
 <button type="button" class="btn btn-outline-primary" data-filter="failed">Failed</button>
 <button type="button" class="btn btn-outline-primary" data-filter="error">Errors</button>
 <button type="button" class="btn btn-outline-primary" data-filter="timeout">Timeouts</button>
+<button type="button" class="btn btn-outline-primary" data-filter="runtest">Runtest</button>
 <button type="button" class="btn btn-outline-primary" data-filter="skipped">Skipped</button>
 <button type="button" class="btn btn-outline-primary" data-filter="passed">Passed</button>
 </div>

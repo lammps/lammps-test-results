@@ -21,6 +21,9 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import rundata
+
 def parse_junit(source):
     '''parse a JUnit XML file into (properties, tests) dicts; handles both a
        <testsuite> root and a <testsuites> wrapper, and the "status" attribute
@@ -59,6 +62,13 @@ def parse_junit(source):
                 if elem is not None:
                     entry['status'] = 'failed' if tag == 'failure' else tag
                     entry['message'] = elem.get('message', '')
+                    # a run that completed but could not be checked: JUnit
+                    # has no element for it, so the regression test harness
+                    # writes it as skipped with a status attribute that
+                    # tells the two apart (tools/regression-tests/REPORTING.md
+                    # in lammps/lammps)
+                    if tag == 'skipped' and case.get('status') == 'runtest':
+                        entry['status'] = 'runtest'
                     break
             else:
                 # ctest encodes the outcome in a "status" attribute
@@ -85,11 +95,7 @@ if __name__ == "__main__":
         print(f"ERROR: cannot parse {args.xmlfile}: {err}", file=sys.stderr)
         sys.exit(1)
 
-    counts = {'tests': len(tests), 'passed': 0, 'failed': 0, 'error': 0,
-              'skipped': 0, 'time': 0.0}
-    for entry in tests.values():
-        counts[entry['status']] += 1
-        counts['time'] += entry['time']
+    counts = rundata.metadata_counts(tests)
 
     metadata = {
         'title': args.title,
@@ -106,4 +112,5 @@ if __name__ == "__main__":
         json.dump({'metadata': metadata, 'tests': tests}, f, indent=2)
         f.write('\n')
     print(f"{args.jsonfile}: {counts['tests']} tests, {counts['passed']} passed,"
-          f" {counts['failed']} failed, {counts['error']} errors, {counts['skipped']} skipped")
+          f" {counts['failed']} failed, {counts['error']} errors,"
+          f" {counts['runtest']} runtest, {counts['skipped']} skipped")
