@@ -51,6 +51,7 @@ import junit_to_json
 # binaries into one history
 REGRESSION_WORKFLOWS = {
     'quick-regression.yml': 'quick-regression',    # Quick Regression Test
+    'kokkos-regression.yaml': 'kokkos-regression', # Kokkos OpenMP Regression Test
 }
 # artifacts named junit-<config> from the unit test workflows
 UNITTEST_WORKFLOWS = (
