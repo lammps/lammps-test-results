@@ -390,6 +390,94 @@ def stale_chain_parts(summary):
         seen.append(ident)
     return stale
 
+# how old the report of tools/ingest_actions.py may be before the dashboard
+# says so: the collectors are polled twice a day, so a report that has not
+# been rewritten in a day and a bit means the ingestion itself stopped, and
+# every run on the page may be older than it looks.  that failure is quiet
+# by nature - an ingest pass that finds nothing and one that never ran leave
+# the same data behind - which is exactly why it is worth stating
+INGEST_STALE_HOURS = 26
+
+def ingest_state(external):
+    '''what the last ingest pass made of itself (data/external/ingest.json,
+       written by tools/ingest_actions.py), as a dict with
+
+         level    "passed", "pending" or "stale", the status chips of a run,
+                  so that a gap in the data reads the way a failed test does
+         note     the one line the dashboard leads with
+         entries  (status, text, url) of what was missed or is queued
+         suites   the suites to mark in the tables and cards below
+
+       an ingest pass never fails the job it runs in: it publishes the runs
+       it did get and leaves what it missed here, because a failed job would
+       publish nothing at all and hide the gap instead of showing it'''
+    state = {'level': 'passed', 'note': '', 'entries': [], 'suites': set()}
+    report = external.get('ingest')
+    if not report:
+        return state
+    problems = report.get('problems', [])
+    pending = report.get('pending', [])
+    for entry in problems:
+        text = f"{entry.get('kind', 'problem')}: {entry.get('detail', '')}"
+        if entry.get('suite'):
+            text = f"{entry['suite']} {entry.get('runid', '')} - {text}"
+            state['suites'].add(entry['suite'])
+        state['entries'].append(('error', text, entry.get('run_url', '')))
+    for entry in pending:
+        state['entries'].append(
+            ('pending', f"{entry.get('workflow', 'run')} {entry.get('runid', '')}"
+                        f" - {'; '.join(entry.get('reasons', ()))}; queued for the"
+                        f" next pass, tried {entry.get('attempts', 1)} time(s)",
+             entry.get('run_url', '')))
+    age = docsdata.parse_iso(report.get('generated', ''))
+    now = datetime.datetime.now(datetime.timezone.utc)
+    if age is None or (now - age).total_seconds() > INGEST_STALE_HOURS * 3600:
+        state['level'] = 'stale'
+        state['note'] = ('the last ingest pass on record is from '
+                         + (report.get('generated') or 'an unknown time')
+                         + ': the results below may be older than they look')
+    elif problems:
+        state['level'] = 'stale'
+        state['note'] = (f'the last ingest pass could not take in everything it'
+                         f' found ({len(problems)} problem(s))')
+    elif pending:
+        state['level'] = 'pending'
+        state['note'] = (f'{len(pending)} workflow run(s) did not come in and are'
+                         f' queued for the next pass')
+    return state
+
+def ingest_banner(state):
+    '''the line the dashboard leads with when the data on it is known to be
+       short, and nothing at all when it is not: a clean pass is the normal
+       case and does not need saying'''
+    if state['level'] == 'passed':
+        return ''
+    kind = 'warning' if state['level'] == 'pending' else 'danger'
+    body = (f'<div class="alert alert-{kind} py-2 px-3 mt-2" role="alert">'
+            f'<div>{status_chip(state["level"])} <strong>Incomplete data:</strong> '
+            f'{esc(state["note"])}.</div>')
+    if state['entries']:
+        body += '<ul class="small mb-0 mt-2">'
+        for status, text, url in state['entries'][:12]:
+            item = esc(text)
+            if url:
+                item = f'<a href="{esc(url)}">{item}</a>'
+            body += f'<li>{status_chip(status)} {item}</li>'
+        if len(state['entries']) > 12:
+            body += f'<li>&hellip; and {len(state["entries"]) - 12} more</li>'
+        body += '</ul>'
+    return body + '</div>'
+
+def ingest_mark(state, suite):
+    '''the warning glyph a suite carries where the last pass could not take
+       in everything it found for it, as a tooltip on the sign itself'''
+    if suite not in state['suites']:
+        return ''
+    reasons = '; '.join(text for _, text, _ in state['entries']
+                        if text.startswith(suite))
+    return (f' <span class="status st-stale" title="{esc(reasons)}">'
+            f'<span class="ico">{ICONS["stale"]}</span></span>')
+
 # live GitHub Actions status badges, mirroring data/ci.yaml on the LAMMPS
 # website (update both when a workflow file is renamed)
 CI_REPO = 'lammps/lammps'
@@ -1423,14 +1511,19 @@ def build_trends_page(outdir, summary):
 
 def build_index(datadir, outdir, summary):
     stale = stale_chain_parts(summary)
-    body = '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
+    ingest = ingest_state(summary.get('external', {}))
+    # what the page does not have is said before what it has: a reader who
+    # takes a verdict off this dashboard needs to know it is short first
+    body = ingest_banner(ingest)
+    body += '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
     body += ci_badges_html()
 
     # unit test matrix as a table
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
     if matrix:
         body += '<hr class="my-4">'
-        body += '<h2 class="h5">Unit tests (per platform / configuration)</h2>'
+        body += ('<h2 class="h5">Unit tests (per platform / configuration)'
+                 + ingest_mark(ingest, 'unit-tests') + '</h2>')
         body += ('<div class="table-responsive"><table class="table table-striped '
                  'table-hover align-middle">'
                  '<thead><tr><th>Configuration</th><th>Status</th>'
@@ -1458,7 +1551,7 @@ def build_index(datadir, outdir, summary):
                       if entry['suite'] == CHAIN_SUITE and 'unittest' in stale
                       else '')
             body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
-                     f'{esc(config)}</a></td>'
+                     f'{esc(config)}</a>{ingest_mark(ingest, entry["suite"])}</td>'
                      f'<td>{status}</td>'
                      f'<td class="n">{counts["tests"]}</td>'
                      f'<td class="n">{counts["passed"]}</td>'
@@ -1480,7 +1573,8 @@ def build_index(datadir, outdir, summary):
             body += '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
             body += (f'<h3 class="h6 card-title">'
                      f'<a href="{run_link(entry["suite"], entry["latest"])}">'
-                     f'{esc(suite_title(entry["suite"]))}</a></h3>')
+                     f'{esc(suite_title(entry["suite"]))}</a>'
+                     f'{ingest_mark(ingest, entry["suite"])}</h3>')
             body += tiles_html(counts)
             body += history_bars(entry['history'])
             if entry.get('diff'):
@@ -1645,6 +1739,10 @@ if __name__ == "__main__":
                       for s in summary['suites']]}
     if summary.get('compare'):
         api['compare'] = summary['compare']
+    # whoever gates a nightly run on this snapshot has to be able to tell a
+    # suite that reported nothing from one whose result never arrived
+    if 'ingest' in summary['external']:
+        api['ingest'] = summary['external']['ingest']
     for entry in api['suites']:
         if 'diff' in entry:
             entry['diff'] = {k: len(v) for k, v in entry['diff'].items()}

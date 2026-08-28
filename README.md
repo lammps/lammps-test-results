@@ -78,7 +78,8 @@ or `tools/junit_to_json.py` (any JUnit XML file, e.g. from
 
     data/<suite>/<runid>/run.json
 
-`<suite>` is `quick-regression`, `check-examples`, `full-regression/<config>`,
+`<suite>` is `quick-regression`, `kokkos-regression`, `check-examples`,
+`full-regression/<config>`,
 or `unit-tests/<config>`: a suite that is run in more than one configuration
 keeps them in subdirectories and appears once per configuration. `<runid>` is
 `<ISO timestamp>_<short sha>` and sorts chronologically. The `run.json` format
@@ -239,6 +240,49 @@ before it that did judge that test (`rundata.compare_runs()` reads older runs
 lazily, only as far as it needs them). Otherwise a test that keeps failing but
 flaps through a timeout would be announced as a new failure every time it came
 back - which is exactly what the archived parallel runs did on 2026-07-27.
+
+## Incomplete ingestion
+
+An ingest pass never fails the job it runs in. What it could not take in is
+written to `data/external/ingest.json` instead, and the dashboard leads with
+a warning that says so. A failed job would publish nothing at all and leave
+the previous page standing, which hides a gap in the data behind results
+that look current; the point of the report is that a short pass still
+publishes what it did get and says what is missing.
+
+Three things are reported. Runs that did not come in for a reason another
+pass may not hit - an artifact that did not download, a zip without the file
+it should hold, an XML that does not parse - are listed under `pending` and
+retried on the following passes **by run id**, which does not depend on the
+run listing at all: a run that has meanwhile scrolled out of the window is
+still reachable that way. After `ingest_actions.MAX_ATTEMPTS` tries the run
+is reported as a problem rather than queued forever. Runs that carry nothing
+this repository can read are listed under `problems`, but only where they
+would have advanced a suite: a run older than what the suite already holds
+is not a gap in its history, which keeps the tail of runs left behind by a
+corrected workflow out of the report.
+
+The third is the run listing itself. The window is the newest
+`--max-runs` completed runs on `develop`, and lammps/lammps produces some 55
+of those a day, so the window reaches back about three and a half days. A
+listing that comes back out of order - as one did on 2026-08-28, during the
+GitHub Actions outage of that week - need not reach the newest runs at all,
+and the pass then finds nothing new and looks exactly like an idle poll,
+while the results it was meant to pick up quietly scroll out of reach. Each
+pass therefore checks that the listing is newest-first and that its newest
+run is not older than the newest run already archived. Neither check stops
+the pass: they set `recheck`, which makes the next pass examine a window
+`RECHECK_FACTOR` times wider, so that whatever the bad listing skipped is
+picked up on the next round.
+
+`generator/build_site.py` reads the report back (`ingest_state`). The
+dashboard carries a banner naming what was missed and what is queued, the
+suites named in it carry a warning sign, and `api/summary.json` carries the
+whole report, so that whoever gates a nightly run on the snapshot can tell a
+suite that reported nothing from one whose result never arrived. A report
+that has not been rewritten in `INGEST_STALE_HOURS` is itself a warning: the
+collectors are polled twice a day, and an ingester that stopped leaves the
+same data behind as one that found nothing.
 
 ## Example input check
 

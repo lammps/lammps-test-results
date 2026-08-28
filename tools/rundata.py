@@ -97,7 +97,8 @@ CONFIG_DETAILS = {
 CONFIG_ORDER = ('serial', 'parallel', 'openmp', 'kokkos')
 # the same for the suites: the verdicts first, then the check that reaches
 # none, then the unit test matrix (which the dashboard sets apart anyway)
-SUITE_ORDER = ('full-regression', 'quick-regression', 'check-examples', 'unit-tests')
+SUITE_ORDER = ('full-regression', 'quick-regression', 'kokkos-regression',
+               'check-examples', 'unit-tests')
 # what a suite run in a single configuration does, where the name does not
 # say (CONFIG_DETAILS is the same for the configurations of a suite), and
 # the title to give it where the name reads badly as one
@@ -105,9 +106,15 @@ SUITE_DETAILS = {
     'check-examples': 'every example input run with "-skiprun" on 2 MPI tasks in'
                       ' the GitHub Actions build: parsed, set up, and taken one'
                       ' step, with nothing checked numerically',
+    'kokkos-regression': 'the regression inputs run through the KOKKOS package on'
+                         ' its OpenMP host backend in the GitHub Actions build,'
+                         ' against the same reference logs as the other suites',
 }
 SUITE_TITLES = {
     'check-examples': 'Example Input Check',
+    # the default title-case of the directory name would spell the package
+    # "Kokkos"; it is written in capitals everywhere else on the dashboard
+    'kokkos-regression': 'KOKKOS/OpenMP Regression',
 }
 
 # statuses that are not verdicts, as (label, marker) pairs: the input was
