@@ -489,6 +489,7 @@ CI_BADGES = (
     ('Linux ARM64', 'unittest-arm64.yml'),
     ('Linux single-FFT', 'unittest-single.yml'),
     ('Linux FFTW3 MPI', 'unittest-fftw.yaml'),
+    ('KOKKOS precision', 'unittest-kokkos.yml'),
     ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
     ('Example inputs', 'check-examples.yml'),
     ('Style check', 'style-check.yml'),
@@ -496,6 +497,7 @@ CI_BADGES = (
     ('GNU make', 'check-gnu-make.yml'),
     ('No VLA', 'check-vla.yml'),
     ('CodeQL', 'codeql-analysis.yml'),
+    ('LAMMPS-GUI flatpak', 'lammps-gui-flatpak.yml'),
 )
 
 def ci_badges_html():
