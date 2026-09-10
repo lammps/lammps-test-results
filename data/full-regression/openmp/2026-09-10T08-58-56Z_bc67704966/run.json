@@ -1,0 +1,4399 @@
+{
+  "metadata": {
+    "title": "Full Regression Test / MPI+OpenMP",
+    "generated": "2026-09-10T08:58:56Z",
+    "properties": {
+      "operating_system": "OS: Linux \"Fedora Linux 44 (Forty Four)\" 7.1.8-200.fc44.x86_64 x86_64",
+      "git_info": "Git info (develop / patch_2Sep2026-36-g5927737a57)",
+      "compiler": "Compiler: GNU C++ 16.1.1 20260515 (Red Hat 16.1.1-2) with OpenMP 5.2",
+      "compile_flags": "-DLAMMPS_GZIP -DLAMMPS_PNG -DLAMMPS_JPEG -DLAMMPS_FFMPEG -DLAMMPS_CURL -DLAMMPS_SMALLBIG",
+      "config_file": "config_openmp.yaml",
+      "lmp_binary": "/home/akohlmey/compile/lammps-analyze/build-regression/lmp"
+    },
+    "counts": {
+      "tests": 688,
+      "passed": 275,
+      "failed": 289,
+      "error": 11,
+      "runtest": 75,
+      "skipped": 38,
+      "time": 5427.593000000007
+    },
+    "commit": "bc67704966af5768e3c7ccb420400cea82006e83",
+    "branch": "develop",
+    "version": "patch_2Sep2026-36-g5927737a57",
+    "sha": "bc67704966af5768e3c7ccb420400cea82006e83",
+    "source_url": "https://download.lammps.org/coverage/openmp.json"
+  },
+  "tests": {
+    "PACKAGES/latboltz/translocation/in.translocation": {
+      "status": "error",
+      "time": 240.011,
+      "message": "failed, no Total wall time in the output, timeout (240s expired)",
+      "attention": "the run needs 240 s and hits the timeout of 240 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-ramp": {
+      "status": "passed",
+      "time": 20.088,
+      "message": ""
+    },
+    "PACKAGES/drude/butane/in.butane.nh": {
+      "status": "failed",
+      "time": 16.4,
+      "message": "completed, 4 abs diff and 3 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 150
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.min": {
+      "status": "passed",
+      "time": 13.621,
+      "message": ""
+    },
+    "peri/in.peri.ves": {
+      "status": "failed",
+      "time": 10.493,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 9,
+      "diverged_at": 900
+    },
+    "PACKAGES/drude/ethylene_glycol/in.ethylene_glycol": {
+      "status": "failed",
+      "time": 7.559,
+      "message": "completed, 4 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "snap/in.snap.InP.JCPA2020": {
+      "status": "passed",
+      "time": 6.303,
+      "message": ""
+    },
+    "PACKAGES/slater/in.slater": {
+      "status": "runtest",
+      "time": 5.791,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "ttm/in.ttm.thermal": {
+      "status": "failed",
+      "time": 4.784,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "reaxff/FC/in.FC": {
+      "status": "passed",
+      "time": 4.531,
+      "message": ""
+    },
+    "balance/in.balance.neigh.dynamic": {
+      "status": "failed",
+      "time": 3.513,
+      "message": "completed, 11 abs diff and 12 rel diff checks failed",
+      "diverged": 12,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.neigh.dynamic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "ASPHERE/dimer/in.dimer": {
+      "status": "failed",
+      "time": 3.208,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 12,
+      "diverged_at": 1000
+    },
+    "PACKAGES/dpd-basic/dpd_tstat/in.dpd_tstat": {
+      "status": "failed",
+      "time": 2.619,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "balance/in.balance.neigh.static": {
+      "status": "failed",
+      "time": 2.658,
+      "message": "completed, 14 abs diff and 15 rel diff checks failed",
+      "diverged": 15,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.neigh.static.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/dispersion/in.d2": {
+      "status": "failed",
+      "time": 2.103,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.20Dec2024.d2.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "gransurf/in.tribox.gran.surf.stl": {
+      "status": "failed",
+      "time": 2.015,
+      "message": "completed, 10 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 39,
+      "diverged_at": 3900
+    },
+    "multi/in.powerlaw": {
+      "status": "failed",
+      "time": 1.529,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "nb3b/in.nb3b": {
+      "status": "passed",
+      "time": 1.449,
+      "message": ""
+    },
+    "wall/in.wall.sphere": {
+      "status": "failed",
+      "time": 1.422,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.23Aug2026.wall.sphere.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "SPIN/iron/in.spin.iron": {
+      "status": "failed",
+      "time": 1.264,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.iron.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/charge_regulation/in.chreg-polymer": {
+      "status": "failed",
+      "time": 1.187,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "rigid/in.rigid.cubes": {
+      "status": "passed",
+      "time": 0.862,
+      "message": ""
+    },
+    "threebody/in.mos2.sw.mod": {
+      "status": "passed",
+      "time": 0.948,
+      "message": ""
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 0.937,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.xy": {
+      "status": "passed",
+      "time": 0.789,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.global": {
+      "status": "failed",
+      "time": 0.817,
+      "message": "completed, 3 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 22,
+      "diverged_at": 2200
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion/in.lammps": {
+      "status": "runtest",
+      "time": 0.664,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.2d-diffusion.g++.1, log.28Mar23.2d-diffusion.g++.4 in this folder match no input script at all: check the names"
+    },
+    "fire/in.abcfire_mod": {
+      "status": "failed",
+      "time": 0.698,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/pod/Ta/in.pod": {
+      "status": "passed",
+      "time": 0.582,
+      "message": ""
+    },
+    "PACKAGES/phonon/1-1D-mono/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/tracker/in.track": {
+      "status": "passed",
+      "time": 0.558,
+      "message": ""
+    },
+    "PACKAGES/fep/C7inEthanol/fep10/in.deletion": {
+      "status": "runtest",
+      "time": 0.568,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "reaxff/water/in.water.acks2.field": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "triclinic/in.hex.orthog": {
+      "status": "passed",
+      "time": 0.449,
+      "message": ""
+    },
+    "PACKAGES/edip/in.edip-SiC": {
+      "status": "passed",
+      "time": 0.443,
+      "message": ""
+    },
+    "voronoi/in.voronoi.2d": {
+      "status": "runtest",
+      "time": 0.448,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "ASPHERE/superellipsoid_gran/in.bowling": {
+      "status": "passed",
+      "time": 0.452,
+      "message": ""
+    },
+    "PACKAGES/phonon/1-1D-mono/in.Ana": {
+      "status": "runtest",
+      "time": 0.451,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.592,
+      "message": ""
+    },
+    "PACKAGES/latboltz/microrheology/in.microrheology": {
+      "status": "error",
+      "time": 240.001,
+      "message": "failed, no Total wall time in the output, timeout (240s expired)",
+      "attention": "the run needs 240 s and hits the timeout of 240 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conq2": {
+      "status": "passed",
+      "time": 20.171,
+      "message": ""
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-ffield": {
+      "status": "passed",
+      "time": 16.948,
+      "message": ""
+    },
+    "rheo/poiseuille/in.rheo.poiseuille": {
+      "status": "failed",
+      "time": 13.529,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 200
+    },
+    "bpm/peri/in.bpm.peri.eps": {
+      "status": "passed",
+      "time": 11.028,
+      "message": ""
+    },
+    "PACKAGES/dpd-smooth/equipartition-verification/in.lammps": {
+      "status": "runtest",
+      "time": 8.477,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.equipartition.g++.1, log.28Mar23.equipartition.g++.4 in this folder match no input script at all: check the names"
+    },
+    "reaxff/HNS/in.reaxff.hns": {
+      "status": "failed",
+      "time": 6.176,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 10
+    },
+    "PACKAGES/gjf/in.gjf.vhalf": {
+      "status": "failed",
+      "time": 5.298,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 5000
+    },
+    "PACKAGES/pedone/in.pedone.relax": {
+      "status": "failed",
+      "time": 5.033,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 2,
+      "diverged_at": 200
+    },
+    "SPIN/read_restart/in.spin.read_data": {
+      "status": "passed",
+      "time": 1.691,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.restart": {
+      "status": "passed",
+      "time": 0.727,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.write_restart": {
+      "status": "failed",
+      "time": 1.164,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "coreshell/in.coreshell.thermostats": {
+      "status": "failed",
+      "time": 3.85,
+      "message": "completed, 13 abs diff and 14 rel diff checks failed",
+      "diverged": 15,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "reaxff/water/in.water.qtpie.field": {
+      "status": "passed",
+      "time": 3.125,
+      "message": ""
+    },
+    "reaxff/water/in.water.qeqr.field": {
+      "status": "passed",
+      "time": 3.088,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.rigid-nvt-small": {
+      "status": "failed",
+      "time": 3.121,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/uef/npt_biaxial/in.npt_biaxial": {
+      "status": "passed",
+      "time": 1.865,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.cylinder": {
+      "status": "passed",
+      "time": 1.968,
+      "message": ""
+    },
+    "balance/in.balance.clock.static": {
+      "status": "failed",
+      "time": 1.746,
+      "message": "completed, 9 abs diff and 9 rel diff checks failed",
+      "diverged": 9,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.clock.static.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "bpm/peri/benchmark/in.bench.legacy.pmb": {
+      "status": "passed",
+      "time": 1.39,
+      "message": ""
+    },
+    "PACKAGES/tmd/in.tmd": {
+      "status": "runtest",
+      "time": 1.36,
+      "message": "completed, error parsing log.tmd.2 into YAML"
+    },
+    "PACKAGES/frenkel/in.frenkel": {
+      "status": "passed",
+      "time": 1.256,
+      "message": ""
+    },
+    "PACKAGES/machdyn/aluminum_strip_pull/in.aluminum_strip_pull": {
+      "status": "passed",
+      "time": 1.142,
+      "message": ""
+    },
+    "PACKAGES/imd/in.melt_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/quip/in.sw": {
+      "status": "passed",
+      "time": 0.957,
+      "message": ""
+    },
+    "PACKAGES/entropy/in.entropy": {
+      "status": "runtest",
+      "time": 0.845,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "snap/in.snap.Ta06A": {
+      "status": "passed",
+      "time": 0.772,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.Ta06A": {
+      "status": "passed",
+      "time": 0.761,
+      "message": ""
+    },
+    "PACKAGES/brownian/point/in.2d.point": {
+      "status": "passed",
+      "time": 0.696,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 1.813,
+      "message": ""
+    },
+    "flow/in.flow.couette": {
+      "status": "failed",
+      "time": 0.66,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 5,
+      "diverged_at": 2500,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.flow.couette.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mc/in.gemc.lj": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"partition\")"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-cg": {
+      "status": "runtest",
+      "time": 0.537,
+      "message": "completed, error parsing log.gauss-diel-cg.smoke.2 into YAML"
+    },
+    "PACKAGES/moments/in.valtest": {
+      "status": "failed",
+      "time": 0.496,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 1,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.02May2025.valtest.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/vtk/in.vtp": {
+      "status": "runtest",
+      "time": 0.509,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "grid/in.grid.2d": {
+      "status": "passed",
+      "time": 0.467,
+      "message": ""
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.bohr": {
+      "status": "passed",
+      "time": 0.431,
+      "message": ""
+    },
+    "snap/in.snap.grid": {
+      "status": "runtest",
+      "time": 0.433,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "no reference log file matches this input, while log.15Jun22.grid.snap.g++.1, log.15Jun22.grid.snap.g++.4, log.15Jun22.grid.tri.g++.1, ... in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/phonon/4-Graphene/in.graphene": {
+      "status": "runtest",
+      "time": 0.436,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "mliap/in.mliap.pytorch.ace": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc_relax": {
+      "status": "failed",
+      "time": 0.475,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.54,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd_v3": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "mesh/in.marble_race": {
+      "status": "failed",
+      "time": 45.996,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.11May22.marble_race.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/diffraction/in.BulkNi": {
+      "status": "passed",
+      "time": 33.258,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-hBN": {
+      "status": "passed",
+      "time": 27.374,
+      "message": ""
+    },
+    "rdf-adf/in.spce": {
+      "status": "failed",
+      "time": 20.987,
+      "message": "completed, 6 abs diff and 5 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 3,
+      "diverged_at": 300
+    },
+    "PACKAGES/drude/toluene/in.toluene.nh": {
+      "status": "failed",
+      "time": 19.202,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/machdyn/fluid_structure_interaction/in.fluid_structure_interaction": {
+      "status": "failed",
+      "time": 14.517,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 40,
+      "diverged_at": 4000
+    },
+    "granular/in.tableting.200": {
+      "status": "passed",
+      "time": 11.242,
+      "message": ""
+    },
+    "template/in.mol-restart-mix": {
+      "status": "failed",
+      "time": 9.6,
+      "message": "completed, 8 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/machdyn/rubber_rings_3d/in.rubber_rings_3d": {
+      "status": "failed",
+      "time": 7.636,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "mc/in.hmc.flexible.melt": {
+      "status": "failed",
+      "time": 6.149,
+      "message": "completed, 4 abs diff and 5 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 17,
+      "diverged_at": 850
+    },
+    "ASPHERE/star/in.star": {
+      "status": "failed",
+      "time": 5.235,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 12,
+      "diverged_at": 1000
+    },
+    "ttm/in.ttm.grid": {
+      "status": "failed",
+      "time": 5.011,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "body/in.wall2d": {
+      "status": "failed",
+      "time": 4.137,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "peri/in.peri.pmb": {
+      "status": "failed",
+      "time": 3.877,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "voronoi/in.voronoi": {
+      "status": "runtest",
+      "time": 3.389,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "amoeba/in.water_box.hippo": {
+      "status": "passed",
+      "time": 3.468,
+      "message": ""
+    },
+    "controller/in.controller.temp": {
+      "status": "failed",
+      "time": 2.665,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "gransurf/in.tribox.gran.data": {
+      "status": "failed",
+      "time": 2.045,
+      "message": "completed, 8 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 20,
+      "diverged_at": 2000
+    },
+    "deposit/in.deposit.atom": {
+      "status": "failed",
+      "time": 1.937,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "wall/in.wall.harmonic.outside.2d": {
+      "status": "failed",
+      "time": 1.637,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.23Aug2026.wall.harmonic.outside.2d.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mliap/in.mliap.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 1.508,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce2": {
+      "status": "failed",
+      "time": 1.335,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "shear/in.shear.void": {
+      "status": "failed",
+      "time": 1.271,
+      "message": "completed, 5 abs diff and 4 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 25,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.shear.void.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "python/in.pair_python_coulomb": {
+      "status": "passed",
+      "time": 1.133,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.quadratic": {
+      "status": "passed",
+      "time": 1.083,
+      "message": ""
+    },
+    "PACKAGES/fep/CC-CO/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 0.854,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.early": {
+      "status": "passed",
+      "time": 0.897,
+      "message": ""
+    },
+    "PACKAGES/interlayer/drip/in.C_drip": {
+      "status": "failed",
+      "time": 0.833,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "body/in.pour3d": {
+      "status": "passed",
+      "time": 0.914,
+      "message": ""
+    },
+    "rigid/in.rigid.property": {
+      "status": "passed",
+      "time": 0.769,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 1.934,
+      "message": ""
+    },
+    "fire/in.abcfire": {
+      "status": "failed",
+      "time": 0.675,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/dielectric/in.confined.gmres": {
+      "status": "passed",
+      "time": 0.603,
+      "message": ""
+    },
+    "mliap/in.mliap.unified.lj.Ar": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "melt/in.melt": {
+      "status": "passed",
+      "time": 0.565,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4.ang": {
+      "status": "runtest",
+      "time": 0.475,
+      "message": "completed, error parsing log.SiH4.ang.2 into YAML"
+    },
+    "SPIN/setforce_spin/in.spin.setforce": {
+      "status": "failed",
+      "time": 0.51,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4": {
+      "status": "runtest",
+      "time": 0.469,
+      "message": "completed, error parsing log.SiH4.2 into YAML"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.omega": {
+      "status": "passed",
+      "time": 0.471,
+      "message": ""
+    },
+    "triclinic/in.bcc.orthog": {
+      "status": "passed",
+      "time": 0.461,
+      "message": ""
+    },
+    "PACKAGES/mop/in.compute_stress_mop": {
+      "status": "passed",
+      "time": 0.491,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc": {
+      "status": "passed",
+      "time": 0.467,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.588,
+      "message": ""
+    },
+    "PACKAGES/latboltz/pit_geometry/in.pits": {
+      "status": "passed",
+      "time": 77.088,
+      "message": "",
+      "attention": "the run needs 77 s: a production sized run that should be shortened in the repository"
+    },
+    "bpm/metamaterial/in.bpm.metamaterial": {
+      "status": "passed",
+      "time": 54.676,
+      "message": ""
+    },
+    "ASPHERE/tri/in.tri.srd": {
+      "status": "failed",
+      "time": 42.588,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/srp_react/in.srp_react": {
+      "status": "failed",
+      "time": 26.703,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "bpm/poissons_ratio/in.bpm.poissons_ratio": {
+      "status": "failed",
+      "time": 23.751,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.19Nov2024.bpm.poissons_ratio.g++.1, which was written with 1 MPI processes instead of 2"
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_center": {
+      "status": "failed",
+      "time": 21.382,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 100
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.npt": {
+      "status": "passed",
+      "time": 15.938,
+      "message": ""
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.Ana": {
+      "status": "error",
+      "time": 14.166,
+      "message": "failed, ERROR on proc 0: Bond atoms 33 34 missing on proc 0 at step 595843"
+    },
+    "PACKAGES/eff/ECP/SiC/bulk/in.SiC": {
+      "status": "passed",
+      "time": 12.35,
+      "message": ""
+    },
+    "python/in.pair_python_melt": {
+      "status": "failed",
+      "time": 9.511,
+      "message": "completed, 8 abs diff and 9 rel diff checks failed",
+      "diverged": 9,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.pair_python_melt.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "body/in.cubes": {
+      "status": "failed",
+      "time": 7.417,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "bpm/impact/in.bpm.impact.spring": {
+      "status": "failed",
+      "time": 6.188,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 43,
+      "diverged_at": 4300
+    },
+    "amoeba/in.ubiquitin": {
+      "status": "passed",
+      "time": 5.139,
+      "message": ""
+    },
+    "ttm/in.ttm": {
+      "status": "failed",
+      "time": 4.797,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/pace/in.pace.product": {
+      "status": "passed",
+      "time": 3.975,
+      "message": ""
+    },
+    "PACKAGES/yaff/mil53al/in.mil53a": {
+      "status": "runtest",
+      "time": 4.229,
+      "message": "completed, error parsing log.mil53a.2 into YAML"
+    },
+    "ASPHERE/vesicle/in.vesicle": {
+      "status": "failed",
+      "time": 3.306,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 200
+    },
+    "atm/in.atm": {
+      "status": "passed",
+      "time": 2.9,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon_wildcards/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 3.144,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 23,
+      "diverged_at": 1150
+    },
+    "mliap/in.mliap.nn.Cu": {
+      "status": "passed",
+      "time": 2.027,
+      "message": ""
+    },
+    "wall/in.wall.flow": {
+      "status": "failed",
+      "time": 2.964,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.7Feb24.wall.flow.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mliap/in.mliap.so3.nn.Si": {
+      "status": "passed",
+      "time": 1.534,
+      "message": ""
+    },
+    "obstacle/in.obstacle": {
+      "status": "failed",
+      "time": 1.482,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.obstacle.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/pod/InP/in.pod.InP": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/ilves/in.cg-polymers": {
+      "status": "failed",
+      "time": 1.353,
+      "message": "completed, 7 abs diff and 7 rel diff checks failed",
+      "diverged": 7,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "bpm/peri/benchmark/in.bench.bpm.pmb": {
+      "status": "passed",
+      "time": 1.186,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.gravity": {
+      "status": "passed",
+      "time": 0.912,
+      "message": ""
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_full/in.bilayer-graphene": {
+      "status": "error",
+      "time": 0.937,
+      "message": "failed, no Total wall time in the output,"
+    },
+    "rigid/in.rigid.infile": {
+      "status": "passed",
+      "time": 0.881,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.global.stl": {
+      "status": "failed",
+      "time": 0.809,
+      "message": "completed, 3 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 22,
+      "diverged_at": 2200
+    },
+    "replicate/in.replicate.bond.x.noloop": {
+      "status": "failed",
+      "time": 0.75,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 5000
+    },
+    "balance/in.balance": {
+      "status": "failed",
+      "time": 0.776,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 60,
+      "diverged_at": 6000
+    },
+    "rigid/in.rigid.cubes.partial": {
+      "status": "passed",
+      "time": 0.686,
+      "message": ""
+    },
+    "rigid/in.rigid.dipoles": {
+      "status": "failed",
+      "time": 0.613,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/dpd-react/dpde-shardlow/in.dpde-shardlow": {
+      "status": "runtest",
+      "time": 0.615,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-react/dpdp-shardlow/in.dpdp-shardlow": {
+      "status": "runtest",
+      "time": 0.571,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mliap/in.mliap.pytorch.ace.NN": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "min/in.min": {
+      "status": "failed",
+      "time": 0.548,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "threebody/in.mos2-bulk": {
+      "status": "passed",
+      "time": 0.465,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.nopbc.icc": {
+      "status": "passed",
+      "time": 0.454,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.vac0-bcc": {
+      "status": "passed",
+      "time": 0.47,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.7Feb24.vac0-bcc.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "meam/in.meam": {
+      "status": "passed",
+      "time": 0.536,
+      "message": ""
+    },
+    "voronoi/in.voronoi.data": {
+      "status": "runtest",
+      "time": 0.443,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.single_atom": {
+      "status": "passed",
+      "time": 0.439,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.529,
+      "message": ""
+    },
+    "rheo/dam-break/in.rheo.dam.break": {
+      "status": "failed",
+      "time": 73.866,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "the run needs 74 s: a production sized run that should be shortened in the repository"
+    },
+    "mc/in.gcmc.h2o": {
+      "status": "failed",
+      "time": 56.161,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.30Mar26.gcmc.h2o.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "rheo/taylor-green/in.rheo.taylor.green": {
+      "status": "failed",
+      "time": 43.578,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.energy_conservation.meam.sw": {
+      "status": "failed",
+      "time": 29.079,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 14,
+      "diverged_at": 140
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd-region": {
+      "status": "failed",
+      "time": 23.623,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with \"loop local\": cannot match log.21Apr23.tdpd-region.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/eff/CH4/in.ch4_ionized.dynamics": {
+      "status": "failed",
+      "time": 22.231,
+      "message": "completed, 8 abs diff and 9 rel diff checks failed",
+      "diverged": 9,
+      "diverged_row": 1,
+      "diverged_at": 719
+    },
+    "mc/in.gcmc.co2": {
+      "status": "failed",
+      "time": 18.445,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.30Mar26.gcmc.co2.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/qtb/alpha_quartz_qbmsst/in.alpha_quartz_qbmsst": {
+      "status": "failed",
+      "time": 14.239,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "airebo/in.airebo": {
+      "status": "passed",
+      "time": 13.116,
+      "message": ""
+    },
+    "reaxff/ci-reaxFF/in.ci-reax.CH": {
+      "status": "passed",
+      "time": 9.451,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.elstop": {
+      "status": "passed",
+      "time": 8.606,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.20Mar19.elstop.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/moments/in.simple": {
+      "status": "failed",
+      "time": 6.586,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.02May2025.simple.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "balance/in.balance.var.dynamic": {
+      "status": "failed",
+      "time": 5.101,
+      "message": "completed, 11 abs diff and 12 rel diff checks failed",
+      "diverged": 12,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.var.dynamic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "amoeba/in.water_box.amoeba": {
+      "status": "passed",
+      "time": 4.445,
+      "message": ""
+    },
+    "threebody/in.mos2.rebomos": {
+      "status": "passed",
+      "time": 4.13,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid": {
+      "status": "failed",
+      "time": 3.647,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "granular/in.sync_verlet": {
+      "status": "passed",
+      "time": 3.183,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.cascade_SiSi": {
+      "status": "failed",
+      "time": 2.774,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 5,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.18Sep2020.cascade_SiSi.intel.4, which was written with 4 MPI processes instead of 2"
+    },
+    "deposit/in.deposit.molecule.shake": {
+      "status": "failed",
+      "time": 2.27,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/relres/in.22DMH.respa": {
+      "status": "passed",
+      "time": 1.988,
+      "message": ""
+    },
+    "airebo/in.airebo-0-0": {
+      "status": "passed",
+      "time": 1.887,
+      "message": ""
+    },
+    "wall/in.wall.harmonic.2d": {
+      "status": "failed",
+      "time": 1.59,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.23Aug2026.wall.harmonic.2d.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "granular/in.triaxial.compaction.12": {
+      "status": "passed",
+      "time": 1.537,
+      "message": ""
+    },
+    "crack/in.crack": {
+      "status": "passed",
+      "time": 1.403,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.crack.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "steinhardt/in.icos": {
+      "status": "failed",
+      "time": 1.311,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.13Sept18.icos.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "ellipse/in.ellipse.resquared": {
+      "status": "passed",
+      "time": 1.178,
+      "message": "",
+      "diverged": 2,
+      "diverged_row": 35,
+      "diverged_at": 3400
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.bohr": {
+      "status": "failed",
+      "time": 0.966,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 578,
+      "diverged_at": 5760
+    },
+    "rigid/in.rigid.nve.early": {
+      "status": "failed",
+      "time": 0.832,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion-in-shear-flow/in.lammps": {
+      "status": "runtest",
+      "time": 0.848,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.2d-diffusion-in-shear-flow.g++.1, log.28Mar23.2d-diffusion-in-shear-flow.g++.4 in this folder match no input script at all: check the names"
+    },
+    "kim/in.lammps.melt": {
+      "status": "passed",
+      "time": 0.876,
+      "message": ""
+    },
+    "PACKAGES/brownian/2d_velocity/in.2d.velocity": {
+      "status": "failed",
+      "time": 0.784,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 500
+    },
+    "gransurf/in.line.gran.surf": {
+      "status": "failed",
+      "time": 0.64,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 21,
+      "diverged_at": 2100
+    },
+    "grid/in.grid.3d": {
+      "status": "passed",
+      "time": 0.638,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.bohr": {
+      "status": "failed",
+      "time": 0.646,
+      "message": "completed, 1 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 47
+    },
+    "PACKAGES/vtk/in.vtk": {
+      "status": "runtest",
+      "time": 0.478,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "template/in.tmpl-data-mix": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "dreiding/in.dreiding": {
+      "status": "runtest",
+      "time": 0.469,
+      "message": "completed, error parsing log.dreiding.2 into YAML"
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew2d": {
+      "status": "passed",
+      "time": 0.511,
+      "message": ""
+    },
+    "PACKAGES/mofff/in.hkust1_long": {
+      "status": "passed",
+      "time": 0.458,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.fcc": {
+      "status": "passed",
+      "time": 0.433,
+      "message": ""
+    },
+    "qeq/in.qeq.reaxff": {
+      "status": "passed",
+      "time": 0.448,
+      "message": ""
+    },
+    "triclinic/in.sq2.primitive": {
+      "status": "passed",
+      "time": 0.42,
+      "message": ""
+    },
+    "triclinic/in.data.general": {
+      "status": "passed",
+      "time": 0.421,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.single_atom": {
+      "status": "passed",
+      "time": 0.411,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.498,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "gransurf/in.screwfeeder.local": {
+      "status": "passed",
+      "time": 56.028,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/mdpd/in.mdpd": {
+      "status": "failed",
+      "time": 34.432,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with \"loop local\": cannot match log.16Aug17.mdpd.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.grhBN": {
+      "status": "passed",
+      "time": 29.239,
+      "message": ""
+    },
+    "fire/in.meam.fire": {
+      "status": "passed",
+      "time": 25.224,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_tmds/in.mos2": {
+      "status": "failed",
+      "time": 21.937,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "fire/in.meam.abcfire": {
+      "status": "passed",
+      "time": 17.746,
+      "message": ""
+    },
+    "PACKAGES/meam_spline/in.meam-spline.TiO2": {
+      "status": "failed",
+      "time": 14.741,
+      "message": "completed, 12 abs diff and 10 rel diff checks failed",
+      "diverged": 12,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.17Dec2022.meam-spline.TiO2.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/relres/in.22DMH.real": {
+      "status": "passed",
+      "time": 12.659,
+      "message": ""
+    },
+    "nb3b/in.nb3b.screened": {
+      "status": "failed",
+      "time": 9.547,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 7,
+      "diverged_at": 700
+    },
+    "bpm/peri/in.bpm.peri.pmb": {
+      "status": "passed",
+      "time": 6.95,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpdext_tstat/in.dpdext_tstat": {
+      "status": "failed",
+      "time": 6.982,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "comb/in.comb.Cu2O.elastic": {
+      "status": "passed",
+      "time": 5.439,
+      "message": ""
+    },
+    "PACKAGES/qtb/alpha_quartz_qtb/in.alpha_quartz_qtb": {
+      "status": "failed",
+      "time": 4.32,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 500
+    },
+    "balance/in.balance.clock.dynamic": {
+      "status": "failed",
+      "time": 4.392,
+      "message": "completed, 11 abs diff and 12 rel diff checks failed",
+      "diverged": 12,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.clock.dynamic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mc/in.gcmc.region": {
+      "status": "failed",
+      "time": 3.037,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "ASPHERE/poly/in.poly.mp": {
+      "status": "failed",
+      "time": 3.419,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 3,
+      "diverged_at": 1000
+    },
+    "indent/in.indent": {
+      "status": "failed",
+      "time": 2.397,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 16,
+      "diverged_at": 16000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.indent.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/eff/H2/in.h2": {
+      "status": "passed",
+      "time": 2.067,
+      "message": "",
+      "diverged": 2,
+      "diverged_row": 32,
+      "diverged_at": 3000
+    },
+    "reaxff/water/in.water.qeq.field": {
+      "status": "passed",
+      "time": 2.322,
+      "message": ""
+    },
+    "python/in.fix_python_move_nve_melt_group": {
+      "status": "passed",
+      "time": 1.91,
+      "message": ""
+    },
+    "PACKAGES/tally/in.pe": {
+      "status": "passed",
+      "time": 1.653,
+      "message": ""
+    },
+    "reaxff/in.reaxff.tatb": {
+      "status": "failed",
+      "time": 1.476,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/ilves/in.peptide-fixed": {
+      "status": "runtest",
+      "time": 1.45,
+      "message": "completed, error parsing log.peptide-fixed.2 into YAML"
+    },
+    "PACKAGES/ilves/in.peptide-mix": {
+      "status": "runtest",
+      "time": 1.432,
+      "message": "completed, error parsing log.peptide-mix.2 into YAML"
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd": {
+      "status": "error",
+      "time": 1.16,
+      "message": "failed, ERROR on proc 0: Non-numeric atom coords - simulation unstable",
+      "attention": "velocity create with \"loop local\": cannot match log.21Apr23.edpd.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/dielectric/in.nopbc.dof": {
+      "status": "passed",
+      "time": 1.067,
+      "message": ""
+    },
+    "dipole/in.dipole": {
+      "status": "failed",
+      "time": 0.915,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 2000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.dipole.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "wall/in.wall.maxwell": {
+      "status": "failed",
+      "time": 0.827,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.9Jan20.wall.maxwell.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/electron_stopping/in.elstop.only": {
+      "status": "passed",
+      "time": 0.895,
+      "message": ""
+    },
+    "rigid/in.rigid.small.infile": {
+      "status": "passed",
+      "time": 0.782,
+      "message": ""
+    },
+    "PACKAGES/brownian/sphere/in.2d.sphere": {
+      "status": "passed",
+      "time": 0.718,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized_variable_probability": {
+      "status": "failed",
+      "time": 0.697,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "tersoff/in.hBN_shift": {
+      "status": "passed",
+      "time": 0.671,
+      "message": ""
+    },
+    "python/in.pair_python_table": {
+      "status": "failed",
+      "time": 0.681,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.pair_python_table.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/dpd-react/dpd-shardlow/in.dpd-shardlow": {
+      "status": "runtest",
+      "time": 0.613,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/edip/in.edip-Si": {
+      "status": "failed",
+      "time": 0.522,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.4May2017.edip-Si.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "reaxff/water/in.water.acks2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "amoeba/in.water_dimer.hippo": {
+      "status": "passed",
+      "time": 0.461,
+      "message": ""
+    },
+    "triclinic/in.hex.primitive": {
+      "status": "passed",
+      "time": 0.455,
+      "message": ""
+    },
+    "snap/in.gaussian.grid": {
+      "status": "passed",
+      "time": 0.463,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6": {
+      "status": "failed",
+      "time": 0.479,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 27,
+      "diverged_at": 54
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc": {
+      "status": "passed",
+      "time": 0.466,
+      "message": ""
+    },
+    "PACKAGES/mofff/in.hkust1": {
+      "status": "passed",
+      "time": 0.492,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.598,
+      "message": ""
+    },
+    "bpm/plasticity/in.bpm.plasticity": {
+      "status": "failed",
+      "time": 70.977,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.19Nov2024.bpm.plasticity.g++.1, which was written with 1 MPI processes instead of 2; the run needs 71 s: a pro ..."
+    },
+    "streitz/in.ctip": {
+      "status": "passed",
+      "time": 65.214,
+      "message": "",
+      "attention": "the run needs 65 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/hma/in.hma": {
+      "status": "runtest",
+      "time": 30.512,
+      "message": "completed, but no Step nor Loop in the output",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.6Nov18.hma.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.ilp_graphene_hbn": {
+      "status": "passed",
+      "time": 28.424,
+      "message": ""
+    },
+    "ASPHERE/line/in.line.srd": {
+      "status": "failed",
+      "time": 24.377,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_edge": {
+      "status": "failed",
+      "time": 21.879,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 100
+    },
+    "streitz/in.streitz.wolf": {
+      "status": "failed",
+      "time": 19.162,
+      "message": "failed, mismatched columns in the log files"
+    },
+    "PACKAGES/reaction/nylon,6-6_melt/in.large_nylon_melt": {
+      "status": "failed",
+      "time": 14.658,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/ilves/in.rhodo-allbonds": {
+      "status": "runtest",
+      "time": 11.461,
+      "message": "completed, error parsing log.rhodo-allbonds.2 into YAML"
+    },
+    "peri/in.peri.eps": {
+      "status": "passed",
+      "time": 9.171,
+      "message": ""
+    },
+    "PACKAGES/bondval/in.hexbto": {
+      "status": "passed",
+      "time": 7.085,
+      "message": ""
+    },
+    "ttm/in.ttm.cascade": {
+      "status": "failed",
+      "time": 6.545,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "granular/in.pour.drum": {
+      "status": "passed",
+      "time": 5.291,
+      "message": ""
+    },
+    "ASPHERE/superellipsoid_gran/in.drop_test": {
+      "status": "passed",
+      "time": 4.969,
+      "message": ""
+    },
+    "PACKAGES/brownian/align_self/in.alignself_dipole": {
+      "status": "failed",
+      "time": 3.858,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.7Dec25.alignself_dipole.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mesh/in.mesh_box": {
+      "status": "failed",
+      "time": 3.608,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 200,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.11May22.mesh_box.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "deposit/in.deposit.molecule.rigid-small": {
+      "status": "failed",
+      "time": 2.715,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "deposit/in.deposit.molecule.rigid-nve-small": {
+      "status": "failed",
+      "time": 3.154,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/relres/in.22DMH.relres": {
+      "status": "passed",
+      "time": 2.562,
+      "message": ""
+    },
+    "SPIN/nickel/in.spin.nickel": {
+      "status": "failed",
+      "time": 1.523,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.14Apr20.spin.nickel.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/shock/msst/in.msst": {
+      "status": "failed",
+      "time": 1.808,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.08Feb21.msst.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "LEPTON/in.efield-lepton": {
+      "status": "passed",
+      "time": 1.614,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.13Jan25.efield-lepton.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "snap/in.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 1.478,
+      "message": ""
+    },
+    "srd/in.srd.mixture": {
+      "status": "failed",
+      "time": 1.416,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 3,
+      "diverged_at": 100
+    },
+    "PACKAGES/meam_sw_spline/Si/in.hcp_relax": {
+      "status": "failed",
+      "time": 1.36,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/fep/CH4hyd/fdti01/in.fdti01.lmp": {
+      "status": "runtest",
+      "time": 1.188,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.cubes.langevin": {
+      "status": "failed",
+      "time": 0.963,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 200
+    },
+    "gransurf/in.tribox.gran.global.stl": {
+      "status": "failed",
+      "time": 0.945,
+      "message": "completed, 5 abs diff and 6 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 41,
+      "diverged_at": 4100
+    },
+    "gransurf/in.tri.gran.data": {
+      "status": "failed",
+      "time": 0.912,
+      "message": "completed, 5 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 19,
+      "diverged_at": 1900
+    },
+    "rigid/in.rigid.cubes.tri": {
+      "status": "passed",
+      "time": 0.816,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4-CF4/bar10/in.bar10.lmp": {
+      "status": "runtest",
+      "time": 0.713,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.atom-diffusion": {
+      "status": "passed",
+      "time": 0.641,
+      "message": ""
+    },
+    "rigid/in.rigid.atomfile": {
+      "status": "passed",
+      "time": 0.728,
+      "message": ""
+    },
+    "micelle/in.micelle-rigid": {
+      "status": "failed",
+      "time": 0.606,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 12,
+      "diverged_at": 50
+    },
+    "tersoff/in.tersoff": {
+      "status": "passed",
+      "time": 0.564,
+      "message": ""
+    },
+    "micelle/in.micelle": {
+      "status": "failed",
+      "time": 0.578,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 38,
+      "diverged_at": 850
+    },
+    "PACKAGES/quip/in.molecular": {
+      "status": "passed",
+      "time": 0.54,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc_relax": {
+      "status": "failed",
+      "time": 0.497,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/momentum/in.momentum": {
+      "status": "runtest",
+      "time": 0.472,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_lattice": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "template/in.hybrid": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_spin": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "snap/in.snap.compute.quadratic": {
+      "status": "runtest",
+      "time": 0.453,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.601,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.59,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.536,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "granregion/in.granregion.funnel": {
+      "status": "passed",
+      "time": 59.841,
+      "message": ""
+    },
+    "PACKAGES/orient_eco/in.orient_eco": {
+      "status": "passed",
+      "time": 36.937,
+      "message": ""
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve.ang": {
+      "status": "passed",
+      "time": 29.646,
+      "message": ""
+    },
+    "granregion/in.granregion.mixer": {
+      "status": "passed",
+      "time": 25.38,
+      "message": ""
+    },
+    "mc/in.mixed": {
+      "status": "failed",
+      "time": 22.248,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/drude/toluene/in.toluene.lang": {
+      "status": "failed",
+      "time": 16.439,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.nh": {
+      "status": "failed",
+      "time": 15.421,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 60
+    },
+    "mc/in.gcmc.lj": {
+      "status": "failed",
+      "time": 13.9,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/ilves/in.rhodo-shake": {
+      "status": "runtest",
+      "time": 9.806,
+      "message": "completed, error parsing log.rhodo-shake.2 into YAML"
+    },
+    "bpm/wires/in.bpm.wires": {
+      "status": "passed",
+      "time": 7.495,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.16Apr2026.bpm.wires.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mc/in.gcmc.restart": {
+      "status": "failed",
+      "time": 5.975,
+      "message": "completed, 18 abs diff and 18 rel diff checks failed",
+      "diverged": 18,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.30Mar26.gcmc.restart.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water.opt": {
+      "status": "passed",
+      "time": 5.581,
+      "message": ""
+    },
+    "PACKAGES/eff/Be-solid/in.Be-solid.spe": {
+      "status": "passed",
+      "time": 4.905,
+      "message": ""
+    },
+    "template/in.mol-data-mix": {
+      "status": "failed",
+      "time": 4.231,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "python/in.pair_python_spce": {
+      "status": "passed",
+      "time": 3.857,
+      "message": ""
+    },
+    "PACKAGES/reaction/create_atoms_polystyrene/in.grow_styrene": {
+      "status": "failed",
+      "time": 3.369,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/reaction/tiny_nylon_json/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 3.428,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 23,
+      "diverged_at": 1150
+    },
+    "reaxff/water/in.water.qeq": {
+      "status": "passed",
+      "time": 2.546,
+      "message": "",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 10
+    },
+    "gransurf/in.tribox.gran.surf": {
+      "status": "failed",
+      "time": 2.049,
+      "message": "completed, 6 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 18,
+      "diverged_at": 1800
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-hybrid": {
+      "status": "passed",
+      "time": 1.955,
+      "message": ""
+    },
+    "PACKAGES/uef/nvt_uniaxial/in.nvt_uniaxial": {
+      "status": "passed",
+      "time": 1.741,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-rattle": {
+      "status": "runtest",
+      "time": 1.386,
+      "message": "completed, error parsing log.peptide-rattle.2 into YAML"
+    },
+    "wall/in.wall.block": {
+      "status": "failed",
+      "time": 1.577,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.23Aug2026.wall.block.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "SPIN/iron/in.spin.iron_cubic": {
+      "status": "failed",
+      "time": 1.786,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.iron_cubic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/flow_gauss/in.GD": {
+      "status": "passed",
+      "time": 1.123,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.relu1hidden": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/fep/CH4hyd/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 0.909,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/dpd-react/dpde-vv/in.dpde-vv": {
+      "status": "runtest",
+      "time": 0.919,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "replicate/in.replicate.bond.x": {
+      "status": "failed",
+      "time": 0.715,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 5000
+    },
+    "streitz/in.gan": {
+      "status": "runtest",
+      "time": 0.759,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/fep/CH4-CF4/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 0.731,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/fep/CH4-CF4/bar01/in.bar01.lmp": {
+      "status": "runtest",
+      "time": 0.704,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.cubes.nve": {
+      "status": "passed",
+      "time": 0.75,
+      "message": ""
+    },
+    "fire/in.cg": {
+      "status": "failed",
+      "time": 0.577,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel": {
+      "status": "runtest",
+      "time": 0.662,
+      "message": "completed, error parsing log.gauss-diel.smoke.2 into YAML"
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/dynamical_matrix_command/Silicon/in.silicon": {
+      "status": "runtest",
+      "time": 0.491,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/dpd-react/dpdrx-shardlow/in.dpdrx-shardlow": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-pppm-ffield": {
+      "status": "passed",
+      "time": 0.476,
+      "message": ""
+    },
+    "snap/in.snap.compute": {
+      "status": "runtest",
+      "time": 0.462,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/ptm/in.ptm": {
+      "status": "passed",
+      "time": 0.471,
+      "message": ""
+    },
+    "UNITS/in.ar.lj": {
+      "status": "failed",
+      "time": 0.478,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.8Oct19.ar.lj.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.ang": {
+      "status": "passed",
+      "time": 0.468,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.559,
+      "message": ""
+    },
+    "bpm/pour/in.bpm.pour": {
+      "status": "error",
+      "time": 240.002,
+      "message": "failed, no Total wall time in the output, timeout (240s expired)",
+      "attention": "the run needs 240 s and hits the timeout of 240 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-etypes": {
+      "status": "passed",
+      "time": 20.28,
+      "message": ""
+    },
+    "grid/in.sph": {
+      "status": "passed",
+      "time": 16.249,
+      "message": ""
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.lang": {
+      "status": "failed",
+      "time": 12.953,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20
+    },
+    "bpm/peri/in.bpm.peri.ves": {
+      "status": "passed",
+      "time": 10.898,
+      "message": ""
+    },
+    "bpm/peri/in.bpm.peri.lps": {
+      "status": "passed",
+      "time": 8.691,
+      "message": ""
+    },
+    "PACKAGES/filter_corotate/in.bpti": {
+      "status": "runtest",
+      "time": 6.538,
+      "message": "completed, error parsing log.bpti.2 into YAML"
+    },
+    "coreshell/in.coreshell.wolf": {
+      "status": "failed",
+      "time": 5.611,
+      "message": "completed, 10 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/bocs/in.methanol": {
+      "status": "failed",
+      "time": 5.894,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 500
+    },
+    "PACKAGES/cnp/in.cnp": {
+      "status": "failed",
+      "time": 4.225,
+      "message": "completed, 8 abs diff and 6 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 1,
+      "diverged_at": 10
+    },
+    "peri/in.peri-pmb": {
+      "status": "failed",
+      "time": 3.726,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 3.094,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 23,
+      "diverged_at": 1150
+    },
+    "PACKAGES/pace/in.pace.recursive": {
+      "status": "passed",
+      "time": 2.921,
+      "message": ""
+    },
+    "mc/in.widom.lj": {
+      "status": "failed",
+      "time": 2.563,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 10
+    },
+    "balance/in.balance.kspace": {
+      "status": "failed",
+      "time": 2.193,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.kspace.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "snap/in.snap.scale.Ni_Zuo_JCPA2020": {
+      "status": "runtest",
+      "time": 1.913,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.15Jun22.grid.snap.g++.1, log.15Jun22.grid.snap.g++.4, log.15Jun22.grid.tri.g++.1, ... in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/pafi/in.pafi": {
+      "status": "failed",
+      "time": 1.708,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 15,
+      "diverged_at": 1100
+    },
+    "reaxff/in.reaxff.tatb-shielded": {
+      "status": "failed",
+      "time": 1.441,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "peptide/in.peptide": {
+      "status": "runtest",
+      "time": 1.345,
+      "message": "completed, error parsing log.peptide.2 into YAML"
+    },
+    "PACKAGES/quip/in.gap": {
+      "status": "passed",
+      "time": 1.296,
+      "message": ""
+    },
+    "eim/in.eim": {
+      "status": "failed",
+      "time": 1.03,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/interlayer/drip/in.CH_drip": {
+      "status": "failed",
+      "time": 1.037,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "multi/in.granular": {
+      "status": "failed",
+      "time": 0.961,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "rigid/in.rigid.cubes.npt": {
+      "status": "failed",
+      "time": 0.965,
+      "message": "completed, 0 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 3,
+      "diverged_at": 600
+    },
+    "wall/in.wall.diffusive": {
+      "status": "failed",
+      "time": 0.795,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.9Jan20.wall.diffusive.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "wall/in.wall.specular": {
+      "status": "failed",
+      "time": 0.837,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.9Jan20.wall.specular.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "gransurf/in.line.gran.data": {
+      "status": "failed",
+      "time": 0.787,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 21,
+      "diverged_at": 2100
+    },
+    "gransurf/in.line.gran.global": {
+      "status": "failed",
+      "time": 0.72,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 26,
+      "diverged_at": 2600
+    },
+    "reaxff/in.reaxff.rdx-shielded": {
+      "status": "failed",
+      "time": 0.619,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "vashishta/in.vashishta.sio2": {
+      "status": "passed",
+      "time": 0.556,
+      "message": ""
+    },
+    "mc/in.widom.spce": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "comb/in.comb.Cu": {
+      "status": "failed",
+      "time": 0.476,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 1,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.comb.Cu.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "template/in.tmpl-restart-mix": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-cg": {
+      "status": "passed",
+      "time": 0.448,
+      "message": ""
+    },
+    "python/in.python.wrap": {
+      "status": "passed",
+      "time": 0.45,
+      "message": ""
+    },
+    "UNITS/in.ar.real": {
+      "status": "failed",
+      "time": 0.445,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.8Oct19.ar.real.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "vashishta/in.vashishta.inp": {
+      "status": "passed",
+      "time": 0.467,
+      "message": ""
+    },
+    "triclinic/in.sq2.orthog": {
+      "status": "passed",
+      "time": 0.451,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.601,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.556,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.495,
+      "message": ""
+    },
+    "PACKAGES/latboltz/diffusingsphere/in.trapnewsphere": {
+      "status": "error",
+      "time": 240.011,
+      "message": "failed, no Total wall time in the output, timeout (240s expired)",
+      "attention": "the run needs 240 s and hits the timeout of 240 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/machdyn/funnel_flow/in.funnel_flow": {
+      "status": "failed",
+      "time": 20.406,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 9,
+      "diverged_at": 800
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.lang": {
+      "status": "failed",
+      "time": 16.315,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.tgnh": {
+      "status": "failed",
+      "time": 13.438,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20
+    },
+    "PACKAGES/local_density/benzene_water/in.benzene_water": {
+      "status": "runtest",
+      "time": 10.479,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/ilves/in.polymelt": {
+      "status": "failed",
+      "time": 8.335,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "mc/in.hmc.rigid": {
+      "status": "failed",
+      "time": 6.032,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "ASPHERE/star/in.star.mp": {
+      "status": "failed",
+      "time": 5.516,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 12,
+      "diverged_at": 1000
+    },
+    "body/in.squares": {
+      "status": "failed",
+      "time": 4.799,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/meam_sw_spline/Si/in.energy_conservation.meam.sw": {
+      "status": "passed",
+      "time": 4.649,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6.ang": {
+      "status": "failed",
+      "time": 3.947,
+      "message": "completed, 4 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 5,
+      "diverged_at": 50
+    },
+    "PACKAGES/dispersion/in.d3": {
+      "status": "failed",
+      "time": 3.42,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.20Dec2024.d3.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/dielectric/in.confined.dof": {
+      "status": "passed",
+      "time": 2.631,
+      "message": ""
+    },
+    "coreshell/in.coreshell": {
+      "status": "failed",
+      "time": 2.808,
+      "message": "completed, 8 abs diff and 9 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "srd/in.srd.pure": {
+      "status": "failed",
+      "time": 2.304,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "pour/in.pour.2d": {
+      "status": "passed",
+      "time": 1.867,
+      "message": ""
+    },
+    "PACKAGES/tally/in.force": {
+      "status": "passed",
+      "time": 1.565,
+      "message": ""
+    },
+    "snap/in.snap.hybrid.WSNAP.HePair": {
+      "status": "passed",
+      "time": 1.441,
+      "message": ""
+    },
+    "PACKAGES/machdyn/rubber_strip_pull/in.rubber_strip_pull": {
+      "status": "passed",
+      "time": 1.426,
+      "message": ""
+    },
+    "PACKAGES/e3b/in.e3b-tip4p2005": {
+      "status": "passed",
+      "time": 1.271,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-graphene": {
+      "status": "error",
+      "time": 0.96,
+      "message": "failed, no Total wall time in the output,"
+    },
+    "rigid/in.rigid.cubes.nph": {
+      "status": "failed",
+      "time": 0.962,
+      "message": "completed, 0 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 3,
+      "diverged_at": 600
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ffield": {
+      "status": "passed",
+      "time": 0.854,
+      "message": ""
+    },
+    "PACKAGES/meam_spline/in.meam-spline.Si": {
+      "status": "failed",
+      "time": 0.809,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.17Dec2022.meam-spline.Si.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/dpd-basic/dpdext/in.dpdext": {
+      "status": "failed",
+      "time": 0.805,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.5Apr22.dpdext.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "SPIN/spinmin/in.spin.bfo_min_lbfgs": {
+      "status": "failed",
+      "time": 0.746,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "python/in.fix_python_move_nve_melt_opt": {
+      "status": "passed",
+      "time": 0.711,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.dimer": {
+      "status": "runtest",
+      "time": 0.629,
+      "message": "completed, error parsing log.dimer.2 into YAML"
+    },
+    "python/in.fix_python_invoke": {
+      "status": "failed",
+      "time": 0.597,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.fix_python_invoke.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/pace/compute/in.compute": {
+      "status": "passed",
+      "time": 0.512,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew3dc": {
+      "status": "passed",
+      "time": 0.522,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/phonon/4-Graphene/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "rigid/in.rigid.cubes.multirun": {
+      "status": "runtest",
+      "time": 0.472,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.rigid.cubes.gravity.1, log.rigid.cubes.gravity.2, log.rigid.cubes.gravity.4, ... in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha": {
+      "status": "passed",
+      "time": 0.435,
+      "message": ""
+    },
+    "mliap/in.mliap.quadratic.compute": {
+      "status": "runtest",
+      "time": 0.441,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "triclinic/in.fcc.primitive": {
+      "status": "passed",
+      "time": 0.434,
+      "message": ""
+    },
+    "triclinic/in.fcc.orthog": {
+      "status": "passed",
+      "time": 0.433,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.515,
+      "message": ""
+    },
+    "PACKAGES/latboltz/planewall/in.planewall": {
+      "status": "error",
+      "time": 240.001,
+      "message": "failed, no Total wall time in the output, timeout (240s expired)",
+      "attention": "the run needs 240 s and hits the timeout of 240 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conq": {
+      "status": "passed",
+      "time": 19.631,
+      "message": ""
+    },
+    "streitz/in.streitz.ewald": {
+      "status": "failed",
+      "time": 15.965,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/sna_nnn_slcsa/in.slcsa": {
+      "status": "runtest",
+      "time": 13.082,
+      "message": "completed, error parsing log.slcsa.2 into YAML"
+    },
+    "dipole/in.charge_dipole": {
+      "status": "failed",
+      "time": 10.435,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.26Jun26.charge_dipole.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mc/in.sgcmc.eam": {
+      "status": "failed",
+      "time": 9.923,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.13Dec22.sgcmc.eam.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "controller/in.controller.wall": {
+      "status": "failed",
+      "time": 6.852,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 3,
+      "diverged_at": 1500
+    },
+    "template/in.molecular-mix": {
+      "status": "failed",
+      "time": 5.762,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.22Oct20.molecular-mix.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/moments/in.converge": {
+      "status": "failed",
+      "time": 5.417,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.02May2025.converge.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_ewald": {
+      "status": "failed",
+      "time": 4.381,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.iron_dipole_ewald.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/shock/hugoniostat/in.hugoniostat": {
+      "status": "failed",
+      "time": 4.022,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.08Feb21.hugoniostat.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "ASPHERE/line/in.line": {
+      "status": "failed",
+      "time": 3.289,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/pedone/in.pedone.melt": {
+      "status": "failed",
+      "time": 3.554,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.14Aug2026.pedone.melt.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "rigid/in.rigid.gravity": {
+      "status": "passed",
+      "time": 2.719,
+      "message": ""
+    },
+    "ttm/in.ttm.mod": {
+      "status": "failed",
+      "time": 2.091,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "airebo/in.rebo2": {
+      "status": "passed",
+      "time": 1.877,
+      "message": ""
+    },
+    "SPIN/cobalt_fcc/in.spin.cobalt_fcc": {
+      "status": "failed",
+      "time": 1.49,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.14Apr20.spin.cobalt_fcc.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/ilves/in.peptide-ilves": {
+      "status": "runtest",
+      "time": 1.469,
+      "message": "completed, error parsing log.peptide-ilves.2 into YAML"
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd-region": {
+      "status": "error",
+      "time": 1.323,
+      "message": "failed, ERROR on proc 0: Non-numeric atom coords - simulation unstable",
+      "attention": "velocity create with \"loop local\": cannot match log.21Apr23.edpd-region.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/yaff/mof5/in.mof5": {
+      "status": "runtest",
+      "time": 1.27,
+      "message": "completed, error parsing log.mof5.2 into YAML"
+    },
+    "PACKAGES/brownian/asphere/in.3d.ellipsoid": {
+      "status": "passed",
+      "time": 1.105,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x.y": {
+      "status": "passed",
+      "time": 0.931,
+      "message": ""
+    },
+    "PACKAGES/cauchy/in.cauchystat": {
+      "status": "failed",
+      "time": 0.96,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.2Jun2020.cauchystat.g++.1, which was written with 1 MPI processes instead of 2"
+    },
+    "balance/in.balance.group.dynamic": {
+      "status": "failed",
+      "time": 0.854,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.group.dynamic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "gransurf/in.tri.gran.surf": {
+      "status": "failed",
+      "time": 0.904,
+      "message": "completed, 5 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 19,
+      "diverged_at": 1900
+    },
+    "multi/in.colloid": {
+      "status": "failed",
+      "time": 0.796,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "rigid/in.rigid.molecule": {
+      "status": "passed",
+      "time": 0.733,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.confined.icc": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "SPIN/gneb/iron/in.gneb.iron": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"fix 3 all neb/spin\")"
+    },
+    "SPIN/gneb/skyrmion/in.gneb.skyrmion": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"fix 3 all neb/spin\")"
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-split": {
+      "status": "runtest",
+      "time": 0.532,
+      "message": "completed, error parsing log.gauss-diel-split.smoke.2 into YAML"
+    },
+    "python/in.python": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.dos": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/class2xe/in.NVT_class2xe.script": {
+      "status": "passed",
+      "time": 0.452,
+      "message": ""
+    },
+    "vashishta/in.vashishta.table.inp": {
+      "status": "passed",
+      "time": 0.454,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.bohr": {
+      "status": "passed",
+      "time": 0.431,
+      "message": ""
+    },
+    "mliap/in.mliap.so3.Ni_Mo": {
+      "status": "runtest",
+      "time": 0.464,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta_mix": {
+      "status": "passed",
+      "time": 0.442,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc": {
+      "status": "passed",
+      "time": 0.434,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "PACKAGES/latboltz/polymer/in.polymer": {
+      "status": "failed",
+      "time": 226.054,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10000,
+      "attention": "the run needs 226 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/ilves/in.covid": {
+      "status": "failed",
+      "time": 22.109,
+      "message": "completed, 3 abs diff and 1 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/rhok/in.crystal": {
+      "status": "failed",
+      "time": 6.155,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 41,
+      "diverged_at": 2050
+    },
+    "PACKAGES/rhok/in.pinning": {
+      "status": "failed",
+      "time": 6.089,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 26,
+      "diverged_at": 1300
+    },
+    "PACKAGES/rhok/in.setup": {
+      "status": "failed",
+      "time": 5.521,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/drude/butane/in.butane.lang": {
+      "status": "failed",
+      "time": 15.616,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "meam/in.meam.shear": {
+      "status": "failed",
+      "time": 13.057,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 25,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.meam.shear.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water": {
+      "status": "passed",
+      "time": 9.323,
+      "message": ""
+    },
+    "ASPHERE/dimer/in.dimer.mp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/gle/in.h2o-quantum": {
+      "status": "failed",
+      "time": 5.32,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/brownian/align_self/in.alignself_quat": {
+      "status": "failed",
+      "time": 5.025,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.7Dec25.alignself_quat.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "charmmfsw/in.charmmfsw": {
+      "status": "passed",
+      "time": 4.692,
+      "message": "",
+      "diverged": 1,
+      "diverged_row": 9,
+      "diverged_at": 90
+    },
+    "colloid/in.colloid": {
+      "status": "failed",
+      "time": 4.984,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 7,
+      "diverged_at": 7000
+    },
+    "ASPHERE/flat_membrane/in.flat_membrane": {
+      "status": "failed",
+      "time": 3.481,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 200
+    },
+    "SPIN/bfo/in.spin.bfo": {
+      "status": "passed",
+      "time": 3.208,
+      "message": ""
+    },
+    "cmap/in.cmap": {
+      "status": "failed",
+      "time": 3.159,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 10,
+      "diverged_at": 10000
+    },
+    "SPIN/spinmin/in.spin.bfo_min": {
+      "status": "failed",
+      "time": 2.628,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.ang": {
+      "status": "failed",
+      "time": 2.248,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 63
+    },
+    "gransurf/in.tribox.gran.global": {
+      "status": "failed",
+      "time": 1.907,
+      "message": "completed, 5 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 17,
+      "diverged_at": 1700
+    },
+    "friction/in.friction": {
+      "status": "failed",
+      "time": 1.714,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.friction.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "snap/in.snap.W.2940": {
+      "status": "passed",
+      "time": 1.496,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpd_coul_slater_long/in.dpd_coul_slater_long": {
+      "status": "failed",
+      "time": 1.072,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/eff/CH4/in.ch4.dynamics": {
+      "status": "failed",
+      "time": 1.475,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/fep/CH4hyd/fdti10/in.fdti10.lmp": {
+      "status": "runtest",
+      "time": 1.142,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "granregion/in.granregion.box": {
+      "status": "failed",
+      "time": 1.238,
+      "message": "completed, 7 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "rigid/in.rigid": {
+      "status": "passed",
+      "time": 0.895,
+      "message": ""
+    },
+    "balance/in.balance.bond.fast": {
+      "status": "failed",
+      "time": 0.942,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 24,
+      "diverged_at": 2400
+    },
+    "balance/in.balance.group.static": {
+      "status": "failed",
+      "time": 0.889,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.group.static.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "rigid/in.rigid.small": {
+      "status": "passed",
+      "time": 0.759,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.nvt": {
+      "status": "passed",
+      "time": 0.758,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4-CF4/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 0.702,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha_relaxation": {
+      "status": "failed",
+      "time": 0.674,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "fire/in.fire": {
+      "status": "failed",
+      "time": 0.641,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "rigid/in.rigid.ellipsoids": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta": {
+      "status": "passed",
+      "time": 0.454,
+      "message": ""
+    },
+    "PACKAGES/eff/CH4/in.ch4.min": {
+      "status": "passed",
+      "time": 0.524,
+      "message": "",
+      "diverged": 2,
+      "diverged_row": 42,
+      "diverged_at": 42
+    },
+    "wall/in.wall.table": {
+      "status": "passed",
+      "time": 0.464,
+      "message": ""
+    },
+    "nemd/in.nemd": {
+      "status": "passed",
+      "time": 0.494,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.EAM3D": {
+      "status": "runtest",
+      "time": 0.464,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "UNITS/in.ar.metal": {
+      "status": "failed",
+      "time": 0.455,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.8Oct19.ar.metal.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ew2d": {
+      "status": "passed",
+      "time": 0.441,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.compute": {
+      "status": "runtest",
+      "time": 0.441,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.617,
+      "message": ""
+    },
+    "rheo/oxidation/in.rheo.oxidation": {
+      "status": "failed",
+      "time": 214.596,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 200,
+      "attention": "the run needs 215 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/interlayer/saip_metal_tmd/in.au_mos2": {
+      "status": "failed",
+      "time": 23.176,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-thermo": {
+      "status": "passed",
+      "time": 20.578,
+      "message": ""
+    },
+    "rdf-adf/in.spce.hbond": {
+      "status": "failed",
+      "time": 17.062,
+      "message": "completed, 5 abs diff and 4 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 300
+    },
+    "airebo/in.airebo-m": {
+      "status": "passed",
+      "time": 13.86,
+      "message": ""
+    },
+    "PACKAGES/shock/nemd/in.nemd": {
+      "status": "failed",
+      "time": 10.551,
+      "message": "completed, 14 abs diff and 14 rel diff checks failed",
+      "diverged": 14,
+      "diverged_row": 2,
+      "diverged_at": 1000
+    },
+    "PACKAGES/reaction/tiny_polystyrene/in.tiny_polystyrene.stabilized": {
+      "status": "failed",
+      "time": 9.214,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 10000
+    },
+    "mliap/in.mliap.snap.chem": {
+      "status": "passed",
+      "time": 6.309,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.ang": {
+      "status": "failed",
+      "time": 5.714,
+      "message": "completed, 4 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 30
+    },
+    "PACKAGES/gjf/in.gjf.vfull": {
+      "status": "failed",
+      "time": 5.689,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 5000
+    },
+    "coreshell/in.coreshell.dsf": {
+      "status": "failed",
+      "time": 4.637,
+      "message": "completed, 10 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/interlayer/saip_metal/in.gold_gr": {
+      "status": "passed",
+      "time": 3.732,
+      "message": ""
+    },
+    "peri/in.peri.lps": {
+      "status": "failed",
+      "time": 3.491,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "reaxff/VOH/in.VOH": {
+      "status": "failed",
+      "time": 2.964,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "reaxff/water/in.water.qeqr": {
+      "status": "passed",
+      "time": 2.718,
+      "message": ""
+    },
+    "SPIN/cobalt_hcp/in.spin.cobalt_hcp": {
+      "status": "failed",
+      "time": 1.982,
+      "message": "completed, 4 abs diff and 3 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.cobalt_hcp.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "replicate/in.replicate.cnt": {
+      "status": "passed",
+      "time": 1.888,
+      "message": ""
+    },
+    "balance/in.balance.bond.slow": {
+      "status": "passed",
+      "time": 1.538,
+      "message": ""
+    },
+    "python/in.pair_python_long": {
+      "status": "passed",
+      "time": 1.53,
+      "message": ""
+    },
+    "shear/in.shear": {
+      "status": "failed",
+      "time": 1.256,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 25,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.shear.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/ilves/in.peptide-shake": {
+      "status": "runtest",
+      "time": 1.356,
+      "message": "completed, error parsing log.peptide-shake.2 into YAML"
+    },
+    "PACKAGES/imd/in.deca-ala-solv-filter_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "body/in.body": {
+      "status": "failed",
+      "time": 0.984,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 200
+    },
+    "snap/in.snap.Mo_Chen": {
+      "status": "passed",
+      "time": 0.844,
+      "message": ""
+    },
+    "mliap/in.mliap.nn.Ta06A": {
+      "status": "passed",
+      "time": 0.934,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/dpd-vv/in.dpd-vv": {
+      "status": "runtest",
+      "time": 0.78,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.atomvar": {
+      "status": "passed",
+      "time": 0.673,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc_relax": {
+      "status": "passed",
+      "time": 0.744,
+      "message": ""
+    },
+    "PACKAGES/baoab/in.baoab_lj": {
+      "status": "failed",
+      "time": 0.576,
+      "message": "completed, 8 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "rigid/in.rigid.spheres": {
+      "status": "failed",
+      "time": 0.52,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "python/in.fix_python_invoke_neighlist": {
+      "status": "error",
+      "time": 0.551,
+      "message": "failed, ERROR: lammps_find_pair_neighlist(): Pair style lj/cut does not exist (src/library.cpp:6365)"
+    },
+    "reaxff/in.reaxff.rdx": {
+      "status": "failed",
+      "time": 0.534,
+      "message": "completed, 3 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10
+    },
+    "SPIN/spinmin/in.spin.iron_min": {
+      "status": "failed",
+      "time": 0.495,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/dielectric/in.nopbc.gmres": {
+      "status": "passed",
+      "time": 0.446,
+      "message": ""
+    },
+    "SPIN/test_problems/validation_nve/in.spin.iron-nve": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "indent/in.indent.min": {
+      "status": "failed",
+      "time": 0.456,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-pppm-ew3dc": {
+      "status": "passed",
+      "time": 0.458,
+      "message": ""
+    },
+    "wall/in.wall.lepton": {
+      "status": "passed",
+      "time": 0.429,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ew3dc": {
+      "status": "passed",
+      "time": 0.429,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.ang": {
+      "status": "passed",
+      "time": 0.414,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.489,
+      "message": ""
+    },
+    "rheo/ice-cubes/in.rheo.ice.cubes": {
+      "status": "failed",
+      "time": 193.994,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 200,
+      "attention": "the run needs 194 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve": {
+      "status": "passed",
+      "time": 27.301,
+      "message": ""
+    },
+    "PACKAGES/filter_corotate/in.peptide": {
+      "status": "failed",
+      "time": 22.597,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 100
+    },
+    "PACKAGES/eff/Li-solid/in.Li.bohr": {
+      "status": "passed",
+      "time": 19.67,
+      "message": ""
+    },
+    "python/in.pair_python_harmonic": {
+      "status": "failed",
+      "time": 13.481,
+      "message": "completed, 12 abs diff and 12 rel diff checks failed",
+      "diverged": 12,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.18Mar22.pair_python_harmonic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "airebo/in.airebo-bc": {
+      "status": "passed",
+      "time": 13.04,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.rhodo-ilves": {
+      "status": "runtest",
+      "time": 10.192,
+      "message": "completed, error parsing log.rhodo-ilves.2 into YAML"
+    },
+    "ASPHERE/box/in.box.mp": {
+      "status": "failed",
+      "time": 8.179,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 12,
+      "diverged_at": 1000
+    },
+    "reaxff/RDX/in.RDX": {
+      "status": "failed",
+      "time": 6.056,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/momb/in.system": {
+      "status": "passed",
+      "time": 4.957,
+      "message": ""
+    },
+    "stress_vcm/in.stress_vcm": {
+      "status": "failed",
+      "time": 4.858,
+      "message": "completed, 7 abs diff and 7 rel diff checks failed",
+      "diverged": 7,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.19Nov24.stress_vcm.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_create_data": {
+      "status": "failed",
+      "time": 2.495,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_molecule": {
+      "status": "passed",
+      "time": 1.743,
+      "message": ""
+    },
+    "reaxff/FeOH3/in.FeOH3": {
+      "status": "failed",
+      "time": 3.505,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "ASPHERE/poly/in.poly": {
+      "status": "failed",
+      "time": 3.259,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 3,
+      "diverged_at": 1000
+    },
+    "SPIN/spinmin/in.spin.bfo_min_cg": {
+      "status": "failed",
+      "time": 2.59,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_cut": {
+      "status": "failed",
+      "time": 2.84,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.iron_dipole_cut.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "deposit/in.deposit.molecule": {
+      "status": "failed",
+      "time": 2.201,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/dpd-react/dpdh-shardlow/in.dpdh-shardlow": {
+      "status": "runtest",
+      "time": 1.685,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/manybody_table/in.spce_sw": {
+      "status": "failed",
+      "time": 1.581,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "comb/in.comb.HfO2": {
+      "status": "passed",
+      "time": 1.617,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce": {
+      "status": "failed",
+      "time": 1.265,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid-real": {
+      "status": "failed",
+      "time": 1.266,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "yaml/in.yaml": {
+      "status": "runtest",
+      "time": 1.14,
+      "message": "completed, error parsing log.yaml.2 into YAML"
+    },
+    "PACKAGES/fep/CH4hyd/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 0.876,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "ellipse/in.ellipse.gayberne": {
+      "status": "failed",
+      "time": 0.972,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 27,
+      "diverged_at": 2600
+    },
+    "PACKAGES/brownian/point/in.3d.point": {
+      "status": "passed",
+      "time": 0.907,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/multi-lucy/in.multi-lucy": {
+      "status": "runtest",
+      "time": 0.833,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-basic/dpd/in.dpd": {
+      "status": "failed",
+      "time": 0.729,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.5Apr22.dpd.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "threebody/in.threebody": {
+      "status": "passed",
+      "time": 0.733,
+      "message": "",
+      "diverged": 1,
+      "diverged_row": 14,
+      "diverged_at": 130
+    },
+    "flow/in.flow.pois": {
+      "status": "failed",
+      "time": 0.714,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 7,
+      "diverged_at": 3500,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.flow.pois.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "comb/in.comb.Si.elastic": {
+      "status": "passed",
+      "time": 0.575,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.comb.Si.elastic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "vashishta/in.vashishta.table.sio2": {
+      "status": "passed",
+      "time": 0.546,
+      "message": ""
+    },
+    "PACKAGES/fep/C7inEthanol/fep01/in.insertion": {
+      "status": "runtest",
+      "time": 0.526,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/edip/in.edip-Si-multi": {
+      "status": "failed",
+      "time": 0.548,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.4May2017.edip-Si-multi.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "ASPHERE/superellipsoid_gran/in.ellipsoid_gran": {
+      "status": "passed",
+      "time": 0.516,
+      "message": ""
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ffield": {
+      "status": "passed",
+      "time": 0.47,
+      "message": ""
+    },
+    "PACKAGES/pod/InP/in.fitpod.InP": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "template/in.template-mix": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "amoeba/in.water_hexamer.amoeba": {
+      "status": "passed",
+      "time": 0.45,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc": {
+      "status": "passed",
+      "time": 0.437,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.beta": {
+      "status": "passed",
+      "time": 0.441,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.596,
+      "message": ""
+    },
+    "rheo/balloon/in.rheo.balloon": {
+      "status": "failed",
+      "time": 132.214,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 12,
+      "diverged_at": 2400,
+      "attention": "the run needs 132 s: a production sized run that should be shortened in the repository"
+    },
+    "granular/in.pour.heat": {
+      "status": "passed",
+      "time": 42.164,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-solid/in.Li.ang": {
+      "status": "passed",
+      "time": 28.088,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd": {
+      "status": "failed",
+      "time": 23.785,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "velocity create with \"loop local\": cannot match log.21Apr23.tdpd.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "mc/in.pure": {
+      "status": "failed",
+      "time": 22.203,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "bpm/impact/in.bpm.impact.rotational": {
+      "status": "failed",
+      "time": 19.396,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "snap/in.C_SNAP": {
+      "status": "failed",
+      "time": 14.401,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/addtorque_group/in.addtorque": {
+      "status": "failed",
+      "time": 10.969,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.10Sep2025.addtorque.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "pour/in.pour": {
+      "status": "passed",
+      "time": 9.68,
+      "message": ""
+    },
+    "ASPHERE/box/in.box": {
+      "status": "failed",
+      "time": 7.839,
+      "message": "completed, 2 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 12,
+      "diverged_at": 1000
+    },
+    "PACKAGES/qtb/methane_qtb/in.methane_qtb": {
+      "status": "failed",
+      "time": 6.275,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.30Nov23.methane_qtb.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/gle/in.h2o-smart": {
+      "status": "failed",
+      "time": 5.473,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "python/in.pair_python_hybrid": {
+      "status": "failed",
+      "time": 4.502,
+      "message": "completed, 8 abs diff and 9 rel diff checks failed",
+      "diverged": 9,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.pair_python_hybrid.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "granular/in.pour.flatwall": {
+      "status": "passed",
+      "time": 4.281,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid.mp": {
+      "status": "failed",
+      "time": 3.81,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "reaxff/AuO/in.AuO": {
+      "status": "failed",
+      "time": 3.272,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "python/in.fix_python_move_nve_melt": {
+      "status": "passed",
+      "time": 2.667,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.vacmin-bcc": {
+      "status": "passed",
+      "time": 2.681,
+      "message": ""
+    },
+    "SPIN/nickel/in.spin.nickel_cubic": {
+      "status": "failed",
+      "time": 1.983,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.14Apr20.spin.nickel_cubic.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/electron_stopping/in.cascade_AlCu": {
+      "status": "failed",
+      "time": 1.837,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 6,
+      "diverged_at": 30,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.18Sep2020.cascade_AlCu.intel.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc_relax": {
+      "status": "failed",
+      "time": 1.451,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 136,
+      "diverged_at": 136
+    },
+    "PACKAGES/fep/ta/in.spce.lmp": {
+      "status": "runtest",
+      "time": 1.416,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/ilves/in.peptide-allbonds": {
+      "status": "runtest",
+      "time": 1.572,
+      "message": "completed, error parsing log.peptide-allbonds.2 into YAML"
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid": {
+      "status": "failed",
+      "time": 1.182,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "balance/in.balance.neigh.rcb": {
+      "status": "failed",
+      "time": 1.248,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.3Nov23.balance.neigh.rcb.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/brownian/asphere/in.2d.ellipsoid": {
+      "status": "passed",
+      "time": 0.964,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.sphere": {
+      "status": "passed",
+      "time": 0.944,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.surf.stl": {
+      "status": "failed",
+      "time": 0.805,
+      "message": "completed, 5 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 19,
+      "diverged_at": 1900
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ew3dc": {
+      "status": "passed",
+      "time": 0.836,
+      "message": ""
+    },
+    "numdiff/in.numdiff": {
+      "status": "failed",
+      "time": 0.795,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 10,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.19Feb2022.numdiff.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "ASPHERE/superellipsoid_gran/in.super_table": {
+      "status": "runtest",
+      "time": 0.734,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.unstabilized": {
+      "status": "passed",
+      "time": 0.722,
+      "message": ""
+    },
+    "fire/in.fire_mod": {
+      "status": "failed",
+      "time": 0.578,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/imd/in.bucky-plus-cnt": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/uf3/in.uf3.Nb": {
+      "status": "passed",
+      "time": 0.528,
+      "message": ""
+    },
+    "comb/in.comb3": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta_cg": {
+      "status": "passed",
+      "time": 0.448,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.pod.compute": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "amoeba/in.water_hexamer.hippo": {
+      "status": "passed",
+      "time": 0.456,
+      "message": ""
+    },
+    "steinhardt/in.bcc": {
+      "status": "passed",
+      "time": 0.438,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.Ta06A": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ffield": {
+      "status": "passed",
+      "time": 0.437,
+      "message": ""
+    },
+    "steinhardt/in.fcc": {
+      "status": "passed",
+      "time": 0.433,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.542,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/eff/Auger-Adamantane/in.adamantane_ionized.nve": {
+      "status": "failed",
+      "time": 47.086,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/qtb/methane_qbmsst/in.methane_qbmsst": {
+      "status": "failed",
+      "time": 33.733,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.nvt": {
+      "status": "failed",
+      "time": 26.933,
+      "message": "completed, 2 abs diff and 0 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 7,
+      "diverged_at": 70
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conp": {
+      "status": "passed",
+      "time": 21.116,
+      "message": ""
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.nh": {
+      "status": "failed",
+      "time": 16.67,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20
+    },
+    "PACKAGES/drude/butane/in.butane.tgnh": {
+      "status": "failed",
+      "time": 14.885,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/local_density/methanol_implicit_water/in.methanol_implicit_water": {
+      "status": "runtest",
+      "time": 13.045,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "granular/in.restitution": {
+      "status": "passed",
+      "time": 8.143,
+      "message": ""
+    },
+    "rigid/in.rigid.tnr": {
+      "status": "failed",
+      "time": 6.915,
+      "message": "completed, 28 abs diff and 28 rel diff checks failed",
+      "diverged": 28,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "qeq/in.qeq.buck": {
+      "status": "failed",
+      "time": 5.246,
+      "message": "completed, 1 abs diff and 0 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 45,
+      "diverged_at": 0
+    },
+    "reaxff/CHO/in.CHO": {
+      "status": "failed",
+      "time": 5.188,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_pppm": {
+      "status": "failed",
+      "time": 4.839,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Aug2026.spin.iron_dipole_pppm.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "reaxff/AB/in.AB": {
+      "status": "failed",
+      "time": 4.215,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/brownian/spherical_ABP/in.3d.ideal_abp": {
+      "status": "passed",
+      "time": 3.771,
+      "message": ""
+    },
+    "reaxff/water/in.water.qtpie": {
+      "status": "passed",
+      "time": 3.341,
+      "message": ""
+    },
+    "PACKAGES/srp/in.srp": {
+      "status": "failed",
+      "time": 2.819,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "pour/in.pour.2d.molecule": {
+      "status": "passed",
+      "time": 2.622,
+      "message": ""
+    },
+    "min/in.min.box": {
+      "status": "failed",
+      "time": 2.565,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.min.box.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-regular": {
+      "status": "passed",
+      "time": 1.946,
+      "message": ""
+    },
+    "PACKAGES/brownian/spherical_ABP/in.2d.abp": {
+      "status": "failed",
+      "time": 1.672,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 51,
+      "diverged_at": 0
+    },
+    "PACKAGES/tally/in.stress": {
+      "status": "failed",
+      "time": 1.612,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "reaxff/ZnOH2/in.ZnOH2": {
+      "status": "failed",
+      "time": 1.336,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "PACKAGES/bocs/1_site_just_pair_LD/in.basic_ldd": {
+      "status": "passed",
+      "time": 1.34,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.flat": {
+      "status": "passed",
+      "time": 1.079,
+      "message": ""
+    },
+    "PACKAGES/brownian/sphere/in.3d.sphere": {
+      "status": "passed",
+      "time": 1.048,
+      "message": ""
+    },
+    "PACKAGES/fep/CC-CO/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 0.929,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.nve": {
+      "status": "failed",
+      "time": 0.966,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/ees/in.fix_wall_region": {
+      "status": "passed",
+      "time": 0.945,
+      "message": ""
+    },
+    "wall/in.wall.ccl": {
+      "status": "failed",
+      "time": 0.83,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.9Jan20.wall.ccl.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/ees/in.fix_wall": {
+      "status": "passed",
+      "time": 0.769,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_epoxy/in.tiny_epoxy.stabilized": {
+      "status": "passed",
+      "time": 0.72,
+      "message": ""
+    },
+    "mliap/in.mliap.ace.compute": {
+      "status": "runtest",
+      "time": 0.61,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/pod/Ta/in.fitpod": {
+      "status": "runtest",
+      "time": 0.607,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/ti/in.ti_spring": {
+      "status": "runtest",
+      "time": 0.57,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/extep/in.extep-bn": {
+      "status": "failed",
+      "time": 0.542,
+      "message": "completed, 3 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 6,
+      "diverged_at": 60
+    },
+    "comb/in.comb.Si": {
+      "status": "failed",
+      "time": 0.508,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 1,
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.27Nov18.comb.Si.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "PACKAGES/mgpt/in.bcc0": {
+      "status": "passed",
+      "time": 0.531,
+      "message": "",
+      "attention": "velocity create with the default \"loop all\" and atoms from create_atoms: cannot match log.7Feb24.bcc0.g++.4, which was written with 4 MPI processes instead of 2"
+    },
+    "amoeba/in.water_dimer.amoeba": {
+      "status": "passed",
+      "time": 0.484,
+      "message": ""
+    },
+    "triclinic/in.bcc.primitive": {
+      "status": "passed",
+      "time": 0.467,
+      "message": ""
+    },
+    "snap/in.snap.grid.triclinic": {
+      "status": "runtest",
+      "time": 0.475,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "no reference log file matches this input, while log.15Jun22.grid.snap.g++.1, log.15Jun22.grid.snap.g++.4, log.15Jun22.grid.tri.g++.1, ... in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.hexagonal": {
+      "status": "passed",
+      "time": 0.469,
+      "message": ""
+    },
+    "meam/msmeam/in.msmeam": {
+      "status": "passed",
+      "time": 0.47,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.655,
+      "message": ""
+    }
+  }
+}
