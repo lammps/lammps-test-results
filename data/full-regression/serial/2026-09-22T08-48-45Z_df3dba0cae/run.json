@@ -1,0 +1,3789 @@
+{
+  "metadata": {
+    "title": "Full Regression Test / Serial",
+    "generated": "2026-09-22T08:48:45Z",
+    "properties": {
+      "operating_system": "OS: Linux \"Fedora Linux 44 (Forty Four)\" 7.2.5-200.fc44.x86_64 x86_64",
+      "git_info": "Git info (develop / patch_2Sep2026-240-gdf3dba0cae)",
+      "compiler": "Compiler: GNU C++ 16.2.1 20260819 (Red Hat 16.2.1-2) with OpenMP 5.2",
+      "compile_flags": "-DLAMMPS_GZIP -DLAMMPS_PNG -DLAMMPS_JPEG -DLAMMPS_FFMPEG -DLAMMPS_CURL -DLAMMPS_SMALLBIG",
+      "config_file": "config_serial.yaml",
+      "lmp_binary": "/home/akohlmey/compile/lammps-analyze/build-regression/lmp"
+    },
+    "counts": {
+      "tests": 688,
+      "passed": 474,
+      "failed": 80,
+      "error": 0,
+      "runtest": 110,
+      "skipped": 24,
+      "time": 11818.144000000022
+    },
+    "commit": "df3dba0cae4196f3f4e691785600454fc7ed4a3b",
+    "branch": "develop",
+    "version": "patch_2Sep2026-240-gdf3dba0cae",
+    "sha": "df3dba0cae4196f3f4e691785600454fc7ed4a3b",
+    "source_url": "https://download.lammps.org/coverage/serial.json"
+  },
+  "tests": {
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/unique_bp/in.dsring2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "mesh/in.marble_race": {
+      "status": "failed",
+      "time": 139.296,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "the run needs 139 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/machdyn/fluid_structure_interaction/in.fluid_structure_interaction": {
+      "status": "passed",
+      "time": 35.009,
+      "message": ""
+    },
+    "coreshell/in.coreshell.thermostats": {
+      "status": "failed",
+      "time": 20.111,
+      "message": "completed, 12 abs diff and 13 rel diff checks failed",
+      "diverged": 13,
+      "diverged_row": 2,
+      "diverged_at": 100
+    },
+    "PACKAGES/dispersion/in.d3": {
+      "status": "passed",
+      "time": 12.477,
+      "message": ""
+    },
+    "nb3b/in.nb3b": {
+      "status": "passed",
+      "time": 7.341,
+      "message": ""
+    },
+    "steinhardt/in.icos": {
+      "status": "passed",
+      "time": 2.553,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpdext/in.dpdext": {
+      "status": "failed",
+      "time": 1.922,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "mc/in.mixed": {
+      "status": "runtest",
+      "time": 0.8,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.24Nov25.gemc.lj.0.g++.5, log.24Nov25.gemc.lj.1.g++.5, log.hmc.flexible.melt.1 in this folder match no input script at all: check the names"
+    },
+    "rigid/in.rigid.nve.early": {
+      "status": "passed",
+      "time": 0.776,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.972,
+      "message": ""
+    },
+    "bpm/peri/in.bpm.peri.eps": {
+      "status": "passed",
+      "time": 38.491,
+      "message": ""
+    },
+    "bpm/wires/in.bpm.wires": {
+      "status": "passed",
+      "time": 20.714,
+      "message": ""
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water.opt": {
+      "status": "failed",
+      "time": 12.686,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 10,
+      "diverged_at": 1000
+    },
+    "PACKAGES/relres/in.22DMH.respa": {
+      "status": "passed",
+      "time": 8.172,
+      "message": ""
+    },
+    "PACKAGES/brownian/spherical_ABP/in.2d.abp": {
+      "status": "passed",
+      "time": 2.857,
+      "message": ""
+    },
+    "rheo/balloon/in.rheo.balloon": {
+      "status": "runtest",
+      "time": 1.615,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.dipoles": {
+      "status": "passed",
+      "time": 0.639,
+      "message": ""
+    },
+    "triclinic/in.fcc.primitive": {
+      "status": "passed",
+      "time": 0.53,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "ASPHERE/box/in.box.mp": {
+      "status": "passed",
+      "time": 33.503,
+      "message": ""
+    },
+    "reaxff/water/in.water.acks2.field": {
+      "status": "passed",
+      "time": 20.386,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid.mp": {
+      "status": "passed",
+      "time": 13.955,
+      "message": ""
+    },
+    "PACKAGES/latboltz/translocation/in.translocation": {
+      "status": "runtest",
+      "time": 6.956,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "SPIN/cobalt_hcp/in.spin.cobalt_hcp": {
+      "status": "passed",
+      "time": 4.131,
+      "message": ""
+    },
+    "python/in.fix_python_move_nve_melt_opt": {
+      "status": "passed",
+      "time": 1.489,
+      "message": ""
+    },
+    "mliap/in.mliap.ace.compute": {
+      "status": "runtest",
+      "time": 1.053,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "UNITS/in.ar.real": {
+      "status": "passed",
+      "time": 0.587,
+      "message": ""
+    },
+    "PACKAGES/slater/in.slater": {
+      "status": "runtest",
+      "time": 38.407,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "reaxff/ci-reaxFF/in.ci-reax.CH": {
+      "status": "passed",
+      "time": 20.559,
+      "message": ""
+    },
+    "mesh/in.mesh_box": {
+      "status": "failed",
+      "time": 14.37,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 8,
+      "diverged_at": 1400
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-regular": {
+      "status": "passed",
+      "time": 8.555,
+      "message": ""
+    },
+    "PACKAGES/brownian/asphere/in.2d.ellipsoid": {
+      "status": "passed",
+      "time": 2.123,
+      "message": ""
+    },
+    "PACKAGES/brownian/2d_velocity/in.2d.velocity": {
+      "status": "passed",
+      "time": 1.295,
+      "message": ""
+    },
+    "comb/in.comb.Cu": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.ang": {
+      "status": "runtest",
+      "time": 0.511,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.C2H6fc.bohr.smoke.1 in this folder match no input script at all: check the names"
+    },
+    "python/in.pair_python_melt": {
+      "status": "failed",
+      "time": 33.3,
+      "message": "completed, 0 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 8,
+      "diverged_at": 350
+    },
+    "granular/in.tableting.200": {
+      "status": "passed",
+      "time": 21.643,
+      "message": ""
+    },
+    "amoeba/in.water_box.amoeba": {
+      "status": "passed",
+      "time": 13.431,
+      "message": ""
+    },
+    "PACKAGES/brownian/align_self/in.alignself_dipole": {
+      "status": "passed",
+      "time": 7.344,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.quadratic": {
+      "status": "passed",
+      "time": 3.346,
+      "message": ""
+    },
+    "snap/in.snap.Ta06A": {
+      "status": "passed",
+      "time": 1.875,
+      "message": ""
+    },
+    "amoeba/in.water_hexamer.amoeba": {
+      "status": "passed",
+      "time": 0.654,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-pppm-ew3dc": {
+      "status": "passed",
+      "time": 0.711,
+      "message": ""
+    },
+    "coreshell/in.coreshell.wolf": {
+      "status": "failed",
+      "time": 35.08,
+      "message": "completed, 10 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/pedone/in.pedone.relax": {
+      "status": "failed",
+      "time": 21.916,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/qtb/methane_qtb/in.methane_qtb": {
+      "status": "passed",
+      "time": 12.574,
+      "message": ""
+    },
+    "PACKAGES/shock/msst/in.msst": {
+      "status": "passed",
+      "time": 8.455,
+      "message": ""
+    },
+    "PACKAGES/bocs/1_site_just_pair_LD/in.basic_ldd": {
+      "status": "passed",
+      "time": 2.304,
+      "message": ""
+    },
+    "python/in.pair_python_table": {
+      "status": "passed",
+      "time": 1.315,
+      "message": ""
+    },
+    "PACKAGES/quip/in.molecular": {
+      "status": "passed",
+      "time": 0.771,
+      "message": ""
+    },
+    "amoeba/in.water_dimer.hippo": {
+      "status": "passed",
+      "time": 0.612,
+      "message": ""
+    },
+    "ttm/in.ttm.cascade": {
+      "status": "passed",
+      "time": 34.18,
+      "message": ""
+    },
+    "pour/in.pour": {
+      "status": "passed",
+      "time": 22.99,
+      "message": ""
+    },
+    "controller/in.controller.temp": {
+      "status": "passed",
+      "time": 12.028,
+      "message": ""
+    },
+    "ttm/in.ttm.mod": {
+      "status": "passed",
+      "time": 9.304,
+      "message": ""
+    },
+    "gransurf/in.tribox.gran.surf.stl": {
+      "status": "passed",
+      "time": 3.077,
+      "message": ""
+    },
+    "reaxff/ZnOH2/in.ZnOH2": {
+      "status": "passed",
+      "time": 1.205,
+      "message": ""
+    },
+    "rigid/in.rigid.nve": {
+      "status": "passed",
+      "time": 0.631,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ew3dc": {
+      "status": "passed",
+      "time": 0.606,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp2": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "granregion/in.granregion.mixer": {
+      "status": "passed",
+      "time": 33.522,
+      "message": ""
+    },
+    "reaxff/FC/in.FC": {
+      "status": "passed",
+      "time": 25.054,
+      "message": ""
+    },
+    "ASPHERE/ellipsoid/in.ellipsoid": {
+      "status": "passed",
+      "time": 13.498,
+      "message": ""
+    },
+    "airebo/in.rebo2": {
+      "status": "passed",
+      "time": 7.584,
+      "message": ""
+    },
+    "PACKAGES/interlayer/drip/in.C_drip": {
+      "status": "passed",
+      "time": 2.766,
+      "message": ""
+    },
+    "obstacle/in.obstacle": {
+      "status": "passed",
+      "time": 1.956,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.partial": {
+      "status": "passed",
+      "time": 0.736,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.bohr": {
+      "status": "runtest",
+      "time": 0.578,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.CH4fc.ang.smoke.1 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.645,
+      "message": ""
+    },
+    "ASPHERE/box/in.box": {
+      "status": "passed",
+      "time": 28.764,
+      "message": ""
+    },
+    "PACKAGES/shock/nemd/in.nemd": {
+      "status": "failed",
+      "time": 23.605,
+      "message": "completed, 8 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 12,
+      "diverged_at": 800
+    },
+    "PACKAGES/qtb/alpha_quartz_qtb/in.alpha_quartz_qtb": {
+      "status": "failed",
+      "time": 14.379,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 2,
+      "diverged_at": 1000
+    },
+    "PACKAGES/latboltz/polymer/in.polymer": {
+      "status": "runtest",
+      "time": 7.382,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/fep/CH4hyd/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 3.462,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/quip/in.sw": {
+      "status": "passed",
+      "time": 1.617,
+      "message": ""
+    },
+    "fire/in.cg": {
+      "status": "passed",
+      "time": 1.045,
+      "message": ""
+    },
+    "PACKAGES/phonon/4-Graphene/in.graphene": {
+      "status": "runtest",
+      "time": 0.662,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha": {
+      "status": "passed",
+      "time": 0.632,
+      "message": ""
+    },
+    "peri/in.peri.eps": {
+      "status": "passed",
+      "time": 31.908,
+      "message": ""
+    },
+    "template/in.tmpl-data-mix": {
+      "status": "failed",
+      "time": 23.236,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 200
+    },
+    "PACKAGES/pedone/in.pedone.melt": {
+      "status": "failed",
+      "time": 17.239,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 6,
+      "diverged_at": 600
+    },
+    "deposit/in.deposit.molecule.rigid-nve-small": {
+      "status": "passed",
+      "time": 6.076,
+      "message": ""
+    },
+    "PACKAGES/tally/in.pe": {
+      "status": "passed",
+      "time": 3.729,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.gravity": {
+      "status": "passed",
+      "time": 1.059,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.xy": {
+      "status": "passed",
+      "time": 0.769,
+      "message": ""
+    },
+    "rigid/in.rigid.small": {
+      "status": "passed",
+      "time": 0.601,
+      "message": ""
+    },
+    "PACKAGES/orient_eco/in.orient_eco": {
+      "status": "passed",
+      "time": 125.659,
+      "message": "",
+      "attention": "the run needs 126 s: a production sized run that should be shortened in the repository"
+    },
+    "peri/in.peri.ves": {
+      "status": "passed",
+      "time": 32.241,
+      "message": ""
+    },
+    "PACKAGES/eff/CH4/in.ch4_ionized.dynamics": {
+      "status": "passed",
+      "time": 24.483,
+      "message": ""
+    },
+    "python/in.pair_python_hybrid": {
+      "status": "failed",
+      "time": 16.728,
+      "message": "completed, 0 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 8,
+      "diverged_at": 350
+    },
+    "deposit/in.deposit.molecule.rigid-small": {
+      "status": "passed",
+      "time": 5.692,
+      "message": ""
+    },
+    "SPIN/test_problems/validation_nve/in.spin.iron-nve": {
+      "status": "failed",
+      "time": 3.008,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 32,
+      "diverged_at": 6400
+    },
+    "mliap/in.mliap.snap.Ta06A": {
+      "status": "passed",
+      "time": 1.531,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/dpdrx-shardlow/in.dpdrx-shardlow": {
+      "status": "passed",
+      "time": 0.755,
+      "message": ""
+    },
+    "wall/in.wall.lepton": {
+      "status": "passed",
+      "time": 0.506,
+      "message": ""
+    },
+    "template/in.template-mix": {
+      "status": "failed",
+      "time": 32.056,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 2,
+      "diverged_at": 190
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.Ana": {
+      "status": "passed",
+      "time": 22.241,
+      "message": ""
+    },
+    "comb/in.comb3": {
+      "status": "passed",
+      "time": 16.32,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce": {
+      "status": "failed",
+      "time": 5.871,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "reaxff/FeOH3/in.FeOH3": {
+      "status": "passed",
+      "time": 3.681,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.relu1hidden": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "wall/in.wall.maxwell": {
+      "status": "passed",
+      "time": 1.041,
+      "message": ""
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.bohr": {
+      "status": "runtest",
+      "time": 0.614,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/bocs/in.methanol": {
+      "status": "passed",
+      "time": 33.111,
+      "message": ""
+    },
+    "template/in.mol-data-mix": {
+      "status": "failed",
+      "time": 24.024,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 200
+    },
+    "granular/in.pour.drum": {
+      "status": "passed",
+      "time": 15.495,
+      "message": ""
+    },
+    "PACKAGES/fep/ta/in.spce.lmp": {
+      "status": "runtest",
+      "time": 6.207,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/tally/in.stress": {
+      "status": "passed",
+      "time": 3.778,
+      "message": ""
+    },
+    "python/in.fix_python_invoke": {
+      "status": "passed",
+      "time": 1.26,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized_variable_probability": {
+      "status": "passed",
+      "time": 0.858,
+      "message": ""
+    },
+    "ASPHERE/superellipsoid_gran/in.ellipsoid_gran": {
+      "status": "passed",
+      "time": 0.538,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.692,
+      "message": ""
+    },
+    "bpm/peri/in.bpm.peri.lps": {
+      "status": "passed",
+      "time": 33.012,
+      "message": ""
+    },
+    "PACKAGES/machdyn/rubber_rings_3d/in.rubber_rings_3d": {
+      "status": "failed",
+      "time": 24.18,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "python/in.pair_python_spce": {
+      "status": "passed",
+      "time": 13.733,
+      "message": ""
+    },
+    "PACKAGES/dispersion/in.d2": {
+      "status": "passed",
+      "time": 7.54,
+      "message": ""
+    },
+    "srd/in.srd.mixture": {
+      "status": "failed",
+      "time": 2.867,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 10,
+      "diverged_at": 800
+    },
+    "PACKAGES/meam_sw_spline/Si/in.hcp_relax": {
+      "status": "passed",
+      "time": 1.777,
+      "message": ""
+    },
+    "flow/in.flow.couette": {
+      "status": "passed",
+      "time": 0.692,
+      "message": ""
+    },
+    "balance/in.balance": {
+      "status": "runtest",
+      "time": 0.615,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.group.static.smoke.1, ... in this folder match no input script at all:  ..."
+    },
+    "template/in.molecular-mix": {
+      "status": "failed",
+      "time": 32.566,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 2,
+      "diverged_at": 190
+    },
+    "PACKAGES/dpd-smooth/equipartition-verification/in.lammps": {
+      "status": "runtest",
+      "time": 25.465,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.equipartition.g++.1, log.28Mar23.equipartition.g++.4 in this folder match no input script at all: check the names"
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_spin": {
+      "status": "passed",
+      "time": 13.424,
+      "message": ""
+    },
+    "reaxff/water/in.water.qeq": {
+      "status": "passed",
+      "time": 8.357,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/dpde-vv/in.dpde-vv": {
+      "status": "runtest",
+      "time": 2.444,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.alpha_relaxation": {
+      "status": "passed",
+      "time": 1.606,
+      "message": ""
+    },
+    "rigid/in.rigid.infile": {
+      "status": "passed",
+      "time": 0.7,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc": {
+      "status": "passed",
+      "time": 0.534,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.703,
+      "message": ""
+    },
+    "PACKAGES/moments/in.simple": {
+      "status": "passed",
+      "time": 29.393,
+      "message": ""
+    },
+    "PACKAGES/moments/in.converge": {
+      "status": "passed",
+      "time": 26.323,
+      "message": ""
+    },
+    "PACKAGES/latboltz/diffusingsphere/in.trapnewsphere": {
+      "status": "runtest",
+      "time": 14.227,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "airebo/in.airebo-0-0": {
+      "status": "passed",
+      "time": 7.484,
+      "message": ""
+    },
+    "PACKAGES/brownian/asphere/in.3d.ellipsoid": {
+      "status": "passed",
+      "time": 2.581,
+      "message": ""
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid": {
+      "status": "passed",
+      "time": 2.996,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.confined.gmres": {
+      "status": "passed",
+      "time": 1.099,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.ace": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.669,
+      "message": ""
+    },
+    "PACKAGES/filter_corotate/in.bpti": {
+      "status": "runtest",
+      "time": 30.286,
+      "message": "completed, error parsing log.bpti.1 into YAML"
+    },
+    "qeq/in.qeq.buck": {
+      "status": "passed",
+      "time": 25.642,
+      "message": ""
+    },
+    "PACKAGES/gjf/in.gjf.vhalf": {
+      "status": "passed",
+      "time": 16.16,
+      "message": ""
+    },
+    "shear/in.shear": {
+      "status": "passed",
+      "time": 6.765,
+      "message": ""
+    },
+    "reaxff/in.reaxff.tatb-shielded": {
+      "status": "passed",
+      "time": 3.532,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.data": {
+      "status": "passed",
+      "time": 1.261,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.nve": {
+      "status": "passed",
+      "time": 1.055,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta_cg": {
+      "status": "passed",
+      "time": 0.583,
+      "message": ""
+    },
+    "PACKAGES/local_density/benzene_water/in.benzene_water": {
+      "status": "runtest",
+      "time": 30.193,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/reaction/tiny_polystyrene/in.tiny_polystyrene.stabilized": {
+      "status": "failed",
+      "time": 24.982,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 10000
+    },
+    "PACKAGES/gjf/in.gjf.vfull": {
+      "status": "passed",
+      "time": 12.868,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.rigid-nvt-small": {
+      "status": "passed",
+      "time": 6.326,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon_json/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 3.857,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 11,
+      "diverged_at": 550
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion/in.lammps": {
+      "status": "runtest",
+      "time": 1.429,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.2d-diffusion.g++.1, log.28Mar23.2d-diffusion.g++.4 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/pace/compute/in.compute": {
+      "status": "passed",
+      "time": 0.868,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.vac0-bcc": {
+      "status": "passed",
+      "time": 0.714,
+      "message": ""
+    },
+    "PACKAGES/drude/ethylene_glycol/in.ethylene_glycol": {
+      "status": "failed",
+      "time": 29.209,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 1,
+      "diverged_at": 50
+    },
+    "PACKAGES/bondval/in.hexbto": {
+      "status": "passed",
+      "time": 27.01,
+      "message": ""
+    },
+    "reaxff/water/in.water.acks2": {
+      "status": "passed",
+      "time": 16.368,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-allbonds": {
+      "status": "runtest",
+      "time": 5.531,
+      "message": "completed, error parsing log.peptide-allbonds.1 into YAML"
+    },
+    "wall/in.wall.harmonic.2d": {
+      "status": "passed",
+      "time": 3.324,
+      "message": ""
+    },
+    "rheo/oxidation/in.rheo.oxidation": {
+      "status": "runtest",
+      "time": 1.631,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/eff/H/in.h_atom.spe.ang": {
+      "status": "runtest",
+      "time": 0.619,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mliap/in.mliap.quadratic.compute": {
+      "status": "runtest",
+      "time": 0.574,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "ttm/in.ttm.grid": {
+      "status": "passed",
+      "time": 27.78,
+      "message": ""
+    },
+    "bpm/peri/in.bpm.peri.pmb": {
+      "status": "passed",
+      "time": 26.52,
+      "message": ""
+    },
+    "mc/in.widom.lj": {
+      "status": "passed",
+      "time": 13.783,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-fixed": {
+      "status": "runtest",
+      "time": 5.929,
+      "message": "completed, error parsing log.peptide-fixed.1 into YAML"
+    },
+    "kim/in.lammps.melt": {
+      "status": "passed",
+      "time": 3.849,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.pod": {
+      "status": "passed",
+      "time": 1.265,
+      "message": ""
+    },
+    "dreiding/in.dreiding": {
+      "status": "runtest",
+      "time": 0.923,
+      "message": "completed, error parsing log.dreiding.1 into YAML"
+    },
+    "PACKAGES/momentum/in.momentum": {
+      "status": "runtest",
+      "time": 0.7,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.823,
+      "message": ""
+    },
+    "rheo/taylor-green/in.rheo.taylor.green": {
+      "status": "passed",
+      "time": 119.256,
+      "message": "",
+      "attention": "the run needs 119 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/Li-solid/in.Li.ang": {
+      "status": "runtest",
+      "time": 27.953,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "stress_vcm/in.stress_vcm": {
+      "status": "passed",
+      "time": 28.348,
+      "message": ""
+    },
+    "PACKAGES/pace/in.pace.product": {
+      "status": "passed",
+      "time": 17.557,
+      "message": ""
+    },
+    "srd/in.srd.pure": {
+      "status": "passed",
+      "time": 6.359,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon_wildcards/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 3.258,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 11,
+      "diverged_at": 550
+    },
+    "vashishta/in.vashishta.table.sio2": {
+      "status": "passed",
+      "time": 1.17,
+      "message": ""
+    },
+    "gransurf/in.tribox.gran.global.stl": {
+      "status": "passed",
+      "time": 0.811,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.ang": {
+      "status": "runtest",
+      "time": 0.52,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "no reference log file matches this input, while log.CH4fc.ang.smoke.1, log.CH4fc.bohr.smoke.1 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/ilves/in.polymelt": {
+      "status": "passed",
+      "time": 29.288,
+      "message": ""
+    },
+    "PACKAGES/interlayer/aip_water_2dm/in.gr_water": {
+      "status": "passed",
+      "time": 25.087,
+      "message": ""
+    },
+    "coreshell/in.coreshell": {
+      "status": "failed",
+      "time": 16.18,
+      "message": "completed, 7 abs diff and 8 rel diff checks failed",
+      "diverged": 8,
+      "diverged_row": 2,
+      "diverged_at": 100
+    },
+    "colloid/in.colloid": {
+      "status": "failed",
+      "time": 6.154,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 6,
+      "diverged_at": 6000
+    },
+    "PACKAGES/fep/CH4hyd/fdti01/in.fdti01.lmp": {
+      "status": "runtest",
+      "time": 4.231,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "dipole/in.dipole": {
+      "status": "passed",
+      "time": 1.466,
+      "message": ""
+    },
+    "flow/in.flow.pois": {
+      "status": "passed",
+      "time": 0.833,
+      "message": ""
+    },
+    "meam/in.meam": {
+      "status": "passed",
+      "time": 0.667,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala-solv_imd_v3": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "ttm/in.ttm.thermal": {
+      "status": "passed",
+      "time": 28.943,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.elstop": {
+      "status": "passed",
+      "time": 26.329,
+      "message": ""
+    },
+    "PACKAGES/gle/in.h2o-quantum": {
+      "status": "failed",
+      "time": 16.345,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 15,
+      "diverged_at": 1500
+    },
+    "peptide/in.peptide": {
+      "status": "runtest",
+      "time": 5.597,
+      "message": "completed, error parsing log.peptide.1 into YAML"
+    },
+    "gransurf/in.tribox.gran.surf": {
+      "status": "passed",
+      "time": 3.05,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4-CF4/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 1.847,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc": {
+      "status": "passed",
+      "time": 0.629,
+      "message": ""
+    },
+    "SPIN/gneb/skyrmion/in.gneb.skyrmion": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"fix 3 all neb/spin\")"
+    },
+    "ttm/in.ttm": {
+      "status": "passed",
+      "time": 27.88,
+      "message": ""
+    },
+    "dipole/in.charge_dipole": {
+      "status": "passed",
+      "time": 27.74,
+      "message": ""
+    },
+    "PACKAGES/yaff/mil53al/in.mil53a": {
+      "status": "runtest",
+      "time": 16.132,
+      "message": "completed, error parsing log.mil53a.1 into YAML"
+    },
+    "PACKAGES/ilves/in.peptide-shake": {
+      "status": "runtest",
+      "time": 6.211,
+      "message": "completed, error parsing log.peptide-shake.1 into YAML"
+    },
+    "gransurf/in.tribox.gran.data": {
+      "status": "passed",
+      "time": 2.826,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4-CF4/bar01/in.bar01.lmp": {
+      "status": "runtest",
+      "time": 1.601,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "comb/in.comb.Si": {
+      "status": "passed",
+      "time": 0.722,
+      "message": ""
+    },
+    "PACKAGES/phonon/dynamical_matrix_command/Silicon/in.silicon": {
+      "status": "runtest",
+      "time": 0.632,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.684,
+      "message": ""
+    },
+    "controller/in.controller.wall": {
+      "status": "passed",
+      "time": 29.596,
+      "message": ""
+    },
+    "coreshell/in.coreshell.dsf": {
+      "status": "passed",
+      "time": 28.184,
+      "message": ""
+    },
+    "PACKAGES/momb/in.system": {
+      "status": "passed",
+      "time": 17.877,
+      "message": ""
+    },
+    "reaxff/water/in.water.qeqr": {
+      "status": "passed",
+      "time": 8.343,
+      "message": ""
+    },
+    "pour/in.pour.2d": {
+      "status": "passed",
+      "time": 2.191,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.confined.icc": {
+      "status": "passed",
+      "time": 1.136,
+      "message": ""
+    },
+    "PACKAGES/mofff/in.hkust1": {
+      "status": "passed",
+      "time": 0.493,
+      "message": ""
+    },
+    "steinhardt/in.bcc": {
+      "status": "passed",
+      "time": 0.464,
+      "message": ""
+    },
+    "peri/in.peri.lps": {
+      "status": "passed",
+      "time": 29.039,
+      "message": ""
+    },
+    "threebody/in.mos2.rebomos": {
+      "status": "passed",
+      "time": 27.555,
+      "message": ""
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_pppm": {
+      "status": "passed",
+      "time": 16.627,
+      "message": ""
+    },
+    "shear/in.shear.void": {
+      "status": "passed",
+      "time": 5.338,
+      "message": ""
+    },
+    "wall/in.wall.harmonic.outside.2d": {
+      "status": "passed",
+      "time": 3.168,
+      "message": ""
+    },
+    "mliap/in.mliap.nn.Ta06A": {
+      "status": "passed",
+      "time": 2.007,
+      "message": ""
+    },
+    "rigid/in.rigid.atomvar": {
+      "status": "passed",
+      "time": 0.612,
+      "message": ""
+    },
+    "snap/in.snap.grid.triclinic": {
+      "status": "passed",
+      "time": 0.573,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.626,
+      "message": ""
+    },
+    "comb/in.comb.Cu2O.elastic": {
+      "status": "passed",
+      "time": 28.136,
+      "message": ""
+    },
+    "snap/in.snap.InP.JCPA2020": {
+      "status": "passed",
+      "time": 27.472,
+      "message": ""
+    },
+    "mc/in.hmc.rigid": {
+      "status": "failed",
+      "time": 17.372,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "deposit/in.deposit.molecule": {
+      "status": "passed",
+      "time": 5.496,
+      "message": ""
+    },
+    "PACKAGES/entropy/in.entropy": {
+      "status": "runtest",
+      "time": 2.604,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/dpd-react/multi-lucy/in.multi-lucy": {
+      "status": "runtest",
+      "time": 1.718,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew2d": {
+      "status": "passed",
+      "time": 0.709,
+      "message": ""
+    },
+    "steinhardt/in.fcc": {
+      "status": "passed",
+      "time": 0.62,
+      "message": ""
+    },
+    "reaxff/HNS/in.reaxff.hns": {
+      "status": "passed",
+      "time": 25.763,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.chem": {
+      "status": "passed",
+      "time": 27.081,
+      "message": ""
+    },
+    "SPIN/test_problems/validation_nvt/in.spin.nvt_lattice": {
+      "status": "failed",
+      "time": 14.606,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 200
+    },
+    "ASPHERE/line/in.line": {
+      "status": "passed",
+      "time": 5.272,
+      "message": ""
+    },
+    "body/in.wall2d": {
+      "status": "failed",
+      "time": 3.834,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/brownian/sphere/in.2d.sphere": {
+      "status": "passed",
+      "time": 1.413,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x.noloop": {
+      "status": "passed",
+      "time": 0.831,
+      "message": ""
+    },
+    "indent/in.indent.min": {
+      "status": "passed",
+      "time": 0.833,
+      "message": ""
+    },
+    "granregion/in.granregion.funnel": {
+      "status": "passed",
+      "time": 118.604,
+      "message": "",
+      "attention": "the run needs 119 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/ilves/in.covid": {
+      "status": "passed",
+      "time": 119.319,
+      "message": "",
+      "attention": "the run needs 119 s: a production sized run that should be shortened in the repository"
+    },
+    "gransurf/in.screwfeeder.local": {
+      "status": "passed",
+      "time": 109.164,
+      "message": "",
+      "attention": "the run needs 109 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/dpd-meso/mdpd/in.mdpd": {
+      "status": "failed",
+      "time": 107.911,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "the run needs 108 s: a production sized run that should be shortened in the repository"
+    },
+    "bpm/metamaterial/in.bpm.metamaterial": {
+      "status": "passed",
+      "time": 109.195,
+      "message": "",
+      "attention": "the run needs 109 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/qtb/methane_qbmsst/in.methane_qbmsst": {
+      "status": "passed",
+      "time": 108.599,
+      "message": "",
+      "attention": "the run needs 109 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/filter_corotate/in.respa": {
+      "status": "failed",
+      "time": 109.963,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 100,
+      "attention": "the run needs 110 s: a production sized run that should be shortened in the repository"
+    },
+    "streitz/in.ctip": {
+      "status": "passed",
+      "time": 203.446,
+      "message": "",
+      "attention": "the run needs 203 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/Auger-Adamantane/in.adamantane_ionized.nve": {
+      "status": "passed",
+      "time": 104.114,
+      "message": "",
+      "attention": "the run needs 104 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd": {
+      "status": "failed",
+      "time": 102.526,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "the run needs 103 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve.ang": {
+      "status": "runtest",
+      "time": 99.081,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "the run needs 99 s: a production sized run that should be shortened in the repository"
+    },
+    "granular/in.pour.heat": {
+      "status": "passed",
+      "time": 104.741,
+      "message": "",
+      "attention": "the run needs 105 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/dpd-meso/edpd/in.edpd-region": {
+      "status": "failed",
+      "time": 108.18,
+      "message": "completed, 6 abs diff and 6 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "the run needs 108 s: a production sized run that should be shortened in the repository"
+    },
+    "rdf-adf/in.spce": {
+      "status": "failed",
+      "time": 102.268,
+      "message": "completed, 6 abs diff and 5 rel diff checks failed",
+      "diverged": 6,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "the run needs 102 s: a production sized run that should be shortened in the repository"
+    },
+    "streitz/in.streitz.wolf": {
+      "status": "failed",
+      "time": 101.804,
+      "message": "failed, mismatched columns in the log files",
+      "attention": "the run needs 102 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/meam_spline/in.meam-spline.TiO2": {
+      "status": "passed",
+      "time": 96.255,
+      "message": "",
+      "attention": "the run needs 96 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.nve": {
+      "status": "runtest",
+      "time": 93.954,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "the run needs 94 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-hBN": {
+      "status": "passed",
+      "time": 91.888,
+      "message": "",
+      "attention": "the run needs 92 s: a production sized run that should be shortened in the repository"
+    },
+    "rheo/ice-cubes/in.rheo.ice.cubes": {
+      "status": "failed",
+      "time": 198.62,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 200,
+      "attention": "the run needs 199 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.ilp_graphene_hbn": {
+      "status": "passed",
+      "time": 92.642,
+      "message": "",
+      "attention": "the run needs 93 s: a production sized run that should be shortened in the repository"
+    },
+    "rdf-adf/in.spce.hbond": {
+      "status": "failed",
+      "time": 89.278,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 2,
+      "diverged_at": 200,
+      "attention": "the run needs 89 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.energy_conservation.meam.sw": {
+      "status": "failed",
+      "time": 94.38,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 14,
+      "diverged_at": 140,
+      "attention": "the run needs 94 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.grhBN": {
+      "status": "passed",
+      "time": 88.219,
+      "message": "",
+      "attention": "the run needs 88 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/srp_react/in.srp_react": {
+      "status": "passed",
+      "time": 95.534,
+      "message": "",
+      "attention": "the run needs 96 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/hma/in.hma": {
+      "status": "runtest",
+      "time": 90.034,
+      "message": "completed, but no Step nor Loop in the output",
+      "attention": "the run needs 90 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.lang": {
+      "status": "failed",
+      "time": 82.161,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20,
+      "attention": "the run needs 82 s: a production sized run that should be shortened in the repository"
+    },
+    "bpm/poissons_ratio/in.bpm.poissons_ratio": {
+      "status": "passed",
+      "time": 84.769,
+      "message": "",
+      "attention": "the run needs 85 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.nvt": {
+      "status": "runtest",
+      "time": 87.834,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "the run needs 88 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd-region": {
+      "status": "passed",
+      "time": 82.036,
+      "message": "",
+      "attention": "the run needs 82 s: a production sized run that should be shortened in the repository"
+    },
+    "wall/in.wall.table": {
+      "status": "passed",
+      "time": 0.642,
+      "message": ""
+    },
+    "PACKAGES/diffraction/in.BulkNi": {
+      "status": "passed",
+      "time": 157.165,
+      "message": "",
+      "attention": "the run needs 157 s: a production sized run that should be shortened in the repository"
+    },
+    "streitz/in.streitz.ewald": {
+      "status": "failed",
+      "time": 85.921,
+      "message": "completed, 1 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 0,
+      "diverged_at": 0,
+      "attention": "the run needs 86 s: a production sized run that should be shortened in the repository"
+    },
+    "triclinic/in.bcc.primitive": {
+      "status": "passed",
+      "time": 0.525,
+      "message": ""
+    },
+    "PACKAGES/interlayer/saip_metal_tmd/in.au_mos2": {
+      "status": "failed",
+      "time": 84.242,
+      "message": "completed, 3 abs diff and 2 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "the run needs 84 s: a production sized run that should be shortened in the repository"
+    },
+    "triclinic/in.hex.orthog": {
+      "status": "passed",
+      "time": 0.541,
+      "message": ""
+    },
+    "vashishta/in.vashishta.inp": {
+      "status": "passed",
+      "time": 0.54,
+      "message": ""
+    },
+    "PACKAGES/dpd-meso/tdpd/in.tdpd": {
+      "status": "passed",
+      "time": 83.36,
+      "message": "",
+      "attention": "the run needs 83 s: a production sized run that should be shortened in the repository"
+    },
+    "snap/in.snap.grid": {
+      "status": "passed",
+      "time": 0.643,
+      "message": ""
+    },
+    "mc/in.gemc.lj": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"partition\")"
+    },
+    "PACKAGES/drude/toluene/in.toluene.nh": {
+      "status": "failed",
+      "time": 82.623,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "the run needs 83 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/dielectric/in.nopbc.gmres": {
+      "status": "passed",
+      "time": 0.845,
+      "message": ""
+    },
+    "mliap/in.mliap.unified.lj.Ar": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxRNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.783,
+      "message": ""
+    },
+    "fire/in.meam.fire": {
+      "status": "passed",
+      "time": 80.709,
+      "message": "",
+      "attention": "the run needs 81 s: a production sized run that should be shortened in the repository"
+    },
+    "rigid/in.rigid.cubes": {
+      "status": "passed",
+      "time": 1.043,
+      "message": ""
+    },
+    "PACKAGES/uf3/in.uf3.Nb": {
+      "status": "passed",
+      "time": 0.885,
+      "message": ""
+    },
+    "mliap/in.mliap.pytorch.Ta06A": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/imd/in.bucky-plus-cnt": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/interlayer/ilp_graphene_hbn/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 86.132,
+      "message": "",
+      "attention": "the run needs 86 s: a production sized run that should be shortened in the repository"
+    },
+    "rigid/in.rigid.cubes.nvt": {
+      "status": "passed",
+      "time": 0.773,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.omega": {
+      "status": "passed",
+      "time": 0.482,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.beta": {
+      "status": "passed",
+      "time": 0.455,
+      "message": ""
+    },
+    "PACKAGES/reaction/nylon,6-6_melt/in.large_nylon_melt": {
+      "status": "passed",
+      "time": 82.954,
+      "message": "",
+      "attention": "the run needs 83 s: a production sized run that should be shortened in the repository"
+    },
+    "SPIN/nickel/in.spin.nickel": {
+      "status": "passed",
+      "time": 2.846,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.nopbc.icc": {
+      "status": "passed",
+      "time": 0.531,
+      "message": ""
+    },
+    "triclinic/in.bcc.orthog": {
+      "status": "passed",
+      "time": 0.488,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxRNA2/potential_file/in.duplex2": {
+      "status": "passed",
+      "time": 0.663,
+      "message": ""
+    },
+    "airebo/in.airebo-m": {
+      "status": "passed",
+      "time": 82.869,
+      "message": "",
+      "attention": "the run needs 83 s: a production sized run that should be shortened in the repository"
+    },
+    "granular/in.triaxial.compaction.12": {
+      "status": "passed",
+      "time": 1.81,
+      "message": ""
+    },
+    "PACKAGES/moments/in.valtest": {
+      "status": "passed",
+      "time": 0.765,
+      "message": ""
+    },
+    "SPIN/gneb/iron/in.gneb.iron": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped, needs a multi-partition run (\"fix 3 all neb/spin\")"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc": {
+      "status": "passed",
+      "time": 0.497,
+      "message": ""
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_full/in.bilayer-graphene": {
+      "status": "failed",
+      "time": 82.518,
+      "message": "failed, mismatched columns in the log files",
+      "attention": "the run needs 83 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/brownian/sphere/in.3d.sphere": {
+      "status": "passed",
+      "time": 1.978,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.tri": {
+      "status": "passed",
+      "time": 0.863,
+      "message": ""
+    },
+    "fire/in.fire": {
+      "status": "passed",
+      "time": 0.693,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.spe.bohr": {
+      "status": "runtest",
+      "time": 0.5,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "no reference log file matches this input, while log.CH4fc.ang.smoke.1, log.CH4fc.bohr.smoke.1, log.CH4fc.spe.ang.1 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/local_density/methanol_implicit_water/in.methanol_implicit_water": {
+      "status": "runtest",
+      "time": 80.254,
+      "message": "completed, but no Step nor Loop in the output",
+      "attention": "the run needs 80 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/quip/in.gap": {
+      "status": "passed",
+      "time": 3.181,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.surf.stl": {
+      "status": "passed",
+      "time": 1.197,
+      "message": ""
+    },
+    "rigid/in.rigid.atomfile": {
+      "status": "passed",
+      "time": 0.733,
+      "message": ""
+    },
+    "SPIN/spinmin/in.spin.iron_min": {
+      "status": "passed",
+      "time": 0.778,
+      "message": ""
+    },
+    "PACKAGES/imd/in.melt_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/latboltz/pit_geometry/in.pits": {
+      "status": "passed",
+      "time": 156.207,
+      "message": "",
+      "attention": "the run needs 156 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/drude/toluene/in.toluene.lang": {
+      "status": "failed",
+      "time": 84.487,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 50,
+      "attention": "the run needs 84 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/charge_regulation/in.chreg-polymer": {
+      "status": "failed",
+      "time": 1.483,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "melt/in.melt": {
+      "status": "passed",
+      "time": 0.942,
+      "message": ""
+    },
+    "gransurf/in.line.gran.global": {
+      "status": "passed",
+      "time": 0.606,
+      "message": ""
+    },
+    "UNITS/in.ar.metal": {
+      "status": "passed",
+      "time": 0.484,
+      "message": ""
+    },
+    "vashishta/in.vashishta.table.inp": {
+      "status": "passed",
+      "time": 0.475,
+      "message": ""
+    },
+    "PACKAGES/rhok/in.crystal": {
+      "status": "passed",
+      "time": 28.432,
+      "message": ""
+    },
+    "PACKAGES/rhok/in.pinning": {
+      "status": "passed",
+      "time": 27.191,
+      "message": ""
+    },
+    "PACKAGES/rhok/in.setup": {
+      "status": "passed",
+      "time": 22.985,
+      "message": ""
+    },
+    "snap/in.snap.Mo_Chen": {
+      "status": "passed",
+      "time": 2.317,
+      "message": ""
+    },
+    "PACKAGES/brownian/point/in.2d.point": {
+      "status": "passed",
+      "time": 1.324,
+      "message": ""
+    },
+    "python/in.fix_python_invoke_neighlist": {
+      "status": "runtest",
+      "time": 1.09,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "threebody/in.mos2-bulk": {
+      "status": "passed",
+      "time": 0.666,
+      "message": ""
+    },
+    "airebo/in.airebo": {
+      "status": "passed",
+      "time": 71.95,
+      "message": "",
+      "attention": "the run needs 72 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/stressprofile/in.sphere": {
+      "status": "passed",
+      "time": 3.068,
+      "message": ""
+    },
+    "tersoff/in.hBN_shift": {
+      "status": "passed",
+      "time": 1.907,
+      "message": ""
+    },
+    "PACKAGES/edip/in.edip-Si": {
+      "status": "passed",
+      "time": 0.915,
+      "message": ""
+    },
+    "triclinic/in.fcc.orthog": {
+      "status": "passed",
+      "time": 0.549,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.757,
+      "message": ""
+    },
+    "bpm/impact/in.bpm.impact.rotational": {
+      "status": "passed",
+      "time": 77.704,
+      "message": "",
+      "attention": "the run needs 78 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/ilves/in.cg-polymers": {
+      "status": "passed",
+      "time": 4.27,
+      "message": ""
+    },
+    "body/in.pour3d": {
+      "status": "passed",
+      "time": 1.011,
+      "message": ""
+    },
+    "reaxff/in.reaxff.rdx-shielded": {
+      "status": "passed",
+      "time": 0.849,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-pppm-ffield": {
+      "status": "passed",
+      "time": 0.655,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "airebo/in.airebo-bc": {
+      "status": "passed",
+      "time": 77.69,
+      "message": "",
+      "attention": "the run needs 78 s: a production sized run that should be shortened in the repository"
+    },
+    "indent/in.indent": {
+      "status": "passed",
+      "time": 4.765,
+      "message": ""
+    },
+    "body/in.body": {
+      "status": "passed",
+      "time": 1.772,
+      "message": ""
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-split": {
+      "status": "runtest",
+      "time": 0.86,
+      "message": "completed, error parsing log.gauss-diel-split.smoke.1 into YAML"
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ffield": {
+      "status": "passed",
+      "time": 0.658,
+      "message": ""
+    },
+    "qeq/in.qeq.reaxff": {
+      "status": "passed",
+      "time": 0.514,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.595,
+      "message": ""
+    },
+    "PACKAGES/interlayer/ilp_tmds/in.mos2": {
+      "status": "failed",
+      "time": 75.475,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 100,
+      "attention": "the run needs 75 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/frenkel/in.frenkel": {
+      "status": "passed",
+      "time": 4.943,
+      "message": ""
+    },
+    "PACKAGES/electron_stopping/in.elstop.only": {
+      "status": "passed",
+      "time": 1.865,
+      "message": ""
+    },
+    "wall/in.wall.ccl": {
+      "status": "passed",
+      "time": 1.03,
+      "message": ""
+    },
+    "PACKAGES/vtk/in.vtp": {
+      "status": "runtest",
+      "time": 0.797,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/electrode/planar/in.planar-ewald-ew3dc": {
+      "status": "passed",
+      "time": 0.713,
+      "message": ""
+    },
+    "mc/in.sgcmc.eam": {
+      "status": "failed",
+      "time": 74.742,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 13,
+      "diverged_at": 1300,
+      "attention": "the run needs 75 s: a production sized run that should be shortened in the repository"
+    },
+    "snap/in.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 5.629,
+      "message": ""
+    },
+    "balance/in.balance.neigh.rcb": {
+      "status": "runtest",
+      "time": 2.375,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.kspace.smoke.1, ... in this folder match no input script at all: check  ..."
+    },
+    "PACKAGES/brownian/point/in.3d.point": {
+      "status": "passed",
+      "time": 1.773,
+      "message": ""
+    },
+    "PACKAGES/ti/in.ti_spring": {
+      "status": "runtest",
+      "time": 0.71,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4": {
+      "status": "runtest",
+      "time": 0.501,
+      "message": "completed, error parsing log.SiH4.1 into YAML"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.58,
+      "message": ""
+    },
+    "PACKAGES/drude/swm4-ndp/in.swm4-ndp.nh": {
+      "status": "failed",
+      "time": 71.333,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 1,
+      "diverged_at": 20,
+      "attention": "the run needs 71 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/tmd/in.tmd": {
+      "status": "runtest",
+      "time": 5.829,
+      "message": "completed, error parsing log.tmd.1 into YAML"
+    },
+    "PACKAGES/machdyn/aluminum_strip_pull/in.aluminum_strip_pull": {
+      "status": "passed",
+      "time": 3.277,
+      "message": ""
+    },
+    "cmap/in.cmap": {
+      "status": "failed",
+      "time": 2.5,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 10,
+      "diverged_at": 10000
+    },
+    "UNITS/in.ar.lj": {
+      "status": "passed",
+      "time": 0.658,
+      "message": ""
+    },
+    "PACKAGES/class2xe/in.NVT_class2xe.script": {
+      "status": "passed",
+      "time": 0.618,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.dos": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_center": {
+      "status": "passed",
+      "time": 70.143,
+      "message": "",
+      "attention": "the run needs 70 s: a production sized run that should be shortened in the repository"
+    },
+    "reaxff/RDX/in.RDX": {
+      "status": "passed",
+      "time": 8.453,
+      "message": ""
+    },
+    "PACKAGES/pod/InP/in.pod.InP": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "SPIN/iron/in.spin.iron_cubic": {
+      "status": "passed",
+      "time": 1.828,
+      "message": ""
+    },
+    "PACKAGES/ees/in.fix_wall": {
+      "status": "passed",
+      "time": 0.668,
+      "message": ""
+    },
+    "ASPHERE/superellipsoid_gran/in.bowling": {
+      "status": "passed",
+      "time": 0.622,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex3/in.duplex3": {
+      "status": "passed",
+      "time": 0.773,
+      "message": ""
+    },
+    "PACKAGES/relres/in.22DMH.real": {
+      "status": "passed",
+      "time": 69.603,
+      "message": "",
+      "attention": "the run needs 70 s: a production sized run that should be shortened in the repository"
+    },
+    "wall/in.wall.flow": {
+      "status": "passed",
+      "time": 8.158,
+      "message": ""
+    },
+    "PACKAGES/machdyn/rubber_strip_pull/in.rubber_strip_pull": {
+      "status": "passed",
+      "time": 4.058,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.surf": {
+      "status": "passed",
+      "time": 1.283,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/dpdp-shardlow/in.dpdp-shardlow": {
+      "status": "runtest",
+      "time": 1.038,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mliap/in.mliap.pytorch.ace.NN": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/electrode/madelung/in.madelung-cg": {
+      "status": "passed",
+      "time": 0.592,
+      "message": ""
+    },
+    "bpm/plasticity/in.bpm.plasticity": {
+      "status": "passed",
+      "time": 156.0,
+      "message": "",
+      "attention": "the run needs 156 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conp": {
+      "status": "passed",
+      "time": 70.542,
+      "message": "",
+      "attention": "the run needs 71 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/mgpt/in.vacmin-bcc": {
+      "status": "passed",
+      "time": 9.136,
+      "message": ""
+    },
+    "deposit/in.deposit.atom": {
+      "status": "passed",
+      "time": 4.38,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.fitpod": {
+      "status": "runtest",
+      "time": 0.986,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/dpd-react/dpde-shardlow/in.dpde-shardlow": {
+      "status": "runtest",
+      "time": 0.87,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "mliap/in.mliap.snap.compute": {
+      "status": "runtest",
+      "time": 0.546,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conq": {
+      "status": "passed",
+      "time": 65.778,
+      "message": "",
+      "attention": "the run needs 66 s: a production sized run that should be shortened in the repository"
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_cut": {
+      "status": "passed",
+      "time": 9.435,
+      "message": ""
+    },
+    "multi/in.powerlaw": {
+      "status": "failed",
+      "time": 4.374,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/eff/CH4/in.ch4.dynamics": {
+      "status": "passed",
+      "time": 1.832,
+      "message": ""
+    },
+    "gransurf/in.line.gran.data": {
+      "status": "passed",
+      "time": 0.881,
+      "message": ""
+    },
+    "PACKAGES/phonon/3-3D-FCC-Cu-EAM/in.EAM3D": {
+      "status": "runtest",
+      "time": 0.703,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/addtorque_group/in.addtorque": {
+      "status": "passed",
+      "time": 63.541,
+      "message": "",
+      "attention": "the run needs 64 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electron_stopping/in.cascade_AlCu": {
+      "status": "passed",
+      "time": 9.239,
+      "message": ""
+    },
+    "balance/in.balance.var.dynamic": {
+      "status": "runtest",
+      "time": 4.992,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 5.579,
+      "message": ""
+    },
+    "SPIN/spinmin/in.spin.bfo_min_lbfgs": {
+      "status": "passed",
+      "time": 0.981,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.single_atom": {
+      "status": "passed",
+      "time": 0.685,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.693,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-solid/in.Li.bohr": {
+      "status": "runtest",
+      "time": 66.607,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "the run needs 67 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/reaction/create_atoms_polystyrene/in.grow_styrene": {
+      "status": "failed",
+      "time": 9.657,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 5,
+      "diverged_at": 500
+    },
+    "balance/in.balance.neigh.dynamic": {
+      "status": "runtest",
+      "time": 5.307,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.neigh.static.smoke.1, log.balance.var.dynamic.smoke.1 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/dsring/in.dsring": {
+      "status": "passed",
+      "time": 3.509,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x.y": {
+      "status": "passed",
+      "time": 0.825,
+      "message": ""
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel-cg": {
+      "status": "runtest",
+      "time": 0.69,
+      "message": "completed, error parsing log.gauss-diel-cg.smoke.1 into YAML"
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.fcc": {
+      "status": "passed",
+      "time": 0.473,
+      "message": ""
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-thermo": {
+      "status": "passed",
+      "time": 66.183,
+      "message": "",
+      "attention": "the run needs 66 s: a production sized run that should be shortened in the repository"
+    },
+    "python/in.fix_python_move_nve_melt": {
+      "status": "passed",
+      "time": 9.677,
+      "message": ""
+    },
+    "yaml/in.yaml": {
+      "status": "runtest",
+      "time": 4.967,
+      "message": "completed, error parsing log.yaml.1 into YAML"
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ew3dc": {
+      "status": "passed",
+      "time": 2.471,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.multirun": {
+      "status": "passed",
+      "time": 0.923,
+      "message": ""
+    },
+    "PACKAGES/extep/in.extep-bn": {
+      "status": "failed",
+      "time": 0.779,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 20
+    },
+    "triclinic/in.sq2.primitive": {
+      "status": "passed",
+      "time": 0.576,
+      "message": ""
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-ramp": {
+      "status": "passed",
+      "time": 69.814,
+      "message": "",
+      "attention": "the run needs 70 s: a production sized run that should be shortened in the repository"
+    },
+    "SPIN/spinmin/in.spin.bfo_min": {
+      "status": "passed",
+      "time": 9.257,
+      "message": ""
+    },
+    "PACKAGES/dpd-react/dpdh-shardlow/in.dpdh-shardlow": {
+      "status": "runtest",
+      "time": 4.673,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/dpd-react/dpd-vv/in.dpd-vv": {
+      "status": "runtest",
+      "time": 1.652,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/dpd-react/dpd-shardlow/in.dpd-shardlow": {
+      "status": "runtest",
+      "time": 0.781,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "rigid/in.rigid.spheres": {
+      "status": "passed",
+      "time": 0.571,
+      "message": ""
+    },
+    "snap/in.gaussian.grid": {
+      "status": "passed",
+      "time": 0.476,
+      "message": ""
+    },
+    "PACKAGES/neighbor-swap/in.KMC_pulse_edge": {
+      "status": "passed",
+      "time": 66.87,
+      "message": "",
+      "attention": "the run needs 67 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/brownian/spherical_ABP/in.3d.ideal_abp": {
+      "status": "passed",
+      "time": 9.388,
+      "message": ""
+    },
+    "balance/in.balance.clock.dynamic": {
+      "status": "runtest",
+      "time": 5.156,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.neigh.static.smoke.1, log.balance.var.dynamic.smoke.1 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/cauchy/in.cauchystat": {
+      "status": "passed",
+      "time": 2.224,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.dimer": {
+      "status": "runtest",
+      "time": 1.004,
+      "message": "completed, error parsing log.dimer.1 into YAML"
+    },
+    "min/in.min": {
+      "status": "passed",
+      "time": 0.788,
+      "message": ""
+    },
+    "voronoi/in.voronoi.data": {
+      "status": "passed",
+      "time": 0.51,
+      "message": ""
+    },
+    "mc/in.widom.spce": {
+      "status": "passed",
+      "time": 64.271,
+      "message": "",
+      "attention": "the run needs 64 s: a production sized run that should be shortened in the repository"
+    },
+    "ASPHERE/flat_membrane/in.flat_membrane": {
+      "status": "passed",
+      "time": 10.214,
+      "message": ""
+    },
+    "eim/in.eim": {
+      "status": "passed",
+      "time": 4.721,
+      "message": ""
+    },
+    "multi/in.granular": {
+      "status": "failed",
+      "time": 2.18,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "PACKAGES/reaction/tiny_epoxy/in.tiny_epoxy.stabilized": {
+      "status": "passed",
+      "time": 1.199,
+      "message": ""
+    },
+    "PACKAGES/tracker/in.track": {
+      "status": "passed",
+      "time": 0.929,
+      "message": ""
+    },
+    "rigid/in.rigid.property": {
+      "status": "passed",
+      "time": 0.729,
+      "message": ""
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-etypes": {
+      "status": "passed",
+      "time": 68.345,
+      "message": "",
+      "attention": "the run needs 68 s: a production sized run that should be shortened in the repository"
+    },
+    "SPIN/spinmin/in.spin.bfo_min_cg": {
+      "status": "passed",
+      "time": 10.905,
+      "message": ""
+    },
+    "voronoi/in.voronoi": {
+      "status": "passed",
+      "time": 4.875,
+      "message": ""
+    },
+    "LEPTON/in.efield-lepton": {
+      "status": "passed",
+      "time": 1.625,
+      "message": ""
+    },
+    "PACKAGES/gauss_diel/in.gauss-diel": {
+      "status": "runtest",
+      "time": 0.807,
+      "message": "completed, error parsing log.gauss-diel.smoke.1 into YAML"
+    },
+    "PACKAGES/baoab/in.baoab_lj": {
+      "status": "failed",
+      "time": 0.832,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 13,
+      "diverged_at": 200
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta_mix": {
+      "status": "passed",
+      "time": 0.478,
+      "message": ""
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-conq2": {
+      "status": "passed",
+      "time": 67.354,
+      "message": "",
+      "attention": "the run needs 67 s: a production sized run that should be shortened in the repository"
+    },
+    "reaxff/AuO/in.AuO": {
+      "status": "passed",
+      "time": 10.157,
+      "message": ""
+    },
+    "snap/in.snap.hybrid.WSNAP.HePair": {
+      "status": "passed",
+      "time": 4.536,
+      "message": ""
+    },
+    "PACKAGES/fep/CC-CO/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 2.02,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "streitz/in.gan": {
+      "status": "runtest",
+      "time": 1.139,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.sc_relax": {
+      "status": "passed",
+      "time": 0.631,
+      "message": ""
+    },
+    "grid/in.grid.2d": {
+      "status": "passed",
+      "time": 0.559,
+      "message": ""
+    },
+    "rheo/dam-break/in.rheo.dam.break": {
+      "status": "passed",
+      "time": 139.312,
+      "message": "",
+      "attention": "the run needs 139 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/electrode/graph-il/in.graph-il-ffield": {
+      "status": "passed",
+      "time": 64.031,
+      "message": "",
+      "attention": "the run needs 64 s: a production sized run that should be shortened in the repository"
+    },
+    "amoeba/in.water_box.hippo": {
+      "status": "passed",
+      "time": 10.128,
+      "message": ""
+    },
+    "body/in.squares": {
+      "status": "failed",
+      "time": 5.834,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "PACKAGES/fep/CC-CO/fep01/in.fep01.lmp": {
+      "status": "runtest",
+      "time": 2.031,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.cubes.nph": {
+      "status": "passed",
+      "time": 1.324,
+      "message": ""
+    },
+    "micelle/in.micelle-rigid": {
+      "status": "passed",
+      "time": 0.962,
+      "message": ""
+    },
+    "PACKAGES/ptm/in.ptm": {
+      "status": "passed",
+      "time": 0.568,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.846,
+      "message": ""
+    },
+    "ASPHERE/line/in.line.srd": {
+      "status": "passed",
+      "time": 57.227,
+      "message": ""
+    },
+    "reaxff/water/in.water.qtpie": {
+      "status": "passed",
+      "time": 11.165,
+      "message": ""
+    },
+    "crack/in.crack": {
+      "status": "passed",
+      "time": 5.173,
+      "message": ""
+    },
+    "PACKAGES/interlayer/drip/in.CH_drip": {
+      "status": "failed",
+      "time": 2.974,
+      "message": "completed, 2 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 4,
+      "diverged_at": 40
+    },
+    "threebody/in.threebody": {
+      "status": "passed",
+      "time": 2.616,
+      "message": ""
+    },
+    "PACKAGES/eff/CH4/in.ch4.min": {
+      "status": "passed",
+      "time": 0.72,
+      "message": ""
+    },
+    "PACKAGES/eff/fixed-core/CH4/in.CH4fc.ang": {
+      "status": "runtest",
+      "time": 0.606,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/drude/butane/in.butane.nh": {
+      "status": "failed",
+      "time": 58.969,
+      "message": "completed, 3 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 150
+    },
+    "PACKAGES/srp/in.srp": {
+      "status": "passed",
+      "time": 10.109,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-rattle": {
+      "status": "runtest",
+      "time": 6.01,
+      "message": "completed, error parsing log.peptide-rattle.1 into YAML"
+    },
+    "gransurf/in.tribox.gran.global": {
+      "status": "passed",
+      "time": 3.103,
+      "message": ""
+    },
+    "balance/in.balance.kspace": {
+      "status": "runtest",
+      "time": 2.193,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.neigh.dynamic.smoke.1, ... in this folder match no input script at all: ..."
+    },
+    "PACKAGES/fep/C7inEthanol/fep01/in.insertion": {
+      "status": "runtest",
+      "time": 0.957,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid.ellipsoids": {
+      "status": "passed",
+      "time": 0.613,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA2/duplex1/in.duplex1": {
+      "status": "passed",
+      "time": 0.763,
+      "message": ""
+    },
+    "PACKAGES/drude/butane/in.butane.tgnh": {
+      "status": "failed",
+      "time": 60.424,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 150,
+      "attention": "the run needs 60 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/interlayer/saip_metal/in.gold_gr": {
+      "status": "passed",
+      "time": 11.07,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-ilves": {
+      "status": "runtest",
+      "time": 6.058,
+      "message": "completed, error parsing log.peptide-ilves.1 into YAML"
+    },
+    "balance/in.balance.clock.static": {
+      "status": "runtest",
+      "time": 3.963,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.neigh.static.smoke.1, log.balance.var.dynamic.smoke.1 in this folder match no input script at all: check  ..."
+    },
+    "PACKAGES/charge_regulation/in.chreg-acid-real": {
+      "status": "passed",
+      "time": 1.595,
+      "message": ""
+    },
+    "snap/in.snap.compute.quadratic": {
+      "status": "runtest",
+      "time": 0.619,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "nemd/in.nemd": {
+      "status": "passed",
+      "time": 0.688,
+      "message": ""
+    },
+    "PACKAGES/phonon/1-1D-mono/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/ilves/in.rhodo-shake": {
+      "status": "runtest",
+      "time": 59.967,
+      "message": "completed, error parsing log.rhodo-shake.1 into YAML"
+    },
+    "PACKAGES/relres/in.22DMH.relres": {
+      "status": "passed",
+      "time": 11.31,
+      "message": ""
+    },
+    "balance/in.balance.neigh.static": {
+      "status": "runtest",
+      "time": 6.182,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "ellipse/in.ellipse.resquared": {
+      "status": "failed",
+      "time": 3.737,
+      "message": "completed, 0 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 30,
+      "diverged_at": 2900
+    },
+    "balance/in.balance.group.static": {
+      "status": "runtest",
+      "time": 1.559,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.kspace.smoke.1, ... in this folder match no input script at all: check  ..."
+    },
+    "PACKAGES/meam_sw_spline/Si/in.bcc_relax": {
+      "status": "passed",
+      "time": 0.798,
+      "message": ""
+    },
+    "amoeba/in.water_hexamer.hippo": {
+      "status": "passed",
+      "time": 0.593,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/real_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.733,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.rhodo-allbonds": {
+      "status": "runtest",
+      "time": 61.692,
+      "message": "completed, error parsing log.rhodo-allbonds.1 into YAML",
+      "attention": "the run needs 62 s: a production sized run that should be shortened in the repository"
+    },
+    "ASPHERE/poly/in.poly": {
+      "status": "passed",
+      "time": 11.544,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.peptide-mix": {
+      "status": "runtest",
+      "time": 5.884,
+      "message": "completed, error parsing log.peptide-mix.1 into YAML"
+    },
+    "pour/in.pour.2d.molecule": {
+      "status": "passed",
+      "time": 3.37,
+      "message": ""
+    },
+    "SPIN/iron/in.spin.iron": {
+      "status": "passed",
+      "time": 1.716,
+      "message": ""
+    },
+    "PACKAGES/edip/in.edip-Si-multi": {
+      "status": "passed",
+      "time": 0.76,
+      "message": ""
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.atom-diffusion": {
+      "status": "passed",
+      "time": 0.716,
+      "message": ""
+    },
+    "PACKAGES/ilves/in.rhodo-ilves": {
+      "status": "runtest",
+      "time": 63.502,
+      "message": "completed, error parsing log.rhodo-ilves.1 into YAML",
+      "attention": "the run needs 64 s: a production sized run that should be shortened in the repository"
+    },
+    "reaxff/water/in.water.qeqr.field": {
+      "status": "passed",
+      "time": 11.263,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.confined.dof": {
+      "status": "passed",
+      "time": 6.541,
+      "message": ""
+    },
+    "wall/in.wall.block": {
+      "status": "passed",
+      "time": 3.242,
+      "message": ""
+    },
+    "rigid/in.rigid.gravity": {
+      "status": "passed",
+      "time": 0.867,
+      "message": ""
+    },
+    "rheo/poiseuille/in.rheo.poiseuille": {
+      "status": "runtest",
+      "time": 0.662,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "snap/in.snap.compute": {
+      "status": "runtest",
+      "time": 0.483,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "PACKAGES/drude/butane/in.butane.lang": {
+      "status": "failed",
+      "time": 62.978,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 2,
+      "diverged_at": 100,
+      "attention": "the run needs 63 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/shock/hugoniostat/in.hugoniostat": {
+      "status": "passed",
+      "time": 11.898,
+      "message": ""
+    },
+    "comb/in.comb.HfO2": {
+      "status": "passed",
+      "time": 7.319,
+      "message": ""
+    },
+    "min/in.min.box": {
+      "status": "passed",
+      "time": 2.525,
+      "message": ""
+    },
+    "granular/in.restitution": {
+      "status": "passed",
+      "time": 1.098,
+      "message": ""
+    },
+    "granular/in.sync_verlet": {
+      "status": "passed",
+      "time": 0.679,
+      "message": ""
+    },
+    "triclinic/in.data.general": {
+      "status": "passed",
+      "time": 0.477,
+      "message": ""
+    },
+    "snap/in.C_SNAP": {
+      "status": "passed",
+      "time": 64.802,
+      "message": "",
+      "attention": "the run needs 65 s: a production sized run that should be shortened in the repository"
+    },
+    "SPIN/bfo/in.spin.bfo": {
+      "status": "passed",
+      "time": 12.594,
+      "message": ""
+    },
+    "PACKAGES/stressprofile/in.cylinder": {
+      "status": "passed",
+      "time": 6.498,
+      "message": ""
+    },
+    "reaxff/in.reaxff.tatb": {
+      "status": "passed",
+      "time": 2.509,
+      "message": ""
+    },
+    "vashishta/in.vashishta.sio2": {
+      "status": "passed",
+      "time": 0.973,
+      "message": ""
+    },
+    "rigid/in.rigid.early": {
+      "status": "passed",
+      "time": 0.533,
+      "message": ""
+    },
+    "PACKAGES/pod/InP/in.fitpod.InP": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "voronoi/in.voronoi.2d": {
+      "status": "passed",
+      "time": 0.494,
+      "message": ""
+    },
+    "PACKAGES/eff/H_plasma/in.h2bulk.npt": {
+      "status": "runtest",
+      "time": 60.329,
+      "message": "completed, numerical checks skipped due to missing the reference log file",
+      "attention": "the run needs 60 s: a production sized run that should be shortened in the repository; no reference log file matches this input, while log.h2bulk.nve.ang.1 in this folder match no input script at all: ..."
+    },
+    "ASPHERE/vesicle/in.vesicle": {
+      "status": "passed",
+      "time": 15.587,
+      "message": ""
+    },
+    "PACKAGES/pafi/in.pafi": {
+      "status": "passed",
+      "time": 7.171,
+      "message": ""
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.stabilized": {
+      "status": "failed",
+      "time": 2.668,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 11,
+      "diverged_at": 550
+    },
+    "tersoff/in.tersoff": {
+      "status": "passed",
+      "time": 0.911,
+      "message": ""
+    },
+    "mc/in.pure": {
+      "status": "runtest",
+      "time": 0.58,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.24Nov25.gemc.lj.0.g++.5, log.24Nov25.gemc.lj.1.g++.5, log.hmc.flexible.melt.1 in this folder match no input script at all: check the names"
+    },
+    "balance/in.balance.bond.fast": {
+      "status": "runtest",
+      "time": 0.477,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.bond.slow.smoke.1, log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, ... in this folder match no input script at all: che ..."
+    },
+    "mc/in.gcmc.h2o": {
+      "status": "failed",
+      "time": 140.399,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 3,
+      "diverged_at": 1000,
+      "attention": "the run needs 140 s: a production sized run that should be shortened in the repository"
+    },
+    "fire/in.meam.abcfire": {
+      "status": "passed",
+      "time": 57.183,
+      "message": ""
+    },
+    "ASPHERE/superellipsoid_gran/in.drop_test": {
+      "status": "passed",
+      "time": 14.35,
+      "message": ""
+    },
+    "mliap/in.mliap.nn.Cu": {
+      "status": "passed",
+      "time": 8.215,
+      "message": ""
+    },
+    "bpm/peri/benchmark/in.bench.bpm.pmb": {
+      "status": "passed",
+      "time": 2.902,
+      "message": ""
+    },
+    "PACKAGES/interlayer/kolmogorov_crespi_z/in.bilayer-graphene": {
+      "status": "passed",
+      "time": 2.264,
+      "message": ""
+    },
+    "rigid/in.rigid.molecule": {
+      "status": "passed",
+      "time": 0.584,
+      "message": ""
+    },
+    "mliap/in.mliap.so3.Ni_Mo": {
+      "status": "runtest",
+      "time": 0.499,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "template/in.tmpl-restart-mix": {
+      "status": "passed",
+      "time": 55.804,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpd_tstat/in.dpd_tstat": {
+      "status": "passed",
+      "time": 15.602,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6.ang": {
+      "status": "passed",
+      "time": 6.895,
+      "message": ""
+    },
+    "wall/in.wall.sphere": {
+      "status": "passed",
+      "time": 3.175,
+      "message": ""
+    },
+    "granregion/in.granregion.box": {
+      "status": "failed",
+      "time": 1.001,
+      "message": "completed, 6 abs diff and 10 rel diff checks failed",
+      "diverged": 10,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "PACKAGES/fep/C7inEthanol/fep10/in.deletion": {
+      "status": "runtest",
+      "time": 0.771,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "bpm/pour/in.bpm.pour": {
+      "status": "runtest",
+      "time": 0.502,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/phonon/2-1D-diatomic/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.tgnh": {
+      "status": "failed",
+      "time": 57.915,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 60
+    },
+    "mc/in.gcmc.restart": {
+      "status": "passed",
+      "time": 16.617,
+      "message": ""
+    },
+    "python/in.fix_python_move_nve_melt_group": {
+      "status": "passed",
+      "time": 6.429,
+      "message": ""
+    },
+    "reaxff/AB/in.AB": {
+      "status": "passed",
+      "time": 3.546,
+      "message": ""
+    },
+    "wall/in.wall.diffusive": {
+      "status": "passed",
+      "time": 0.815,
+      "message": ""
+    },
+    "python/in.python": {
+      "status": "passed",
+      "time": 0.628,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/Si2H6/in.Si2H6": {
+      "status": "passed",
+      "time": 0.503,
+      "message": ""
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.nh": {
+      "status": "failed",
+      "time": 53.916,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 60
+    },
+    "SPIN/dipole_spin/in.spin.iron_dipole_ewald": {
+      "status": "passed",
+      "time": 16.421,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce_sw": {
+      "status": "failed",
+      "time": 6.192,
+      "message": "completed, 1 abs diff and 1 rel diff checks failed",
+      "diverged": 1,
+      "diverged_row": 9,
+      "diverged_at": 900
+    },
+    "PACKAGES/stressprofile/in.flat": {
+      "status": "passed",
+      "time": 3.962,
+      "message": ""
+    },
+    "numdiff/in.numdiff": {
+      "status": "passed",
+      "time": 1.047,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpd/in.dpd": {
+      "status": "failed",
+      "time": 1.179,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 100
+    },
+    "meam/msmeam/in.msmeam": {
+      "status": "passed",
+      "time": 0.67,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/sna_nnn_slcsa/in.slcsa": {
+      "status": "runtest",
+      "time": 61.308,
+      "message": "completed, error parsing log.slcsa.1 into YAML",
+      "attention": "the run needs 61 s: a production sized run that should be shortened in the repository"
+    },
+    "PACKAGES/gle/in.h2o-smart": {
+      "status": "failed",
+      "time": 16.577,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 33,
+      "diverged_at": 3300
+    },
+    "python/in.pair_python_coulomb": {
+      "status": "passed",
+      "time": 4.752,
+      "message": ""
+    },
+    "SPIN/cobalt_fcc/in.spin.cobalt_fcc": {
+      "status": "passed",
+      "time": 2.482,
+      "message": ""
+    },
+    "balance/in.balance.group.dynamic": {
+      "status": "runtest",
+      "time": 1.295,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.group.static.smoke.1, ... in this folder match no input script at all:  ..."
+    },
+    "PACKAGES/reaction/tiny_nylon/in.tiny_nylon.unstabilized": {
+      "status": "passed",
+      "time": 0.68,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.fcc_relax": {
+      "status": "passed",
+      "time": 0.493,
+      "message": ""
+    },
+    "PACKAGES/imd/in.deca-ala-solv-filter_imd": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "nb3b/in.nb3b.screened": {
+      "status": "passed",
+      "time": 54.525,
+      "message": ""
+    },
+    "atm/in.atm": {
+      "status": "passed",
+      "time": 17.521,
+      "message": ""
+    },
+    "snap/in.snap.W.2940": {
+      "status": "passed",
+      "time": 5.34,
+      "message": ""
+    },
+    "PACKAGES/e3b/in.e3b-tip4p2005": {
+      "status": "passed",
+      "time": 3.394,
+      "message": ""
+    },
+    "PACKAGES/dpd-smooth/2d-diffusion-in-shear-flow/in.lammps": {
+      "status": "runtest",
+      "time": 1.788,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.28Mar23.2d-diffusion-in-shear-flow.g++.1, log.28Mar23.2d-diffusion-in-shear-flow.g++.4 in this folder match no input script at all: check the names"
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc": {
+      "status": "passed",
+      "time": 0.603,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.single_atom": {
+      "status": "passed",
+      "time": 0.597,
+      "message": ""
+    },
+    "PACKAGES/drude/ethanol/in.ethanol.lang": {
+      "status": "failed",
+      "time": 53.553,
+      "message": "completed, 5 abs diff and 5 rel diff checks failed",
+      "diverged": 5,
+      "diverged_row": 3,
+      "diverged_at": 60
+    },
+    "peri/in.peri.pmb": {
+      "status": "passed",
+      "time": 17.704,
+      "message": ""
+    },
+    "reaxff/CHO/in.CHO": {
+      "status": "passed",
+      "time": 6.472,
+      "message": ""
+    },
+    "reaxff/VOH/in.VOH": {
+      "status": "passed",
+      "time": 3.899,
+      "message": ""
+    },
+    "grid/in.grid.3d": {
+      "status": "passed",
+      "time": 1.858,
+      "message": ""
+    },
+    "wall/in.wall.specular": {
+      "status": "passed",
+      "time": 0.957,
+      "message": ""
+    },
+    "amoeba/in.water_dimer.amoeba": {
+      "status": "passed",
+      "time": 0.657,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA2/potential_file/in.duplex1": {
+      "status": "passed",
+      "time": 0.611,
+      "message": ""
+    },
+    "template/in.mol-restart-mix": {
+      "status": "passed",
+      "time": 55.139,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.energy_conservation.meam.sw": {
+      "status": "passed",
+      "time": 15.908,
+      "message": ""
+    },
+    "PACKAGES/manybody_table/in.spce2": {
+      "status": "failed",
+      "time": 6.155,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "PACKAGES/yaff/mof5/in.mof5": {
+      "status": "runtest",
+      "time": 3.891,
+      "message": "completed, error parsing log.mof5.1 into YAML"
+    },
+    "ASPHERE/superellipsoid_gran/in.super_table": {
+      "status": "runtest",
+      "time": 1.227,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "reaxff/in.reaxff.rdx": {
+      "status": "passed",
+      "time": 0.817,
+      "message": ""
+    },
+    "PACKAGES/eff/H2/in.h2": {
+      "status": "runtest",
+      "time": 0.654,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/qtb/alpha_quartz_qbmsst/in.alpha_quartz_qbmsst": {
+      "status": "failed",
+      "time": 56.308,
+      "message": "completed, 3 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 0,
+      "diverged_at": 0
+    },
+    "bpm/impact/in.bpm.impact.spring": {
+      "status": "passed",
+      "time": 17.473,
+      "message": ""
+    },
+    "ASPHERE/dimer/in.dimer": {
+      "status": "passed",
+      "time": 8.729,
+      "message": ""
+    },
+    "friction/in.friction": {
+      "status": "passed",
+      "time": 3.036,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.langevin": {
+      "status": "passed",
+      "time": 0.804,
+      "message": ""
+    },
+    "rigid/in.rigid.small.infile": {
+      "status": "passed",
+      "time": 0.597,
+      "message": ""
+    },
+    "PACKAGES/edip/in.edip-SiC": {
+      "status": "passed",
+      "time": 0.504,
+      "message": ""
+    },
+    "PACKAGES/latboltz/microrheology/in.microrheology": {
+      "status": "runtest",
+      "time": 52.175,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "mc/in.gcmc.lj": {
+      "status": "passed",
+      "time": 17.599,
+      "message": ""
+    },
+    "PACKAGES/cgspica/sds-monolayer/in.sds-hybrid": {
+      "status": "passed",
+      "time": 9.246,
+      "message": ""
+    },
+    "PACKAGES/uef/nvt_uniaxial/in.nvt_uniaxial": {
+      "status": "passed",
+      "time": 5.012,
+      "message": ""
+    },
+    "rigid/in.rigid.cubes.npt": {
+      "status": "passed",
+      "time": 1.098,
+      "message": ""
+    },
+    "PACKAGES/mgpt/in.bcc0": {
+      "status": "passed",
+      "time": 0.566,
+      "message": ""
+    },
+    "PACKAGES/phonon/1-1D-mono/in.Ana": {
+      "status": "runtest",
+      "time": 0.525,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "ASPHERE/tri/in.tri.srd": {
+      "status": "passed",
+      "time": 135.542,
+      "message": "",
+      "attention": "the run needs 136 s: a production sized run that should be shortened in the repository"
+    },
+    "python/in.pair_python_harmonic": {
+      "status": "passed",
+      "time": 52.455,
+      "message": ""
+    },
+    "PACKAGES/eff/Be-solid/in.Be-solid.spe": {
+      "status": "runtest",
+      "time": 18.785,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "ASPHERE/dimer/in.dimer.mp": {
+      "status": "passed",
+      "time": 9.549,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4hyd/fdti10/in.fdti10.lmp": {
+      "status": "runtest",
+      "time": 3.37,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/fep/CH4-CF4/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 1.385,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "fire/in.fire_mod": {
+      "status": "passed",
+      "time": 0.727,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ew2d": {
+      "status": "passed",
+      "time": 0.48,
+      "message": ""
+    },
+    "PACKAGES/cgdna/examples/lj_units/oxDNA3/duplex2/in.duplex2": {
+      "status": "passed",
+      "time": 0.667,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/SiC/bulk/in.SiC": {
+      "status": "runtest",
+      "time": 43.779,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "PACKAGES/electron_stopping/in.cascade_SiSi": {
+      "status": "passed",
+      "time": 20.862,
+      "message": ""
+    },
+    "template/in.hybrid": {
+      "status": "failed",
+      "time": 9.758,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 4,
+      "diverged_at": 400
+    },
+    "mliap/in.mliap.so3.nn.Si": {
+      "status": "passed",
+      "time": 6.611,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Si/in.dc_relax": {
+      "status": "passed",
+      "time": 1.936,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.global": {
+      "status": "passed",
+      "time": 0.938,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-eta": {
+      "status": "passed",
+      "time": 0.549,
+      "message": ""
+    },
+    "python/in.python.wrap": {
+      "status": "passed",
+      "time": 0.517,
+      "message": ""
+    },
+    "PACKAGES/machdyn/funnel_flow/in.funnel_flow": {
+      "status": "passed",
+      "time": 43.091,
+      "message": "",
+      "diverged": 1,
+      "diverged_row": 9,
+      "diverged_at": 800
+    },
+    "peri/in.peri-pmb": {
+      "status": "passed",
+      "time": 18.111,
+      "message": ""
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_create_data": {
+      "status": "passed",
+      "time": 4.654,
+      "message": ""
+    },
+    "PACKAGES/bocs/4_sites_LD_SG/in.ldd_molecule": {
+      "status": "passed",
+      "time": 4.852,
+      "message": ""
+    },
+    "PACKAGES/uef/npt_biaxial/in.npt_biaxial": {
+      "status": "passed",
+      "time": 5.346,
+      "message": ""
+    },
+    "ellipse/in.ellipse.gayberne": {
+      "status": "failed",
+      "time": 2.403,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 25,
+      "diverged_at": 2400
+    },
+    "comb/in.comb.Si.elastic": {
+      "status": "passed",
+      "time": 1.385,
+      "message": ""
+    },
+    "PACKAGES/vtk/in.vtk": {
+      "status": "runtest",
+      "time": 0.935,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "triclinic/in.sq2.orthog": {
+      "status": "passed",
+      "time": 0.636,
+      "message": ""
+    },
+    "PACKAGES/eff/Li-dendritic/in.Li-dendritic.min": {
+      "status": "runtest",
+      "time": 45.277,
+      "message": "completed, numerical checks skipped due to missing the reference log file"
+    },
+    "rigid/in.rigid.tnr": {
+      "status": "failed",
+      "time": 19.17,
+      "message": "completed, 18 abs diff and 22 rel diff checks failed",
+      "diverged": 23,
+      "diverged_row": 59,
+      "diverged_at": 5800
+    },
+    "PACKAGES/brownian/align_self/in.alignself_quat": {
+      "status": "passed",
+      "time": 11.53,
+      "message": ""
+    },
+    "deposit/in.deposit.molecule.shake": {
+      "status": "passed",
+      "time": 5.402,
+      "message": ""
+    },
+    "PACKAGES/dielectric/in.nopbc.dof": {
+      "status": "passed",
+      "time": 2.278,
+      "message": ""
+    },
+    "fire/in.abcfire_mod": {
+      "status": "passed",
+      "time": 1.291,
+      "message": ""
+    },
+    "multi/in.colloid": {
+      "status": "failed",
+      "time": 0.901,
+      "message": "failed, thermo checks skipped due to mismatched number of steps in the log files"
+    },
+    "balance/in.balance.bond.slow": {
+      "status": "runtest",
+      "time": 0.503,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash",
+      "attention": "no reference log file matches this input, while log.balance.clock.dynamic.smoke.1, log.balance.clock.static.smoke.1, log.balance.group.dynamic.smoke.1, ... in this folder match no input script at all: ..."
+    },
+    "grid/in.sph": {
+      "status": "passed",
+      "time": 43.711,
+      "message": ""
+    },
+    "mc/in.gcmc.co2": {
+      "status": "passed",
+      "time": 19.092,
+      "message": "",
+      "diverged": 3,
+      "diverged_row": 8,
+      "diverged_at": 8000
+    },
+    "SPIN/read_restart/in.spin.read_data": {
+      "status": "passed",
+      "time": 5.802,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.restart": {
+      "status": "passed",
+      "time": 1.521,
+      "message": ""
+    },
+    "SPIN/read_restart/in.spin.write_restart": {
+      "status": "passed",
+      "time": 2.381,
+      "message": ""
+    },
+    "mliap/in.mliap.snap.WBe.PRB2019": {
+      "status": "passed",
+      "time": 5.61,
+      "message": ""
+    },
+    "mc/in.gcmc.region": {
+      "status": "passed",
+      "time": 2.621,
+      "message": ""
+    },
+    "gransurf/in.tri.gran.global.stl": {
+      "status": "passed",
+      "time": 1.318,
+      "message": ""
+    },
+    "gransurf/in.line.gran.surf": {
+      "status": "passed",
+      "time": 0.861,
+      "message": ""
+    },
+    "SPIN/setforce_spin/in.spin.setforce": {
+      "status": "passed",
+      "time": 0.637,
+      "message": ""
+    },
+    "PACKAGES/cnp/in.cnp": {
+      "status": "passed",
+      "time": 44.308,
+      "message": ""
+    },
+    "amoeba/in.ubiquitin": {
+      "status": "passed",
+      "time": 21.842,
+      "message": ""
+    },
+    "reaxff/water/in.water.qtpie.field": {
+      "status": "passed",
+      "time": 12.89,
+      "message": ""
+    },
+    "python/in.pair_python_long": {
+      "status": "passed",
+      "time": 5.762,
+      "message": ""
+    },
+    "threebody/in.mos2.sw.mod": {
+      "status": "passed",
+      "time": 2.08,
+      "message": ""
+    },
+    "PACKAGES/flow_gauss/in.GD": {
+      "status": "passed",
+      "time": 1.641,
+      "message": ""
+    },
+    "micelle/in.micelle": {
+      "status": "failed",
+      "time": 0.635,
+      "message": "completed, 0 abs diff and 1 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 38,
+      "diverged_at": 850
+    },
+    "PACKAGES/mop/in.compute_stress_mop": {
+      "status": "passed",
+      "time": 0.473,
+      "message": ""
+    },
+    "PACKAGES/eff/ECP/SiH4/in.SiH4.ang": {
+      "status": "runtest",
+      "time": 0.448,
+      "message": "completed, error parsing log.SiH4.ang.1 into YAML"
+    },
+    "body/in.cubes": {
+      "status": "failed",
+      "time": 40.181,
+      "message": "completed, 2 abs diff and 2 rel diff checks failed",
+      "diverged": 2,
+      "diverged_row": 1,
+      "diverged_at": 1000
+    },
+    "charmmfsw/in.charmmfsw": {
+      "status": "passed",
+      "time": 20.503,
+      "message": ""
+    },
+    "ASPHERE/poly/in.poly.mp": {
+      "status": "passed",
+      "time": 11.624,
+      "message": ""
+    },
+    "bpm/peri/benchmark/in.bench.legacy.pmb": {
+      "status": "passed",
+      "time": 7.892,
+      "message": ""
+    },
+    "PACKAGES/meam_spline/in.meam-spline.Si": {
+      "status": "passed",
+      "time": 3.168,
+      "message": ""
+    },
+    "PACKAGES/dpd-basic/dpd_coul_slater_long/in.dpd_coul_slater_long": {
+      "status": "failed",
+      "time": 1.561,
+      "message": "completed, 4 abs diff and 4 rel diff checks failed",
+      "diverged": 4,
+      "diverged_row": 5,
+      "diverged_at": 500
+    },
+    "PACKAGES/eff/fixed-core/C2H6/in.C2H6fc.bohr": {
+      "status": "runtest",
+      "time": 0.536,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "rigid/in.rigid": {
+      "status": "passed",
+      "time": 0.601,
+      "message": ""
+    },
+    "meam/in.meam.shear": {
+      "status": "failed",
+      "time": 40.363,
+      "message": "completed, 3 abs diff and 3 rel diff checks failed",
+      "diverged": 3,
+      "diverged_row": 21,
+      "diverged_at": 1600
+    },
+    "ASPHERE/star/in.star": {
+      "status": "passed",
+      "time": 18.092,
+      "message": ""
+    },
+    "replicate/in.replicate.cnt": {
+      "status": "passed",
+      "time": 12.953,
+      "message": ""
+    },
+    "granular/in.pour.flatwall": {
+      "status": "passed",
+      "time": 8.916,
+      "message": ""
+    },
+    "PACKAGES/tally/in.force": {
+      "status": "passed",
+      "time": 3.335,
+      "message": ""
+    },
+    "fire/in.abcfire": {
+      "status": "passed",
+      "time": 0.882,
+      "message": ""
+    },
+    "replicate/in.replicate.bond.x": {
+      "status": "passed",
+      "time": 0.741,
+      "message": ""
+    },
+    "PACKAGES/meam_sw_spline/Ti/in.hexagonal": {
+      "status": "passed",
+      "time": 0.521,
+      "message": ""
+    },
+    "bpm/peri/in.bpm.peri.ves": {
+      "status": "passed",
+      "time": 36.986,
+      "message": ""
+    },
+    "mc/in.hmc.flexible.melt": {
+      "status": "passed",
+      "time": 19.278,
+      "message": ""
+    },
+    "PACKAGES/latboltz/planewall/in.planewall": {
+      "status": "runtest",
+      "time": 11.77,
+      "message": "completed, but no Step nor Loop in the output"
+    },
+    "reaxff/water/in.water.qeq.field": {
+      "status": "passed",
+      "time": 7.819,
+      "message": ""
+    },
+    "SPIN/nickel/in.spin.nickel_cubic": {
+      "status": "passed",
+      "time": 3.198,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4-CF4/bar10/in.bar10.lmp": {
+      "status": "runtest",
+      "time": 1.83,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/mofff/in.hkust1_long": {
+      "status": "passed",
+      "time": 0.606,
+      "message": ""
+    },
+    "PACKAGES/pod/Ta/in.pod.compute": {
+      "status": "passed",
+      "time": 0.67,
+      "message": ""
+    },
+    "PACKAGES/phonon/4-Graphene/in.disp": {
+      "status": "skipped",
+      "time": 0.0,
+      "message": "skipped as specified in the test configuration"
+    },
+    "PACKAGES/dpd-basic/dpdext_tstat/in.dpdext_tstat": {
+      "status": "passed",
+      "time": 38.024,
+      "message": ""
+    },
+    "ASPHERE/star/in.star.mp": {
+      "status": "passed",
+      "time": 17.494,
+      "message": ""
+    },
+    "PACKAGES/pace/in.pace.recursive": {
+      "status": "passed",
+      "time": 12.483,
+      "message": ""
+    },
+    "snap/in.snap.scale.Ni_Zuo_JCPA2020": {
+      "status": "passed",
+      "time": 6.49,
+      "message": ""
+    },
+    "PACKAGES/fep/CH4hyd/fep10/in.fep10.lmp": {
+      "status": "runtest",
+      "time": 3.159,
+      "message": "completed, no reference log file, only checked that a run shortened to 100 steps does not crash"
+    },
+    "PACKAGES/electrode/planar/in.planar-pppm-ffield": {
+      "status": "passed",
+      "time": 2.427,
+      "message": ""
+    },
+    "PACKAGES/ees/in.fix_wall_region": {
+      "status": "passed",
+      "time": 0.961,
+      "message": ""
+    },
+    "PACKAGES/electrode/madelung/in.madelung-ewald-ffield": {
+      "status": "passed",
+      "time": 0.637,
+      "message": ""
+    },
+    "triclinic/in.hex.primitive": {
+      "status": "passed",
+      "time": 0.621,
+      "message": ""
+    }
+  }
+}
