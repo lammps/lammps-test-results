@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
-Fetch the JUnit XML of the unit test run published on download.lammps.org and
-archive it under data/unit-tests/<config>/<runid>/run.json.
+Fetch the JUnit XML of the unit test runs published on download.lammps.org and
+archive them under data/unit-tests/<config>/<runid>/run.json.
 
 This is the unit test suite as it is run on the dedicated machine that also
 produces the code coverage report, in one build and one pass: a native GCC
@@ -37,12 +37,21 @@ skipped, results that repeat an archived commit replace the run archived for
 it, and results that repeat its every verdict as well are not archived at all.
 This script can therefore run from a schedule as often as necessary.
 
+A second machine, with NVIDIA V100 GPUs, runs the unit tests of the GPU
+builds (SOURCES): the GPU package and KOKKOS through CUDA, and the GPU package
+through OpenCL with KOKKOS on its OpenMP backend, each in single, mixed, and
+double precision. It publishes one JUnit file per build and nothing else, so
+those runs are archived from what their test output says alone, as described
+above for a summary that cannot be fetched.
+
 A source that is unreachable or does not deliver a usable JUnit document is
 skipped with a warning, leaving the already archived runs untouched.
 
 Usage: python3 tools/fetch_unittest.py [--datadir data] [--dry-run]
-                                       [--config linux-x86_64-gcc]
-                                       [--url URL] [--summary-url URL]
+                                       [--config CONFIG --url URL
+                                        [--summary-url URL]]
+
+Without --url, every run of SOURCES is fetched.
 '''
 
 from argparse import ArgumentParser
@@ -65,6 +74,12 @@ SUMMARY_URL = 'https://download.lammps.org/coverage/summary.json'
 # which no configuration ingested from GitHub Actions covers: those are the
 # BIGBIG, single precision FFT, ARM64, macOS, Windows, and KOKKOS builds
 CONFIG = 'linux-x86_64-gcc'
+GPU_URL = 'https://download.lammps.org/gpu-results/{}-junit.xml'
+# every published run as (config, JUnit URL, summary URL). the GPU machine
+# publishes no summary, so its runs have None for one
+SOURCES = [(CONFIG, URL, SUMMARY_URL)] + [
+    (f'{api}-{precision}', GPU_URL.format(f'{api}-{precision}'), None)
+    for api in ('cuda', 'opencl') for precision in ('single', 'mixed', 'double')]
 SUITE = 'unit-tests'
 # the banner every LAMMPS run prints, quoted in the captured test output
 GIT_INFO = re.compile(r'Git info \([^)]*\)')
@@ -157,7 +172,7 @@ def ingest(url, summary_url, datadir, config, dry_run=False):
     # read, and the source of the git describe string for as long as the
     # summary is published without a "version" field of its own
     branch, version, sha = rundata.parse_git_info(git_info_of(raw))
-    summary = fetch_summary(summary_url)
+    summary = fetch_summary(summary_url) if summary_url else {}
     # publishing wipes the webroot and fills it again, so the two files can be
     # read a moment apart and be of different runs. the abbreviated commit of
     # the banner is of the binary these very tests ran and settles it: a
@@ -245,15 +260,20 @@ def ingest(url, summary_url, datadir, config, dry_run=False):
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fetch the published unit test results")
     parser.add_argument("--datadir", default="data", help="Data directory")
-    parser.add_argument("--url", default=URL, help="URL of the JUnit XML file")
-    parser.add_argument("--summary-url", default=SUMMARY_URL,
+    parser.add_argument("--url", default=None,
+                        help="URL of the JUnit XML file (default: all SOURCES)")
+    parser.add_argument("--summary-url", default=None,
                         help="URL of the summary.json published with it")
     parser.add_argument("--config", default=CONFIG,
-                        help="Configuration the results are archived under")
+                        help="Configuration the results of --url are archived under")
     parser.add_argument("--dry-run", action='store_true', default=False,
                         help="Only report what would be ingested")
     args = parser.parse_args()
 
-    total = ingest(args.url, args.summary_url, args.datadir, args.config,
-                   args.dry_run)
-    print(f"ingested {total} new unit test run(s) from {args.url}")
+    sources = SOURCES
+    if args.url:
+        sources = [(args.config, args.url, args.summary_url)]
+    total = 0
+    for config, url, summary_url in sources:
+        total += ingest(url, summary_url, args.datadir, config, args.dry_run)
+    print(f"ingested {total} new unit test run(s)")

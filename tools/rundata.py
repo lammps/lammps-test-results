@@ -91,6 +91,17 @@ CONFIG_DETAILS = {
     'parallel': '4 MPI tasks',
     'openmp': '2 MPI tasks with 2 OpenMP threads via the OPENMP package',
     'kokkos': '2 MPI tasks with 2 OpenMP threads via the KOKKOS package',
+    # the unit tests of the GPU builds, run on a machine with NVIDIA V100 GPUs
+    # (tools/fetch_unittest.py); the name gives the API and the precision only
+    'cuda-single': 'GPU package and KOKKOS via CUDA on NVIDIA V100, single precision',
+    'cuda-mixed': 'GPU package and KOKKOS via CUDA on NVIDIA V100, mixed precision',
+    'cuda-double': 'GPU package and KOKKOS via CUDA on NVIDIA V100, double precision',
+    'opencl-single': 'GPU package via OpenCL on NVIDIA V100 and KOKKOS via OpenMP,'
+                     ' single precision',
+    'opencl-mixed': 'GPU package via OpenCL on NVIDIA V100 and KOKKOS via OpenMP,'
+                    ' mixed precision',
+    'opencl-double': 'GPU package via OpenCL on NVIDIA V100 and KOKKOS via OpenMP,'
+                     ' double precision',
 }
 # the order the configurations are worth reading in: by how much they add to
 # the one before, which is not the alphabetical order

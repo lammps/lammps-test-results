@@ -24,6 +24,11 @@ website and a rolling GitHub status issue.
   package selection than the GitHub Actions runners compile, so it covers
   several hundred tests more than any of the configurations ingested from
   there.
+- A second dedicated machine with NVIDIA V100 GPUs runs the unit tests of
+  the GPU builds - the GPU and KOKKOS packages through CUDA, and the GPU
+  package through OpenCL with KOKKOS/OpenMP, each in single, mixed, and
+  double precision - and publishes one JUnit XML file per build
+  (`tools/fetch_unittest.py` as well, see below).
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
   regression and unit test results (`tools/fetch_regression.py`,
@@ -378,6 +383,28 @@ all - which is why the summary is the only source for those two.
 The name of the `ctest` suite (e.g. `Linux-g++-15`) is kept as a property
 beside them: it names the compiler in short, and it is the only such record
 for a run archived before the summary reported one.
+
+### GPU unit test runs
+
+The same script archives the unit test runs of the GPU machine, one per
+build, from
+<https://download.lammps.org/gpu-results/cuda-single-junit.xml> and the
+corresponding `cuda-mixed`, `cuda-double`, `opencl-single`, `opencl-mixed`,
+and `opencl-double` files, under `unit-tests/<build>` with the name of the
+file as the name of the configuration (`fetch_unittest.SOURCES`). The `cuda`
+builds run the GPU and KOKKOS packages through CUDA, the `opencl` builds the
+GPU package through OpenCL and KOKKOS on its OpenMP backend; the precision is
+that of the GPU package (and of KOKKOS, for CUDA). The dashboard spells that
+out for each of them (`rundata.CONFIG_DETAILS`).
+
+That machine publishes no summary, so these runs are archived the way a run
+whose summary could not be fetched is: branch, commit, and version from the
+`Git info` banner of the test output, and the `Last-Modified` header of the
+JUnit file for a stamp. They are run when `develop` has changed, like the
+`linux-x86_64-gcc` run, and deduplicated by the same rules. The files are
+uploaded one at a time as the builds finish, so the six runs of one commit
+can carry somewhat different stamps, and a poll in between can find some of
+them still at the commit before.
 
 ## Documentation build status
 
