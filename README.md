@@ -27,8 +27,8 @@ website and a rolling GitHub status issue.
 - A second dedicated machine with NVIDIA V100 GPUs runs the unit tests of
   the GPU builds - the GPU and KOKKOS packages through CUDA, and the GPU
   package through OpenCL with KOKKOS/OpenMP, each in single, mixed, and
-  double precision - and publishes one JUnit XML file per build
-  (`tools/fetch_unittest.py` as well, see below).
+  double precision - and publishes one JUnit XML file and one JSON summary
+  per build (`tools/fetch_unittest.py` as well, see below).
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
   regression and unit test results (`tools/fetch_regression.py`,
@@ -397,14 +397,18 @@ GPU package through OpenCL and KOKKOS on its OpenMP backend; the precision is
 that of the GPU package (and of KOKKOS, for CUDA). The dashboard spells that
 out for each of them (`rundata.CONFIG_DETAILS`).
 
-That machine publishes no summary, so these runs are archived the way a run
-whose summary could not be fetched is: branch, commit, and version from the
-`Git info` banner of the test output, and the `Last-Modified` header of the
-JUnit file for a stamp. They are run when `develop` has changed, like the
-`linux-x86_64-gcc` run, and deduplicated by the same rules. The files are
-uploaded one at a time as the builds finish, so the six runs of one commit
-can carry somewhat different stamps, and a poll in between can find some of
-them still at the commit before.
+Next to each JUnit file that machine publishes a summary of the build with
+the same fields as the summary of the coverage report
+(<https://download.lammps.org/gpu-results/cuda-single-summary.json> and so
+on), so these runs are archived just like the `linux-x86_64-gcc` run: the
+commit in full, the branch, the version, and the UTC date from the summary,
+the compiler and operating system as properties of the run, and the same
+check of the summary against the `Git info` banner of the test output, with
+the same fallback to that banner where a summary cannot be fetched. They are
+run when `develop` has changed, like the `linux-x86_64-gcc` run, and
+deduplicated by the same rules. All six builds are uploaded together once the
+last one is tested, but each summary is dated when the tests of its own build
+finished, so the six runs of one commit carry somewhat different stamps.
 
 ## Documentation build status
 

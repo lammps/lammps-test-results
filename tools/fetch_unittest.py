@@ -40,9 +40,9 @@ This script can therefore run from a schedule as often as necessary.
 A second machine, with NVIDIA V100 GPUs, runs the unit tests of the GPU
 builds (SOURCES): the GPU package and KOKKOS through CUDA, and the GPU package
 through OpenCL with KOKKOS on its OpenMP backend, each in single, mixed, and
-double precision. It publishes one JUnit file per build and nothing else, so
-those runs are archived from what their test output says alone, as described
-above for a summary that cannot be fetched.
+double precision. It publishes one JUnit file per build and next to each a
+summary of its own, with the same fields as the summary.json of the coverage
+report, so those runs are archived the same way as the one above.
 
 A source that is unreachable or does not deliver a usable JUnit document is
 skipped with a warning, leaving the already archived runs untouched.
@@ -75,10 +75,12 @@ SUMMARY_URL = 'https://download.lammps.org/coverage/summary.json'
 # BIGBIG, single precision FFT, ARM64, macOS, Windows, and KOKKOS builds
 CONFIG = 'linux-x86_64-gcc'
 GPU_URL = 'https://download.lammps.org/gpu-results/{}-junit.xml'
-# every published run as (config, JUnit URL, summary URL). the GPU machine
-# publishes no summary, so its runs have None for one
+# the summary the GPU machine publishes next to the JUnit file of each build
+GPU_SUMMARY_URL = 'https://download.lammps.org/gpu-results/{}-summary.json'
+# every published run as (config, JUnit URL, summary URL)
 SOURCES = [(CONFIG, URL, SUMMARY_URL)] + [
-    (f'{api}-{precision}', GPU_URL.format(f'{api}-{precision}'), None)
+    (f'{api}-{precision}', GPU_URL.format(f'{api}-{precision}'),
+     GPU_SUMMARY_URL.format(f'{api}-{precision}'))
     for api in ('cuda', 'opencl') for precision in ('single', 'mixed', 'double')]
 SUITE = 'unit-tests'
 # the banner every LAMMPS run prints, quoted in the captured test output
@@ -108,7 +110,7 @@ def fetch_url(url):
     return raw, published
 
 def fetch_summary(url):
-    '''the commit, branch, and date the coverage report of this run publishes.
+    '''the commit, branch, and date the summary published with this run records.
 
        an empty dict where it cannot be read: the run is then archived from
        what its own test output says, which is less precise but keeps the
