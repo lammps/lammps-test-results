@@ -410,6 +410,15 @@ deduplicated by the same rules. All six builds are uploaded together once the
 last one is tested, but each summary is dated when the tests of its own build
 finished, so the six runs of one commit carry somewhat different stamps.
 
+Since the `opencl` builds test KOKKOS on its OpenMP backend, the
+`kokkos-openmp-<precision>` configurations of `unittest-kokkos.yml` in GitHub
+Actions were retired
+([lammps/lammps#5202](https://github.com/lammps/lammps/pull/5202)) and their
+archived runs removed; only the `kokkos-serial-<precision>` ones are still run
+there. The workflow runs from before that change stay in the listing window
+for days, so `ingest_actions.RETIRED_CONFIGS` names the configurations that
+are no longer taken in - without it, the next pass would bring them back.
+
 ## Documentation build status
 
 The three published variants of the manual - `develop`

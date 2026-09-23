@@ -72,6 +72,16 @@ UNITTEST_WORKFLOWS = (
     'unittest-kokkos.yml',    # Unittest for KOKKOS host backends
     'compile-msvc.yml',       # Windows Unit Tests
 )
+# junit-<config> artifacts that are no longer ingested, and whose archived
+# runs have been removed.  the KOKKOS OpenMP backend is tested by the OpenCL
+# builds of the GPU machine now (tools/fetch_unittest.py), so its three
+# precisions were dropped from unittest-kokkos.yml (lammps/lammps#5202).
+# the runs of the workflow from before that change stay in the window for
+# days, and ingestion is keyed on the data directory alone, so without this
+# list the next pass would bring the retired configurations right back
+RETIRED_CONFIGS = {
+    'kokkos-openmp-double', 'kokkos-openmp-mixed', 'kokkos-openmp-single',
+}
 # workflows that upload the JUnit XML of run_tests.py as it is, without the
 # merge_results.py pass that produces a run.json: workflow file -> (suite,
 # artifact name, title of the run).  the example input check runs every
@@ -335,6 +345,8 @@ def ingest_run(repo, run, datadir, report, dry_run=False):
         configs = [a for a in artifacts if a['name'].startswith('junit-')]
         for artifact in configs:
             config = artifact['name'][len('junit-'):]
+            if config in RETIRED_CONFIGS:
+                continue
             created += ingest_junit(repo, run, artifact, datadir,
                                     f'unit-tests/{config}', f'Unit Tests {config}',
                                     report, failures, dry_run)
