@@ -18,12 +18,13 @@ input check the JUnit XML of run_tests.py as it is (JUNIT_WORKFLOWS); the
 two latter are converted with tools/junit_to_json.py.
 
 Nothing that goes wrong during a pass aborts it.  What could not be taken
-in is written to data/external/ingest.json instead, which the site
-generator reads and marks on the dashboard: a poll that comes back short
-must still publish the runs it did get and say what is missing, because a
-failed job publishes nothing at all and hides the gap rather than showing
-it.  Runs that failed for a reason another pass may not hit are retried by
-run id on the following passes, independently of the run listing.
+in is written to data/external/ingest.json instead, and to the job log: a
+poll that comes back short must still publish the runs it did get, because
+a failed job publishes nothing at all.  Runs that failed for a reason
+another pass may not hit are retried by run id on the following passes,
+independently of the run listing.  The dashboard does not repeat any of
+this: the badges of the workflows show directly whether a GitHub Actions
+run failed, and a gap left by the ingestion closes on the next pass.
 
 Requires the "gh" CLI (authenticated; in GitHub Actions the default
 GITHUB_TOKEN is sufficient since lammps/lammps is public).
@@ -40,6 +41,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -95,7 +97,7 @@ JUNIT_WORKFLOWS = {
 INGEST_EVENTS = ('push', 'workflow_dispatch', 'schedule')
 
 # the report of a pass, below the data directory, that the site generator
-# reads back to mark an incomplete dashboard (generator/build_site.py)
+# carries in api/summary.json (generator/build_site.py)
 STATUS_FILE = os.path.join('external', 'ingest.json')
 # how often a run that did not ingest is retried on later passes before it
 # is given up on and reported as a problem instead
@@ -107,6 +109,14 @@ MAX_ATTEMPTS = 5
 # it costs one artifact query per run and is worth doing only on suspicion
 RECHECK_FACTOR = 2
 RECHECK_MAX = 600
+# the runs API now and then answers a single request with a stale copy of
+# the listing - on 2026-09-24, one that began a week back, and one that held
+# nothing newer than July - while the requests right before and after it
+# are current.  a listing that does not hold up is therefore fetched up to
+# LISTING_ATTEMPTS times, LISTING_PAUSE seconds apart, before the pass
+# settles for it and leaves it to the wider window of the next one
+LISTING_ATTEMPTS = 3
+LISTING_PAUSE = 30
 # how many upstream runs that carried nothing to ingest are reported per
 # suite: they are worth seeing, but a workflow that has just been corrected
 # leaves a tail of them behind and the list should not fill up with it
@@ -151,10 +161,24 @@ def save_status(datadir, status):
         json.dump(status, f, indent=2)
         f.write('\n')
 
+def published(rundir):
+    '''whether an archived run was collected from download.lammps.org
+       (tools/fetch_regression.py, tools/fetch_unittest.py) rather than from
+       GitHub Actions: those runs record where they were fetched from'''
+    try:
+        with open(os.path.join(rundir, 'run.json')) as f:
+            return 'source_url' in json.load(f).get('metadata', {})
+    except (OSError, ValueError):
+        return False
+
 def newest_ingested(datadir, suite):
-    '''the newest run id a suite already holds, across both data layouts -
-       runs directly below the suite directory, or one directory per
-       configuration - or the empty string for a suite with nothing in it'''
+    '''the newest run id a suite already holds from GitHub Actions, across
+       both data layouts - runs directly below the suite directory, or one
+       directory per configuration - or the empty string for a suite with
+       nothing in it.  the configurations the test machines publish share
+       the unit-tests directory but not the run listing, and are left out:
+       a GPU run that finished after the last push to develop would
+       otherwise make every listing look behind'''
     suitedir = os.path.join(datadir, suite)
     if not os.path.isdir(suitedir):
         return ''
@@ -164,10 +188,51 @@ def newest_ingested(datadir, suite):
         if os.path.isfile(os.path.join(path, 'run.json')):
             newest = max(newest, entry)
         elif os.path.isdir(path):
-            for sub in os.listdir(path):
-                if os.path.isfile(os.path.join(path, sub, 'run.json')):
-                    newest = max(newest, sub)
+            runs = sorted(sub for sub in os.listdir(path)
+                          if os.path.isfile(os.path.join(path, sub, 'run.json')))
+            if runs and not published(os.path.join(path, runs[-1])):
+                newest = max(newest, runs[-1])
     return newest
+
+def fetch_listing(repo, max_runs):
+    '''the newest max_runs completed runs on develop, newest first, and
+       what went wrong fetching them as (kind, detail) pairs: a page that
+       cannot be read ends the listing where it is'''
+    # the runs API accepts only a single "event" value per query, so fetch
+    # all completed runs on develop (paginated) and filter by event later
+    runs = []
+    page = 1
+    while len(runs) < max_runs:
+        try:
+            batch = json.loads(gh_api(
+                f"repos/{repo}/actions/runs?branch=develop&status=completed"
+                f"&per_page=100&page={page}"))['workflow_runs']
+        except (RuntimeError, ValueError) as err:
+            return runs[:max_runs], [('run listing failed', f'page {page}: {err}')]
+        if not batch:
+            break
+        runs += batch
+        page += 1
+    return runs[:max_runs], []
+
+def listing_flaws(runs, wanted, newest_held):
+    '''what is wrong with a run listing, as (kind, detail) pairs: that it
+       is not newest-first, or that no run of the workflows read here
+       (wanted) started as late as the newest one archived from them
+       (newest_held) - a listing that holds everything up to now has that
+       run in it'''
+    flaws = []
+    disorder = listing_order(runs)
+    if disorder:
+        flaws.append(('run listing out of order', disorder))
+    newest_seen = max((run_id_string(run) for run in runs
+                       if workflow_file(run) in wanted), default='')
+    if newest_seen and newest_held and newest_seen < newest_held:
+        flaws.append(('run listing behind the archive',
+                      f'the latest start of a run in the window ({newest_seen})'
+                      f' is earlier than that of a run already archived'
+                      f' ({newest_held})'))
+    return flaws
 
 def listing_order(runs):
     '''where a run listing stops being newest-first, as a sentence, or the
@@ -176,10 +241,10 @@ def listing_order(runs):
        comes back out of order need not reach the newest runs at all: the
        pass then finds nothing new and, unchecked, reports a quiet success
        while the results it was meant to pick up scroll out of the window'''
-    for newer, older in zip(runs, runs[1:]):
-        if older['created_at'] > newer['created_at']:
-            return (f"not newest-first: {older['created_at']} follows"
-                    f" {newer['created_at']}")
+    for first, second in zip(runs, runs[1:]):
+        if second['created_at'] > first['created_at']:
+            return (f"not newest-first: a run created {second['created_at']}"
+                    f" is listed after one created {first['created_at']}")
     return ''
 
 class Report:
@@ -187,7 +252,7 @@ class Report:
        "problems" is what is wrong now and wants an eye on it; "pending" is
        what another pass may well manage and is retried by run id until it
        works or the tries run out.  both end up in data/external/ingest.json
-       and on the dashboard'''
+       and in the job log'''
 
     def __init__(self, previous):
         self.problems = []
@@ -458,41 +523,27 @@ if __name__ == "__main__":
               f" try {entry['attempts'] + 1} of {MAX_ATTEMPTS}")
         total += ingest_run(args.repo, queued, args.datadir, report, args.dry_run)
 
-    # the runs API accepts only a single "event" value per query, so fetch
-    # all completed runs on develop (paginated) and filter by event below
-    runs = []
-    page = 1
-    while len(runs) < max_runs:
-        try:
-            batch = json.loads(gh_api(
-                f"repos/{args.repo}/actions/runs?branch=develop&status=completed"
-                f"&per_page=100&page={page}"))['workflow_runs']
-        except (RuntimeError, ValueError) as err:
-            report.problem('run listing failed', f'page {page}: {err}')
-            report.recheck = True
-            break
-        if not batch:
-            break
-        runs += batch
-        page += 1
-    runs = runs[:max_runs]
-
     # what the listing is worth.  it is not verified in order to refuse it -
     # whatever it does hold is still ingested below - but a window that does
     # not reach the newest runs would otherwise pass for an idle poll, and
-    # the runs it skipped would scroll out before anyone noticed
-    disorder = listing_order(runs)
-    if disorder:
-        report.problem('run listing out of order', disorder)
-        report.recheck = True
-    newest_seen = max((run_id_string(run) for run in runs
-                       if workflow_file(run) in wanted), default='')
+    # the runs it skipped would scroll out before anyone noticed.  the runs
+    # API serves such a listing now and then, to a single request rather
+    # than for a while, so a listing that does not hold up is fetched again
+    # before the pass settles for it
     newest_held = max((newest_ingested(args.datadir, suite) for suite in suites),
                       default='')
-    if newest_seen and newest_held and newest_seen < newest_held:
-        report.problem('run listing behind the archive',
-                       f'the newest run in the window ({newest_seen}) is older than'
-                       f' the newest run already ingested ({newest_held})')
+    for attempt in range(1, LISTING_ATTEMPTS + 1):
+        runs, flaws = fetch_listing(args.repo, max_runs)
+        flaws += listing_flaws(runs, wanted, newest_held)
+        if not flaws:
+            break
+        print(f"run listing {attempt} of {LISTING_ATTEMPTS} did not hold up: "
+              + '; '.join(f'{kind}: {detail}' for kind, detail in flaws),
+              file=sys.stderr)
+        if attempt < LISTING_ATTEMPTS:
+            time.sleep(LISTING_PAUSE)
+    for kind, detail in flaws:
+        report.problem(kind, detail)
         report.recheck = True
     report.window = {'requested': max_runs, 'examined': len(runs),
                      'newest': runs[0]['created_at'] if runs else '',
@@ -507,7 +558,7 @@ if __name__ == "__main__":
     report.finish(args.datadir)
     print(f"ingested {total} new data set(s) from {args.repo}")
     if report.problems:
-        print(f"{len(report.problems)} problem(s) reported on the dashboard")
+        print(f"{len(report.problems)} problem(s) recorded in {STATUS_FILE}")
     if report.pending:
         print(f"{len(report.pending)} run(s) queued for the next pass")
     if not args.dry_run:

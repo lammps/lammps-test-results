@@ -32,10 +32,15 @@ website and a rolling GitHub status issue.
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
   regression and unit test results (`tools/fetch_regression.py`,
-  `tools/fetch_unittest.py`), archives one `run.json`
+  `tools/fetch_unittest.py`), records when the branches those were run on
+  last moved (`tools/fetch_pushes.py`), archives one `run.json`
   per run under `data/<suite>/<runid>/`, rebuilds the website
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
-  rolling status issue (`tools/update_issue.py`). It runs twice a day.
+  rolling status issue (`tools/update_issue.py`). It runs once a day, at
+  10:45 UTC: after the nightly runs of the test machines, and before people
+  in the US get to work. Only the latest result of those machines is
+  published, so one that is replaced before the next poll is not archived;
+  that is intended, since test failures are fixed on the latest state.
 - Summaries of the server-side reports (code coverage, static analysis) can
   be ingested as `data/external/*.json`; the state of the Coverity Scan is
   collected from two sources, the analysis metrics of the project overview
@@ -70,6 +75,7 @@ scripts that talk to GitHub):
     python3 generator/build_site.py             # data/ -> _site/
     python3 tools/ingest_actions.py --dry-run   # what would be ingested
     python3 tools/fetch_regression.py --dry-run # latest regression results
+    python3 tools/fetch_pushes.py               # pushes to the tested branches
     python3 tools/fetch_docs.py                 # manual build status
     python3 tools/fetch_team.py                 # core developer activity
     python3 tools/update_issue.py --repo <owner/repo> --site-url <url> --dry-run
@@ -249,11 +255,10 @@ back - which is exactly what the archived parallel runs did on 2026-07-27.
 ## Incomplete ingestion
 
 An ingest pass never fails the job it runs in. What it could not take in is
-written to `data/external/ingest.json` instead, and the dashboard leads with
-a warning that says so. A failed job would publish nothing at all and leave
-the previous page standing, which hides a gap in the data behind results
-that look current; the point of the report is that a short pass still
-publishes what it did get and says what is missing.
+written to `data/external/ingest.json` and to the job log instead. A failed
+job would publish nothing at all and leave the previous page standing; the
+point of the report is that a short pass still publishes what it did get and
+records what is missing.
 
 Three things are reported. Runs that did not come in for a reason another
 pass may not hit - an artifact that did not download, a zip without the file
@@ -274,20 +279,69 @@ listing that comes back out of order - as one did on 2026-08-28, during the
 GitHub Actions outage of that week - need not reach the newest runs at all,
 and the pass then finds nothing new and looks exactly like an idle poll,
 while the results it was meant to pick up quietly scroll out of reach. Each
-pass therefore checks that the listing is newest-first and that its newest
-run is not older than the newest run already archived. Neither check stops
-the pass: they set `recheck`, which makes the next pass examine a window
-`RECHECK_FACTOR` times wider, so that whatever the bad listing skipped is
-picked up on the next round.
+pass therefore checks that the listing is newest-first and that the latest
+start of a run in it is not earlier than that of a run already archived from
+GitHub Actions (the runs of the test machines, which share the `unit-tests`
+directory, are left out of that comparison).
 
-`generator/build_site.py` reads the report back (`ingest_state`). The
-dashboard carries a banner naming what was missed and what is queued, the
-suites named in it carry a warning sign, and `api/summary.json` carries the
-whole report, so that whoever gates a nightly run on the snapshot can tell a
-suite that reported nothing from one whose result never arrived. A report
-that has not been rewritten in `INGEST_STALE_HOURS` is itself a warning: the
-collectors are polled twice a day, and an ingester that stopped leaves the
-same data behind as one that found nothing.
+The runs API also serves a stale copy of the listing now and then, to a
+single request: on 2026-09-24, one request got a listing that began a week
+back and another one that held nothing newer than July, while the requests
+right before and after them were current. A listing that fails either check
+is therefore fetched again, up to `LISTING_ATTEMPTS` times and
+`LISTING_PAUSE` seconds apart. Where none holds up, the pass does not stop:
+it ingests what the last listing holds and sets `recheck`, which makes the
+next pass examine a window `RECHECK_FACTOR` times wider, so that whatever
+the bad listing skipped is picked up on the next round.
+
+None of this is shown on the dashboard, which is public: the badges of the
+workflows show directly whether a GitHub Actions run failed, and a gap the
+ingestion leaves is closed by its next pass. `api/summary.json` carries the
+whole report, though, so that whoever gates a nightly run on the snapshot
+can tell a suite that reported nothing from one whose result never arrived.
+
+## Overdue results
+
+What the dashboard does warn about, in a banner it leads with, is data that
+is out of date in a way that needs somebody's attention: a test machine that
+has stopped publishing, and a collection that has stopped altogether.
+
+The test machines (the full regression runs, the `linux-x86_64-gcc` unit
+test run, and the GPU builds: the runs that record the `source_url` they
+were fetched from) run only when the branch they test has changed. The age
+of their newest result says nothing by itself: develop sat still from
+2026-09-15 to 2026-09-21, and the results of the 15th were as current as
+they could be all week. A result is therefore judged against the branch it
+tested: it is overdue when that branch moved on from the commit it tested
+and nothing newer has come in for `OVERDUE_HOURS` (24). Where the branch
+moved while the run was going, that day is counted from the end of the run:
+only one instance runs at a time, and a run of the GPU machine takes over six
+hours (its CPUs are slow, and the KOKKOS builds compile through nvcc), so a
+push made meanwhile has to wait for the next run. The day covers that run
+and the time it takes to be launched. The time between two polls of this
+site does not add to it, since the results are fetched right before the site
+is built; it only delays the warning.
+
+When the branch moved is taken from the repository activity API of GitHub,
+which records every push, merge, and force push to a branch with the commit
+it moved from and the one it moved to. `tools/fetch_pushes.py` collects the
+latest 100 of those for each branch the test machines last ran on into
+`data/external/pushes.json`, and `generator/build_site.py` makes the
+judgment (`overdue_state`) when the site is built. A branch that is not on
+GitHub - the machines are pointed at branches of their own while their setup
+is being worked on - has no pushes, and a result of it is not judged.
+Replayed over the polls of the month before the check was added, it would
+have fired for one incident only: from 2026-09-06 on, for the `kokkos`
+configuration of the full regression runs, which did not publish the commit
+the other three did on 2026-09-05 and caught up only on the 8th.
+
+An overdue suite carries a warning sign, and its commit and time turn red.
+`api/summary.json` lists the overdue suites with the reason under `overdue`.
+An ingest report that has not been rewritten in `INGEST_STALE_HOURS` (50)
+also gets the banner: the collectors are polled once a day, and a collection
+that stopped leaves the same data behind as one that found nothing. The
+scheduled job rewrites the report right before it builds the site, so this
+is only ever seen on a site rebuilt after a push to this repository.
 
 ## Example input check
 

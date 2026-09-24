@@ -222,12 +222,11 @@ def limits_note(limits):
         return ''
     return ' / '.join(f'{limit} s' for limit in limits) + ' limit'
 
-# how many runs a card shows: the test machine publishes at most once every
-# 24 h, so this is about a month of history, and 25 bars over the width of a
-# card come out as wide as the weekly commit bars of the activity card.  the
-# workflow polls twice a day, but a poll that finds the same results again
-# archives nothing (tools/fetch_regression.py), so a bar is a run and not a
-# poll
+# how many runs a card shows: the results of the test machines are collected
+# once a day, so this is about a month of history, and 25 bars over the width
+# of a card come out as wide as the weekly commit bars of the activity card.
+# a poll that finds the same results again archives nothing
+# (tools/fetch_regression.py), so a bar is a run and not a poll
 TREND_RUNS = 25
 
 # the segments of a bar, stacked from the bottom up.  the outcomes worth
@@ -343,8 +342,8 @@ def card_footer(branch, commit, when, stale=''):
        of them, so that the cards can be read against one another - the parts
        a report does not record are left out rather than replaced.  "stale"
        is the explanation of a result that a part of the same cron job has
-       overtaken (stale_chain_parts): the line turns red and carries the
-       explanation as its tooltip'''
+       overtaken (stale_chain_parts) or that is overdue (overdue_state): the
+       line turns red and carries the explanation as its tooltip'''
     ident = ' @ '.join(part for part in (str(branch), str(commit)[:10]) if part)
     parts = [esc(part) for part in (ident, when) if part]
     if not parts:
@@ -390,92 +389,132 @@ def stale_chain_parts(summary):
         seen.append(ident)
     return stale
 
-# how old the report of tools/ingest_actions.py may be before the dashboard
-# says so: the collectors are polled twice a day, so a report that has not
-# been rewritten in a day and a bit means the ingestion itself stopped, and
-# every run on the page may be older than it looks.  that failure is quiet
-# by nature - an ingest pass that finds nothing and one that never ran leave
-# the same data behind - which is exactly why it is worth stating
-INGEST_STALE_HOURS = 26
+# the dashboard warns about data that is out of date, and only where that
+# needs somebody's attention.  a GitHub Actions run does not: its badge says
+# directly whether it failed, and a run the ingestion missed is picked up by
+# its next pass (data/external/ingest.json keeps the record of each pass, and
+# api/summary.json carries it).  what does is a test machine that has stopped
+# publishing, and a collection that has stopped altogether.
+#
+# the test machines (the suites collected from download.lammps.org, whose
+# runs record a source_url) run only when the branch they test has changed,
+# so the age of a result says nothing by itself.  a result is overdue when
+# that branch moved on from the commit it tested and nothing newer has come
+# in for OVERDUE_HOURS - counted from the end of the run, where the branch
+# moved while it ran: one instance runs at a time, and a run of the GPU
+# machine takes over six hours (its CPUs are slow, and the KOKKOS builds
+# compile through nvcc), so a push made meanwhile has to wait for the next
+# one.  that is what the day of grace is for: the next run and the time it
+# takes to be launched.  the day between two polls of this site does not
+# add to it, since the results are fetched right before the site is built.
+# when the branch moved is taken from the pushes GitHub records for it
+# (tools/fetch_pushes.py); a branch that is not on GitHub has none, and a
+# result of it is not judged
+OVERDUE_HOURS = 24
+# the collectors are polled once a day, so a report of tools/ingest_actions.py
+# that has not been rewritten in two days means the collection itself
+# stopped, and every result on the page may be older than it looks.  a site
+# built by the scheduled job has just rewritten it, so this is only ever
+# seen on a site rebuilt after a push to this repository
+INGEST_STALE_HOURS = 50
 
-def ingest_state(external):
-    '''what the last ingest pass made of itself (data/external/ingest.json,
-       written by tools/ingest_actions.py), as a dict with
+def runid_time(runid):
+    '''the time a run id is stamped with, as an aware datetime, or None'''
+    stamp = runid.partition('_')[0]
+    for fmt in ('%Y-%m-%dT%H-%M-%SZ', '%Y-%m-%dT%H-%M-%S'):
+        try:
+            return datetime.datetime.strptime(stamp, fmt).replace(
+                tzinfo=datetime.timezone.utc)
+        except ValueError:
+            pass
+    return None
 
-         level    "passed", "pending" or "stale", the status chips of a run,
-                  so that a gap in the data reads the way a failed test does
-         note     the one line the dashboard leads with
-         entries  (status, text, url) of what was missed or is queued
-         suites   the suites to mark in the tables and cards below
+def same_commit_id(one, other):
+    '''whether two commit hashes name the same commit, either abbreviated'''
+    return bool(one and other) and (one.startswith(other) or other.startswith(one))
 
-       an ingest pass never fails the job it runs in: it publishes the runs
-       it did get and leaves what it missed here, because a failed job would
-       publish nothing at all and hide the gap instead of showing it'''
-    state = {'level': 'passed', 'note': '', 'entries': [], 'suites': set()}
+def moved_on(pushes, sha, since):
+    '''when a branch moved on from the commit a run of it tested, or None
+       where it has not as far as the pushes recorded for it (newest first)
+       go.  that is the last push that took the branch away from the commit,
+       which can predate the run where the branch moved while it ran, or
+       failing that the first push after the run, for a commit that never was
+       a branch head of its own (several commits pushed at once)'''
+    if not pushes or same_commit_id(pushes[0].get('after', ''), sha):
+        return None
+    moves = []
+    away = next((push for push in pushes
+                 if same_commit_id(push.get('before', ''), sha)), None)
+    if away:
+        moves.append(docsdata.parse_iso(away.get('timestamp')))
+    if since:
+        moves += [when for when in (docsdata.parse_iso(push.get('timestamp'))
+                                    for push in pushes) if when and when > since]
+    moves = [when for when in moves if when]
+    return min(moves) if moves else None
+
+def overdue_state(summary, now=None):
+    '''what the dashboard warns about, as a dict with
+
+         note     the one line the dashboard leads with, empty where all is well
+         entries  (text, url) of each overdue result
+         suites   the overdue suites and why, for the marks further down'''
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    external = summary.get('external', {})
+    branches = (external.get('pushes') or {}).get('branches', {})
+    state = {'note': '', 'entries': [], 'suites': {}}
+    for entry in summary['suites']:
+        if not entry.get('published'):
+            continue
+        branch, sha = entry.get('branch', ''), entry.get('sha', '')
+        finished = runid_time(entry['latest'])
+        moved = moved_on(branches.get(branch, []), sha, finished)
+        if moved is None:
+            continue
+        # a push made while the run was going could not be in it
+        waiting = max(moved, finished) if finished else moved
+        if (now - waiting).total_seconds() <= OVERDUE_HOURS * 3600:
+            continue
+        when = runid_parts(entry['latest'])[0]
+        text = (f"{entry['suite']}: the newest result is of {branch} @ {sha[:10]}"
+                f" from {when} UTC, and {branch} moved on"
+                f" {moved:%Y-%m-%d %H:%M} UTC")
+        state['suites'][entry['suite']] = text
+        state['entries'].append((text, run_link(entry['suite'], entry['latest'])))
+    notes = []
     report = external.get('ingest')
-    if not report:
-        return state
-    problems = report.get('problems', [])
-    pending = report.get('pending', [])
-    for entry in problems:
-        text = f"{entry.get('kind', 'problem')}: {entry.get('detail', '')}"
-        if entry.get('suite'):
-            text = f"{entry['suite']} {entry.get('runid', '')} - {text}"
-            state['suites'].add(entry['suite'])
-        state['entries'].append(('error', text, entry.get('run_url', '')))
-    for entry in pending:
-        state['entries'].append(
-            ('pending', f"{entry.get('workflow', 'run')} {entry.get('runid', '')}"
-                        f" - {'; '.join(entry.get('reasons', ()))}; queued for the"
-                        f" next pass, tried {entry.get('attempts', 1)} time(s)",
-             entry.get('run_url', '')))
-    age = docsdata.parse_iso(report.get('generated', ''))
-    now = datetime.datetime.now(datetime.timezone.utc)
-    if age is None or (now - age).total_seconds() > INGEST_STALE_HOURS * 3600:
-        state['level'] = 'stale'
-        state['note'] = ('the last ingest pass on record is from '
-                         + (report.get('generated') or 'an unknown time')
-                         + ': the results below may be older than they look')
-    elif problems:
-        state['level'] = 'stale'
-        state['note'] = (f'the last ingest pass could not take in everything it'
-                         f' found ({len(problems)} problem(s))')
-    elif pending:
-        state['level'] = 'pending'
-        state['note'] = (f'{len(pending)} workflow run(s) did not come in and are'
-                         f' queued for the next pass')
+    if report:
+        age = docsdata.parse_iso(report.get('generated', ''))
+        if age is None or (now - age).total_seconds() > INGEST_STALE_HOURS * 3600:
+            notes.append('the results were last collected on '
+                         + (utc_stamp(report.get('generated')) or 'an unknown date'))
+    if state['entries']:
+        notes.append(f"{len(state['entries'])} result(s) from the test machines"
+                     f" are more than {OVERDUE_HOURS} h behind the branch they test")
+    state['note'] = '; '.join(notes)
     return state
 
-def ingest_banner(state):
-    '''the line the dashboard leads with when the data on it is known to be
-       short, and nothing at all when it is not: a clean pass is the normal
-       case and does not need saying'''
-    if state['level'] == 'passed':
+def overdue_banner(state):
+    '''the line the dashboard leads with when data on it is out of date, and
+       nothing at all when it is not'''
+    if not state['note']:
         return ''
-    kind = 'warning' if state['level'] == 'pending' else 'danger'
-    body = (f'<div class="alert alert-{kind} py-2 px-3 mt-2" role="alert">'
-            f'<div>{status_chip(state["level"])} <strong>Incomplete data:</strong> '
+    body = (f'<div class="alert alert-danger py-2 px-3 mt-2" role="alert">'
+            f'<div>{status_chip("stale")} <strong>Out-of-date data:</strong> '
             f'{esc(state["note"])}.</div>')
     if state['entries']:
         body += '<ul class="small mb-0 mt-2">'
-        for status, text, url in state['entries'][:12]:
-            item = esc(text)
-            if url:
-                item = f'<a href="{esc(url)}">{item}</a>'
-            body += f'<li>{status_chip(status)} {item}</li>'
-        if len(state['entries']) > 12:
-            body += f'<li>&hellip; and {len(state["entries"]) - 12} more</li>'
+        for text, url in state['entries']:
+            body += f'<li><a href="{esc(url)}">{esc(text)}</a></li>'
         body += '</ul>'
     return body + '</div>'
 
-def ingest_mark(state, suite):
-    '''the warning glyph a suite carries where the last pass could not take
-       in everything it found for it, as a tooltip on the sign itself'''
+def overdue_mark(state, suite):
+    '''the warning glyph an overdue suite carries, with the reason as the
+       tooltip of the sign itself'''
     if suite not in state['suites']:
         return ''
-    reasons = '; '.join(text for _, text, _ in state['entries']
-                        if text.startswith(suite))
-    return (f' <span class="status st-stale" title="{esc(reasons)}">'
+    return (f' <span class="status st-stale" title="{esc(state["suites"][suite])}">'
             f'<span class="ico">{ICONS["stale"]}</span></span>')
 
 # live GitHub Actions status badges, mirroring data/ci.yaml on the LAMMPS
@@ -1513,10 +1552,10 @@ def build_trends_page(outdir, summary):
 
 def build_index(datadir, outdir, summary):
     stale = stale_chain_parts(summary)
-    ingest = ingest_state(summary.get('external', {}))
-    # what the page does not have is said before what it has: a reader who
-    # takes a verdict off this dashboard needs to know it is short first
-    body = ingest_banner(ingest)
+    overdue = overdue_state(summary)
+    # what is out of date is said before anything else: a reader who takes a
+    # verdict off this dashboard needs to know that it is old first
+    body = overdue_banner(overdue)
     body += '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
     body += ci_badges_html()
 
@@ -1524,8 +1563,7 @@ def build_index(datadir, outdir, summary):
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
     if matrix:
         body += '<hr class="my-4">'
-        body += ('<h2 class="h5">Unit tests (per platform / configuration)'
-                 + ingest_mark(ingest, 'unit-tests') + '</h2>')
+        body += '<h2 class="h5">Unit tests (per platform / configuration)</h2>'
         body += ('<div class="table-responsive"><table class="table table-striped '
                  'table-hover align-middle">'
                  '<thead><tr><th>Configuration</th><th>Status</th>'
@@ -1548,12 +1586,16 @@ def build_index(datadir, outdir, summary):
                 all_ok = '&mdash;'
             # this run is a part of the analysis/coverage cron job: where it
             # fell behind the static analysis, its commit and timestamp turn
-            # red (stale_chain_parts)
-            behind = (f' class="stale" title="{esc(STALE_NOTE)}"'
-                      if entry['suite'] == CHAIN_SUITE and 'unittest' in stale
-                      else '')
+            # red (stale_chain_parts), and so do those of an overdue result
+            if entry['suite'] in overdue['suites']:
+                behind = (f' class="stale"'
+                          f' title="{esc(overdue["suites"][entry["suite"]])}"')
+            elif entry['suite'] == CHAIN_SUITE and 'unittest' in stale:
+                behind = f' class="stale" title="{esc(STALE_NOTE)}"'
+            else:
+                behind = ''
             body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
-                     f'{esc(config)}</a>{ingest_mark(ingest, entry["suite"])}</td>'
+                     f'{esc(config)}</a>{overdue_mark(overdue, entry["suite"])}</td>'
                      f'<td>{status}</td>'
                      f'<td class="n">{counts["tests"]}</td>'
                      f'<td class="n">{counts["passed"]}</td>'
@@ -1576,14 +1618,15 @@ def build_index(datadir, outdir, summary):
             body += (f'<h3 class="h6 card-title">'
                      f'<a href="{run_link(entry["suite"], entry["latest"])}">'
                      f'{esc(suite_title(entry["suite"]))}</a>'
-                     f'{ingest_mark(ingest, entry["suite"])}</h3>')
+                     f'{overdue_mark(overdue, entry["suite"])}</h3>')
             body += tiles_html(counts)
             body += history_bars(entry['history'])
             if entry.get('diff'):
                 body += delta_html(entry['diff'])
             when, run_sha = runid_parts(entry['latest'])
             body += card_footer(entry.get('branch', ''),
-                                entry.get('sha', '') or run_sha, f'{when} UTC')
+                                entry.get('sha', '') or run_sha, f'{when} UTC',
+                                overdue['suites'].get(entry['suite'], ''))
             body += '</div></div></div>'
         if 'activity' in summary.get('external', {}):
             body += activity_card(summary['external']['activity'],
@@ -1690,6 +1733,9 @@ if __name__ == "__main__":
             'counts': rundata.counts(latest),
             'sha': latest['metadata'].get('sha', ''),
             'branch': latest['metadata'].get('branch', ''),
+            # collected from a test machine rather than from GitHub Actions,
+            # and judged for being overdue (overdue_state)
+            'published': 'source_url' in latest['metadata'],
             'label': rundata.config_label(suite, latest['metadata'].get('title', '')),
             'time_limits': rundata.time_limits(latest),
             'attention': sum(1 for entry in latest.get('tests', {}).values()
@@ -1745,6 +1791,7 @@ if __name__ == "__main__":
     # suite that reported nothing from one whose result never arrived
     if 'ingest' in summary['external']:
         api['ingest'] = summary['external']['ingest']
+    api['overdue'] = overdue_state(summary)['suites']
     for entry in api['suites']:
         if 'diff' in entry:
             entry['diff'] = {k: len(v) for k, v in entry['diff'].items()}

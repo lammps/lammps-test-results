@@ -4,24 +4,27 @@ name: "Update Test Status Site"
 
 on:
   schedule:
-    # twice a day: the full regression results are published as a single
-    # "latest" file per configuration on download.lammps.org, so a run that
-    # is not picked up before the next one replaces it is lost.  the test
-    # machine runs at most once every 24 h and only when the monitored
-    # branch has changed, which makes the time of day it publishes drift;
-    # polling every 12 h keeps the margin.  the unit test run published by
-    # the same machine (junit.xml, next to the coverage report) is picked up
-    # on the same schedule and for the same reason, and so are the unit test
-    # runs of the GPU builds that a second machine publishes the same way
-    # (gpu-results/*-junit.xml, each with a *-summary.json).  so are the
-    # coverage and static analysis summaries from the first machine, the
-    # state of the Coverity Scan (whose
-    # build is submitted twice a week, and analyzed whenever the Coverity
-    # servers get to it), the manual build status (rebuilt hourly at 23
-    # minutes past), the GitHub Actions unit test artifacts, and the monthly
-    # activity of the core developers (which only moves as the month fills up,
-    # but is swept whole each time rather than kept up to date incrementally)
-    - cron: '45 9,21 * * *'
+    # once a day, at 10:45 UTC (06:45 EDT, 04:45 MDT; an hour earlier on
+    # the clock in winter): after the nightly runs of the test machines,
+    # which mostly finish between 07:00 and 10:00 UTC, and before people in
+    # the US get to work.  the full regression results, the unit test run
+    # published next to the coverage report (junit.xml), and the unit test
+    # runs of the GPU builds (gpu-results/*-junit.xml, each with a
+    # *-summary.json) are published as a single "latest" file per
+    # configuration on download.lammps.org, so a run that is replaced before
+    # a poll picks it up is not archived.  that is fine: what matters is the
+    # latest result, since a failure is fixed on the latest state and not on
+    # the runs in between, and polling less often keeps the comments on the
+    # status issue down.  the same poll collects the coverage and static
+    # analysis summaries from the first machine, the state of the Coverity
+    # Scan (whose build is submitted twice a week, and analyzed whenever the
+    # Coverity servers get to it), the manual build status (rebuilt hourly at
+    # 23 minutes past), the GitHub Actions unit test artifacts (the window of
+    # tools/ingest_actions.py reaches back about three and a half days), and
+    # the monthly activity of the core developers (which only moves as the
+    # month fills up, but is swept whole each time rather than kept up to
+    # date incrementally)
+    - cron: '45 10 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -66,6 +69,7 @@ jobs:
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
           python3 tools/fetch_regression.py --datadir data
           python3 tools/fetch_unittest.py --datadir data
+          python3 tools/fetch_pushes.py --repo lammps/lammps --datadir data
           python3 tools/fetch_coverity.py --output data/external/coverity.json
           python3 tools/fetch_external.py --datadir data
           python3 tools/fetch_activity.py --output data/external/activity.json
