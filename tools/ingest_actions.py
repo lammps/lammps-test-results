@@ -30,7 +30,7 @@ Requires the "gh" CLI (authenticated; in GitHub Actions the default
 GITHUB_TOKEN is sufficient since lammps/lammps is public).
 
 Usage: python3 tools/ingest_actions.py [--repo lammps/lammps] [--datadir data]
-                                       [--max-runs 50] [--dry-run]
+                                       [--max-runs 200] [--days 7] [--dry-run]
 '''
 
 from argparse import ArgumentParser
@@ -102,19 +102,29 @@ STATUS_FILE = os.path.join('external', 'ingest.json')
 # how often a run that did not ingest is retried on later passes before it
 # is given up on and reported as a problem instead
 MAX_ATTEMPTS = 5
+# the runs API answers a listing filtered by branch or status from a search,
+# and a search is documented to return at most 1,000 results.  filtered by
+# those alone, the listing of develop matches every run it ever had - some
+# 2500 - and which part of them a request gets back is anybody's guess: on
+# 2026-09-29, requests a minute apart got listings that began in April, in
+# July, a week back, or were current, with total counts from 980 to 2500.
+# the stale listings of 2026-09-24 were the same thing.  bounded by the date
+# the runs were created, the search matches a few hundred runs and comes
+# back complete, current, and newest-first on every request.  the window is
+# therefore the runs of the last LOOKBACK_DAYS days, with --max-runs as a
+# cap; lammps/lammps produces some 25 to 55 completed runs a day on develop
+LOOKBACK_DAYS = 7
 # a pass whose run listing did not hold up asks the next one to look at a
 # wider window: whatever the bad listing skipped is then picked up on the
-# next round instead of scrolling out of reach.  the window is the newest N
-# runs of a repository that produces some 55 a day on develop, so widening
-# it costs one artifact query per run and is worth doing only on suspicion
+# next round instead of scrolling out of reach.  widening costs one artifact
+# query per run and is worth doing only on suspicion.  RECHECK_MAX_DAYS keeps
+# the search well below the 1,000 results it would silently cut off at
 RECHECK_FACTOR = 2
 RECHECK_MAX = 600
-# the runs API now and then answers a single request with a stale copy of
-# the listing - on 2026-09-24, one that began a week back, and one that held
-# nothing newer than July - while the requests right before and after it
-# are current.  a listing that does not hold up is therefore fetched up to
-# LISTING_ATTEMPTS times, LISTING_PAUSE seconds apart, before the pass
-# settles for it and leaves it to the wider window of the next one
+RECHECK_MAX_DAYS = 14
+# a listing that does not hold up is fetched up to LISTING_ATTEMPTS times,
+# LISTING_PAUSE seconds apart, before the pass settles for it and leaves it
+# to the wider window of the next one
 LISTING_ATTEMPTS = 3
 LISTING_PAUSE = 30
 # how many upstream runs that carried nothing to ingest are reported per
@@ -194,10 +204,11 @@ def newest_ingested(datadir, suite):
                 newest = max(newest, runs[-1])
     return newest
 
-def fetch_listing(repo, max_runs):
-    '''the newest max_runs completed runs on develop, newest first, and
-       what went wrong fetching them as (kind, detail) pairs: a page that
-       cannot be read ends the listing where it is'''
+def fetch_listing(repo, max_runs, since):
+    '''the newest max_runs completed runs on develop that were created on
+       or after the date "since" (YYYY-MM-DD), newest first, and what went
+       wrong fetching them as (kind, detail) pairs: a page that cannot be
+       read ends the listing where it is'''
     # the runs API accepts only a single "event" value per query, so fetch
     # all completed runs on develop (paginated) and filter by event later
     runs = []
@@ -206,7 +217,7 @@ def fetch_listing(repo, max_runs):
         try:
             batch = json.loads(gh_api(
                 f"repos/{repo}/actions/runs?branch=develop&status=completed"
-                f"&per_page=100&page={page}"))['workflow_runs']
+                f"&created=>={since}&per_page=100&page={page}"))['workflow_runs']
         except (RuntimeError, ValueError) as err:
             return runs[:max_runs], [('run listing failed', f'page {page}: {err}')]
         if not batch:
@@ -486,6 +497,8 @@ if __name__ == "__main__":
     parser.add_argument("--datadir", default="data", help="Data directory")
     parser.add_argument("--max-runs", type=int, default=200,
                         help="Number of recent workflow runs to examine")
+    parser.add_argument("--days", type=int, default=LOOKBACK_DAYS,
+                        help="How many days back to look for workflow runs")
     parser.add_argument("--dry-run", action='store_true', default=False,
                         help="Only report what would be ingested")
     args = parser.parse_args()
@@ -504,10 +517,15 @@ if __name__ == "__main__":
     # lost: the window is the only thing that decides how far back a run can
     # still be found, and ingesting is idempotent, so a wider look is safe
     max_runs = args.max_runs
+    days = args.days
     if previous.get('recheck'):
         max_runs = max(max_runs, min(max_runs * RECHECK_FACTOR, RECHECK_MAX))
+        days = max(days, min(days * RECHECK_FACTOR, RECHECK_MAX_DAYS))
         print(f"the previous pass could not trust its run listing:"
-              f" examining {max_runs} runs instead of {args.max_runs}")
+              f" examining up to {max_runs} runs of {days} days instead of"
+              f" {args.max_runs} runs of {args.days} days")
+    since = (datetime.datetime.now(datetime.timezone.utc)
+             - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
 
     # the runs queued by an earlier pass are fetched by id, which does not
     # depend on the listing at all: a run that has meanwhile scrolled out of
@@ -526,14 +544,12 @@ if __name__ == "__main__":
     # what the listing is worth.  it is not verified in order to refuse it -
     # whatever it does hold is still ingested below - but a window that does
     # not reach the newest runs would otherwise pass for an idle poll, and
-    # the runs it skipped would scroll out before anyone noticed.  the runs
-    # API serves such a listing now and then, to a single request rather
-    # than for a while, so a listing that does not hold up is fetched again
-    # before the pass settles for it
+    # the runs it skipped would scroll out before anyone noticed.  a listing
+    # that does not hold up is fetched again before the pass settles for it
     newest_held = max((newest_ingested(args.datadir, suite) for suite in suites),
                       default='')
     for attempt in range(1, LISTING_ATTEMPTS + 1):
-        runs, flaws = fetch_listing(args.repo, max_runs)
+        runs, flaws = fetch_listing(args.repo, max_runs, since)
         flaws += listing_flaws(runs, wanted, newest_held)
         if not flaws:
             break
@@ -545,10 +561,11 @@ if __name__ == "__main__":
     for kind, detail in flaws:
         report.problem(kind, detail)
         report.recheck = True
-    report.window = {'requested': max_runs, 'examined': len(runs),
+    report.window = {'requested': max_runs, 'since': since,
+                     'examined': len(runs),
                      'newest': runs[0]['created_at'] if runs else '',
                      'oldest': runs[-1]['created_at'] if runs else '',
-                     'widened': max_runs != args.max_runs}
+                     'widened': max_runs != args.max_runs or days != args.days}
 
     for run in runs:
         if workflow_file(run) not in wanted or run['event'] not in INGEST_EVENTS:

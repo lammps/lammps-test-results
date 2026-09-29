@@ -272,10 +272,17 @@ would have advanced a suite: a run older than what the suite already holds
 is not a gap in its history, which keeps the tail of runs left behind by a
 corrected workflow out of the report.
 
-The third is the run listing itself. The window is the newest
-`--max-runs` completed runs on `develop`, and lammps/lammps produces some 55
-of those a day, so the window reaches back about three and a half days. A
-listing that comes back out of order - as one did on 2026-08-28, during the
+The third is the run listing itself. The window is the completed runs on
+`develop` created in the last `--days` days (7 by default), capped at
+`--max-runs`; lammps/lammps produces some 25 to 55 of those a day. The date
+bound is what makes the listing reliable: filtered by branch and status, the
+runs API answers from a search that is documented to return at most 1,000
+results, and without a date the search matches every run `develop` ever had
+(some 2500). Which part of them a request then gets is arbitrary - on
+2026-09-29, requests a minute apart got listings that began in April, in
+July, or a week back, and passes kept archiving nothing while the dashboard
+fell days behind. Bounded by date, the same search comes back complete and
+current on every request. A listing that comes back out of order - as one did on 2026-08-28, during the
 GitHub Actions outage of that week - need not reach the newest runs at all,
 and the pass then finds nothing new and looks exactly like an idle poll,
 while the results it was meant to pick up quietly scroll out of reach. Each
@@ -284,14 +291,15 @@ start of a run in it is not earlier than that of a run already archived from
 GitHub Actions (the runs of the test machines, which share the `unit-tests`
 directory, are left out of that comparison).
 
-The runs API also serves a stale copy of the listing now and then, to a
-single request: on 2026-09-24, one request got a listing that began a week
-back and another one that held nothing newer than July, while the requests
-right before and after them were current. A listing that fails either check
-is therefore fetched again, up to `LISTING_ATTEMPTS` times and
+The stale listings seen before the date bound was added - on 2026-09-24,
+one request got a listing that began a week back and another one that held
+nothing newer than July - were the same effect. A listing that fails either
+check is still fetched again, up to `LISTING_ATTEMPTS` times and
 `LISTING_PAUSE` seconds apart. Where none holds up, the pass does not stop:
 it ingests what the last listing holds and sets `recheck`, which makes the
-next pass examine a window `RECHECK_FACTOR` times wider, so that whatever
+next pass examine a window `RECHECK_FACTOR` times wider (in runs and in days,
+the latter up to `RECHECK_MAX_DAYS`, which keeps the search well below its
+1,000 results), so that whatever
 the bad listing skipped is picked up on the next round.
 
 None of this is shown on the dashboard, which is public: the badges of the
