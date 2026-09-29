@@ -37,7 +37,7 @@ website and a rolling GitHub status issue.
   per run under `data/<suite>/<runid>/`, rebuilds the website
   (`generator/build_site.py`), deploys it to GitHub Pages, and updates the
   rolling status issue (`tools/update_issue.py`). It runs once a day, at
-  10:45 UTC: after the nightly runs of the test machines, and before people
+  10:37 UTC: after the nightly runs of the test machines, and before people
   in the US get to work. Only the latest result of those machines is
   published, so one that is replaced before the next poll is not archived;
   that is intended, since test failures are fixed on the latest state.
