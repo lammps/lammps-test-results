@@ -21,6 +21,11 @@ stays broken is announced once rather than every night. The words the
 spellchecker flagged in the development version are counted in the body as
 well, but never announced: they are a to-do list, not a broken build.
 
+Comments are deleted again once they are older than a month: by then an
+announcement is no longer news, and the website keeps the history. A comment
+that a later update still depends on to recognize what was announced already
+is kept however old it is (see stale_comments()).
+
 The issue is identified by the "test-status" label (created if missing).
 Requires the "gh" CLI with permission to write issues in the target repo.
 
@@ -44,6 +49,10 @@ TITLE = 'Automated test status (updated nightly)'
 # everything below this marker in the issue body is rewritten by this script;
 # any hand-written text above it is preserved
 MARKER = '<!-- test-status -->'
+# the comments posted by this script are deleted after this many days
+KEEP_DAYS = 30
+# the last line of every comment posted by this script (build_comment())
+FOOTER = 'Full details on the [test status website]('
 
 def gh(args_list, check=True):
     result = subprocess.run(['gh'] + args_list, capture_output=True, text=True)
@@ -211,9 +220,11 @@ def build_sections(snapshot):
     return sections
 
 def posted_comments(repo, number):
-    '''the bodies of all comments on the issue, oldest first'''
-    return gh(['api', f'repos/{repo}/issues/{number}/comments',
-               '--paginate', '--jq', '.[].body'])
+    '''all comments on the issue as dicts with id, created_at and body,
+       oldest first'''
+    out = gh(['api', f'repos/{repo}/issues/{number}/comments', '--paginate',
+              '--jq', '.[] | {id, created_at, body}'])
+    return [json.loads(line) for line in out.splitlines() if line.strip()]
 
 def drop_announced(sections, posted):
     '''drop sections whose heading already appears in a posted comment.
@@ -278,7 +289,37 @@ def docs_sections(docs, posted, now=None):
 
 def build_comment(sections, site_url):
     return ('\n'.join(s['text'] for s in sections)
-            + f"\nFull details on the [test status website]({site_url}).\n")
+            + f"\n{FOOTER}{site_url}).\n")
+
+def own_comment(body):
+    '''whether a comment was posted by this script: they all end with the
+       link to the website, which a reply written by hand does not'''
+    lines = body.rstrip().splitlines()
+    return bool(lines) and lines[-1].startswith(FOOTER)
+
+def stale_comments(comments, snapshot, docs, now=None):
+    '''the comments posted by this script more than KEEP_DAYS ago that no
+       later update depends on. two kinds stay however old they are: the one
+       announcing the changes in the latest run of a suite, which
+       drop_announced() would post again until a newer run of the suite
+       arrives, and the last one carrying the marker of a manual, without
+       which a build that stays broken would be announced again'''
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    cutoff = now - datetime.timedelta(days=KEEP_DAYS)
+    headings = [s['heading'] for s in build_sections(snapshot)]
+    needed = {c['id'] for c in comments
+              if any(heading in c['body'] for heading in headings)}
+    for entry in (docs or {}).get('branches', []):
+        markers = [docs_marker(entry.get('branch', '?'), announcement)
+                   for announcement in ('broken', 'ok')]
+        carriers = [c['id'] for c in comments
+                    if any(marker in c['body'] for marker in markers)]
+        if carriers:
+            needed.add(carriers[-1])
+    return [c for c in comments
+            if own_comment(c['body']) and c['id'] not in needed
+            and datetime.datetime.fromisoformat(
+                c['created_at'].replace('Z', '+00:00')) < cutoff]
 
 def find_or_create_issue(repo):
     out = gh(['issue', 'list', '--repo', repo, '--label', LABEL, '--state', 'open',
@@ -302,7 +343,8 @@ if __name__ == "__main__":
     parser.add_argument("--site-url", required=True, help="URL of the status website")
     parser.add_argument("--datadir", default="data", help="Data directory")
     parser.add_argument("--dry-run", action='store_true', default=False,
-                        help="Print body and comment instead of posting")
+                        help="Print body and comment instead of posting; with"
+                        " --issue also list the comments that would be deleted")
     args = parser.parse_args()
 
     snapshot = collect(args.datadir)
@@ -324,6 +366,15 @@ if __name__ == "__main__":
             print(build_comment(sections, args.site_url))
         else:
             print("(no comment - no new failures or fixes)")
+        # reading the comments changes nothing, but needs the issue
+        if args.issue:
+            print(f"=== comments older than {KEEP_DAYS} days to delete ===")
+            stale = stale_comments(posted_comments(args.repo, args.issue),
+                                   snapshot, docs)
+            for comment in stale:
+                print(f"{comment['created_at']} {comment['body'].splitlines()[0]}")
+            if not stale:
+                print("(none)")
         sys.exit(0)
 
     if args.issue:
@@ -340,7 +391,8 @@ if __name__ == "__main__":
 
     gh(['issue', 'edit', str(number), '--repo', args.repo, '--body', body])
     print(f"updated body of issue #{number}")
-    posted = posted_comments(args.repo, number)
+    comments = posted_comments(args.repo, number)
+    posted = '\n'.join(c['body'] for c in comments)
     sections = drop_announced(build_sections(snapshot), posted)
     sections += docs_sections(docs, posted)
     if sections:
@@ -349,3 +401,12 @@ if __name__ == "__main__":
         print(f"posted notification comment on issue #{number}")
     else:
         print("no unannounced failures or fixes - no comment posted")
+
+    # after the new comment, so that a failed deletion cannot hold it back
+    stale = stale_comments(comments, snapshot, docs)
+    for comment in stale:
+        gh(['api', '-X', 'DELETE',
+            f"repos/{args.repo}/issues/comments/{comment['id']}"])
+    if stale:
+        print(f"deleted {len(stale)} comment(s) older than {KEEP_DAYS} days"
+              f" from issue #{number}")
