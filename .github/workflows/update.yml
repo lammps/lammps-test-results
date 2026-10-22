@@ -4,27 +4,10 @@ name: "Update Test Status Site"
 
 on:
   schedule:
-    # once a day, at 10:37 UTC (06:37 EDT, 04:37 MDT; an hour earlier on
+    # once a day, at 12:37 UTC (08:37 EDT, 06:37 MDT; an hour earlier on
     # the clock in winter): after the nightly runs of the test machines,
-    # which mostly finish between 07:00 and 10:00 UTC, and before people in
-    # the US get to work.  the full regression results, the unit test run
-    # published next to the coverage report (junit.xml), and the unit test
-    # runs of the GPU builds (gpu-results/*-junit.xml, each with a
-    # *-summary.json) are published as a single "latest" file per
-    # configuration on download.lammps.org, so a run that is replaced before
-    # a poll picks it up is not archived.  that is fine: what matters is the
-    # latest result, since a failure is fixed on the latest state and not on
-    # the runs in between, and polling less often keeps the comments on the
-    # status issue down.  the same poll collects the coverage and static
-    # analysis summaries from the first machine, the state of the Coverity
-    # Scan (whose build is submitted twice a week, and analyzed whenever the
-    # Coverity servers get to it), the manual build status (rebuilt hourly at
-    # 23 minutes past), the GitHub Actions unit test artifacts (the window of
-    # tools/ingest_actions.py reaches back seven days), and
-    # the monthly activity of the core developers (which only moves as the
-    # month fills up, but is swept whole each time rather than kept up to
-    # date incrementally)
-    - cron: '37 10 * * *'
+    # which mostly finish between 07:00 and 12:00 UTC.
+    - cron: '37 12 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -46,20 +29,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # pin to the branch tip explicitly: the default ref is the commit SHA
-      # that triggered the run, which does NOT advance if a failed job is
-      # re-run, so a retry after a partial success (data already committed
-      # and pushed) would redo the commit against a stale base and get its
-      # push rejected
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           ref: main
 
-      # pull new post-merge artifacts from lammps/lammps, archive the latest
-      # full regression results, and refresh the scraped external summaries
-      # (not on push events, those only rebuild the site after code or data
-      # changes)
       - name: Ingest new results
         id: ingest
         if: ${{ github.event_name != 'push' }}
@@ -75,11 +49,6 @@ jobs:
           python3 tools/fetch_activity.py --output data/external/activity.json
           python3 tools/fetch_docs.py --output data/external/docs.json
 
-      # the per-member activity is the one collector that cannot run on the
-      # repository token: reading who is on a team needs the read:org scope,
-      # which only a personal access token carries (put one in the TEAM_TOKEN
-      # secret).  without it the collector warns and leaves the data alone,
-      # so the page keeps showing the last counts rather than empty ones
       - name: Ingest core developer activity
         if: ${{ github.event_name != 'push' }}
         env:

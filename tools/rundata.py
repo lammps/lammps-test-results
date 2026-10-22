@@ -102,6 +102,10 @@ CONFIG_DETAILS = {
                     ' mixed precision',
     'opencl-double': 'GPU package via OpenCL on NVIDIA V100 and KOKKOS via OpenMP,'
                      ' double precision',
+    # the unit tests of the build with the Intel oneAPI compilers, run on a
+    # machine with Intel Xeon CPUs (tools/fetch_unittest.py)
+    'linux-x86_64-oneapi': 'Intel oneAPI compilers with Intel MPI and MKL, including'
+                           ' the INTEL package and KOKKOS via OpenMP',
 }
 # the order the configurations are worth reading in: by how much they add to
 # the one before, which is not the alphabetical order

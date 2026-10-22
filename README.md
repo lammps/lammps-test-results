@@ -29,6 +29,10 @@ website and a rolling GitHub status issue.
   package through OpenCL with KOKKOS/OpenMP, each in single, mixed, and
   double precision - and publishes one JUnit XML file and one JSON summary
   per build (`tools/fetch_unittest.py` as well, see below).
+- A third dedicated machine with Intel Xeon CPUs runs the unit tests of a
+  build with the Intel oneAPI compilers, Intel MPI, and MKL, including the
+  INTEL package and KOKKOS/OpenMP, and publishes them the same way
+  (`tools/fetch_unittest.py`, see below).
 - The [update workflow](.github/workflows/update.yml) in this repository
   ingests new artifacts (`tools/ingest_actions.py`) and the latest published
   regression and unit test results (`tools/fetch_regression.py`,
@@ -315,8 +319,9 @@ is out of date in a way that needs somebody's attention: a test machine that
 has stopped publishing, and a collection that has stopped altogether.
 
 The test machines (the full regression runs, the `linux-x86_64-gcc` unit
-test run, and the GPU builds: the runs that record the `source_url` they
-were fetched from) run only when the branch they test has changed. The age
+test run, the GPU builds, and the Intel oneAPI build: the runs that record
+the `source_url` they were fetched from) run only when the branch they test
+has changed. The age
 of their newest result says nothing by itself: develop sat still from
 2026-09-15 to 2026-09-21, and the results of the 15th were as current as
 they could be all week. A result is therefore judged against the branch it
@@ -480,6 +485,25 @@ archived runs removed; only the `kokkos-serial-<precision>` ones are still run
 there. The workflow runs from before that change stay in the listing window
 for days, so `ingest_actions.RETIRED_CONFIGS` names the configurations that
 are no longer taken in - without it, the next pass would bring them back.
+
+### Intel oneAPI unit test run
+
+A third machine, with Intel Xeon CPUs, compiles LAMMPS with the Intel oneAPI
+compilers (`icx`, `icpx`, and `ifx`), Intel MPI, and MKL, with the package
+selection of the coverage build plus the INTEL package and KOKKOS on its
+OpenMP backend, and runs the unit tests with it. The same script archives that
+run from <https://download.lammps.org/intel-results/intel-junit.xml> and the
+summary next to it
+(<https://download.lammps.org/intel-results/intel-summary.json>), which has the
+same fields as the other summaries, under `unit-tests/linux-x86_64-oneapi`:
+named like `linux-x86_64-gcc` by its platform and compiler, since "intel"
+alone would read as the INTEL package. It is checked, deduplicated, and
+archived by the same rules as the GPU builds.
+
+That machine tests a branch of its own (`collected-small-changes` of a fork)
+until the changes the Intel compilers need are merged into `develop`. That
+branch is not in lammps/lammps, so it has no pushes there, and its results
+are not judged as overdue (see above).
 
 ## Documentation build status
 

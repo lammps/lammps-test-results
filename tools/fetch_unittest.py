@@ -44,6 +44,12 @@ double precision. It publishes one JUnit file per build and next to each a
 summary of its own, with the same fields as the summary.json of the coverage
 report, so those runs are archived the same way as the one above.
 
+A third machine, with Intel Xeon CPUs, runs the unit tests of a build with
+the Intel oneAPI compilers, Intel MPI, and MKL, which includes the INTEL
+package and KOKKOS on its OpenMP backend. It publishes one JUnit file and a
+summary with the same fields next to it, so that run is archived the same
+way as well.
+
 A source that is unreachable or does not deliver a usable JUnit document is
 skipped with a warning, leaving the already archived runs untouched.
 
@@ -77,11 +83,17 @@ CONFIG = 'linux-x86_64-gcc'
 GPU_URL = 'https://download.lammps.org/gpu-results/{}-junit.xml'
 # the summary the GPU machine publishes next to the JUnit file of each build
 GPU_SUMMARY_URL = 'https://download.lammps.org/gpu-results/{}-summary.json'
+# the build with the Intel oneAPI compilers, named like the GCC build above
+# by its platform and compiler: "intel" alone would read as the INTEL package
+ONEAPI_CONFIG = 'linux-x86_64-oneapi'
+ONEAPI_URL = 'https://download.lammps.org/intel-results/intel-junit.xml'
+ONEAPI_SUMMARY_URL = 'https://download.lammps.org/intel-results/intel-summary.json'
 # every published run as (config, JUnit URL, summary URL)
 SOURCES = [(CONFIG, URL, SUMMARY_URL)] + [
     (f'{api}-{precision}', GPU_URL.format(f'{api}-{precision}'),
      GPU_SUMMARY_URL.format(f'{api}-{precision}'))
-    for api in ('cuda', 'opencl') for precision in ('single', 'mixed', 'double')]
+    for api in ('cuda', 'opencl') for precision in ('single', 'mixed', 'double')] + [
+    (ONEAPI_CONFIG, ONEAPI_URL, ONEAPI_SUMMARY_URL)]
 SUITE = 'unit-tests'
 # the banner every LAMMPS run prints, quoted in the captured test output
 GIT_INFO = re.compile(r'Git info \([^)]*\)')
