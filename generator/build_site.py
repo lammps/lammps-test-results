@@ -1557,8 +1557,13 @@ def build_trends_page(outdir, summary):
 
 # the strips of the performance chart show how far a category is from its
 # references within this many percent either way; a larger deviation is
-# drawn to the edge of its strip and capped
-PERF_SCALE = 5
+# drawn to the edge of its strip and capped.  a category is the mean of some
+# 25 to 70 benchmarks, which moves by 0.05-0.2% from one night to the next,
+# and by about 0.3% when one benchmark in 30 changes by 10%
+PERF_SCALE = 0.5
+# the same for the strips of the single benchmarks on performance.html, whose
+# results move by up to a few percent from one night to the next
+PERF_ENTRY_SCALE = 5
 
 def perf_percent(percent):
     return '&mdash;' if percent is None else f'{percent:.1f}%'
@@ -1637,12 +1642,12 @@ def perf_chart(history, width=234, stack=60, strip=14):
         svg = (f'<svg width="100%" height="{strip}" viewBox="0 0 {width} {strip}" '
                f'preserveAspectRatio="none" role="img" '
                f'aria-label="{esc(title)}, percent of the references per night">')
-        svg += f'<line class="ref" x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
+        svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
         for i, (day, _, scores) in enumerate(history):
             score = scores.get(key)
             if not score or score['percent'] is None:
                 continue
-            dev = 10*(score['percent'] - 100)
+            dev = score['percent'] - 100
             # a night that hit its references exactly would not show at all,
             # which is not the same as not having run
             barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
@@ -1723,7 +1728,7 @@ def perf_entry_strip(values, width=125, height=16):
         if percent is None:
             continue
         dev = percent - 100
-        barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
+        barh = max(min(abs(dev), PERF_ENTRY_SCALE) / PERF_ENTRY_SCALE * (mid - 0.5), 0.6)
         y = mid - barh if dev > 0 else mid
         faded = '' if fresh else ' old'
         svg += (f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
@@ -1751,7 +1756,8 @@ def build_performance_page(datadir, outdir, history, refs):
              f' last {len(history)} nights (UTC days), oldest on the left. The'
              f' stacked bars are all categories together; the strips below them'
              f' show each category within &plusmn;{PERF_SCALE}% of its references,'
-             f' up for faster. Hover a bar for its numbers.</p>')
+             f' up for faster, and those of the single benchmarks in the tables'
+             f' within &plusmn;{PERF_ENTRY_SCALE}%. Hover a bar for its numbers.</p>')
 
     # the latest run of every machine
     body += '<h2 class="h5 mt-4">Machines</h2>'
