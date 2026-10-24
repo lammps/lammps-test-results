@@ -45,6 +45,10 @@ website and a rolling GitHub status issue.
   in the US get to work. Only the latest result of those machines is
   published, so one that is replaced before the next poll is not archived;
   that is intended, since test failures are fixed on the latest state.
+- The three test machines also run performance benchmarks after their tests
+  and publish them on download.lammps.org (`tools/fetch_performance.py`, see
+  below); the dashboard shows how they compare with a reference per
+  benchmark, by category.
 - Summaries of the server-side reports (code coverage, static analysis) can
   be ingested as `data/external/*.json`; the state of the Coverity Scan is
   collected from two sources, the analysis metrics of the project overview
@@ -79,6 +83,8 @@ scripts that talk to GitHub):
     python3 generator/build_site.py             # data/ -> _site/
     python3 tools/ingest_actions.py --dry-run   # what would be ingested
     python3 tools/fetch_regression.py --dry-run # latest regression results
+    python3 tools/fetch_performance.py --dry-run  # latest benchmark results
+    python3 tools/perf_reference.py --machine <m> --match <regex> --note <why>
     python3 tools/fetch_pushes.py               # pushes to the tested branches
     python3 tools/fetch_docs.py                 # manual build status
     python3 tools/fetch_team.py                 # core developer activity
@@ -504,6 +510,77 @@ That machine tests a branch of its own (`collected-small-changes` of a fork)
 until the changes the Intel compilers need are merged into `develop`. That
 branch is not in lammps/lammps, so it has no pushes there, and its results
 are not judged as overdue (see above).
+
+## Performance benchmarks
+
+After their tests, the three test machines run performance benchmarks with
+the binaries they have just built, whenever the branch they test has changed,
+and publish them under <https://download.lammps.org/performance/>, each under
+a prefix of its own: `gpu` (the machine with the V100 GPUs: the GPU package
+through CUDA and OpenCL, KOKKOS through CUDA), `cpu` (the machine of the full
+regression tests: the CPU styles, built with GCC and MPICH), and `intel` (the
+machine with the Intel Xeon CPUs: the INTEL package with the oneAPI
+compilers, and GCC builds of the same decks for comparison). The prefixes
+name a role rather than a host, since the machine behind one can change.
+`tools/fetch_performance.py` reads the `<prefix>-summary.json` of each and
+archives it as `data/performance/<machine>/<runid>/run.json`; the table of
+samples and the logs published beside it are not ingested, the summary
+carries every sample as well.
+
+A benchmark is measured in atom-steps per second. The GPU machine runs every
+benchmark on each of its four GPUs at the same time, and the best of those
+copies is what counts: what sets one copy apart from the others is what
+disturbed it, and over the clean nights of the calibration runs the best copy
+moved by 0.7% at most from night to night, where the median moved by up to
+2.2%. The archive keeps one run per commit and machine, as for the unit tests:
+a commit is only benchmarked twice when a run was repeated by hand because
+the first one was disturbed or broke off, and the repeat replaces it.
+
+Every benchmark is compared with a reference, recorded per machine and
+benchmark in `data/performance/references.json`
+(`tools/perfdata.py` documents the layout). A benchmark gets its first
+reference from the first run it succeeds in. A change that makes it faster
+or slower for good - of the code, the compilers, or the machine - is
+acknowledged with a new reference, set by hand with `tools/perf_reference.py`
+from one run, or from the median of the runs since one. A reference holds
+from the run it was taken from on, so the runs before it are still measured
+against the one they had, and the step where the change came in stays in the
+history.
+
+The benchmarks are reported in six categories, which the summaries name per
+benchmark: the GPU package, KOKKOS/CUDA, KOKKOS/OpenMP, CPU/MPI (the plain,
+OPENMP, and OPT styles of the standard decks), CPU only (decks of styles only
+the CPU machines run, of any package), and the INTEL package. A category is
+the geometric mean of the ratios of its benchmarks to their references - the
+mean of ratios, so that twice as fast and half as fast cancel out - over
+whichever machines run benchmarks of it: CPU/MPI and KOKKOS/OpenMP merge the
+`cpu` machine with the GCC builds of the `intel` one, even though the latter
+tests a branch of its own. A benchmark that failed is left out of the mean and
+counted apart.
+
+The dashboard card shows the last `TREND_RUNS` (25) nights, by UTC day: the
+machines run one after the other between about 04:00 and 10:00 UTC, so the
+runs of one night share their day. A machine without a run in a night keeps
+the results of its last one, since the code it tests did not change; those
+are drawn faded, so that a night without new results does not read as a
+confirmation. The card has two charts on the same columns. Above, one bar
+per night stacked from one segment per category, each as tall as the
+percentage of its references it reached, so that the height of a bar is the
+performance of all benchmarks together and its course over the weeks the
+overall trend. A bar standing on zero cannot show a change of a few percent
+in one category, though; that is what the strips below it are for, one per
+category, with a bar up from the line of its references for a night it ran
+faster and down for a night it ran slower, 5% to the edge (`PERF_SCALE`). The
+strips carry the colors and names of the segments, and are the legend of the
+bars above them. `performance.html` draws the same charts at a readable size,
+lists the latest run of each machine with its build and hardware, and every
+benchmark with its latest result, its reference, the change since the run
+before, and its own history, the failures and the slowest first.
+`api/summary.json` carries the newest night under `performance`.
+
+No threshold is applied yet, and nothing is reported in the status issue:
+which change is worth a notification is to be decided once the benchmarks
+have run unchanged for a while.
 
 ## Documentation build status
 

@@ -3,6 +3,7 @@
 Generate the static LAMMPS test status website from the archived run data.
 
 Reads:  data/<suite>/<runid>/run.json   (see tools/rundata.py for the layout)
+        data/performance/               (see tools/perfdata.py)
         data/external/*.json            (optional summaries, e.g. coverage)
         static/                         (vendored Bootstrap, brand CSS, logo)
 Writes: _site/index.html                (dashboard)
@@ -11,6 +12,7 @@ Writes: _site/index.html                (dashboard)
         _site/compare.html              (configurations of one commit)
         _site/spelling.html             (spellchecker findings of the manual)
         _site/team.html                 (monthly activity of the core team)
+        _site/performance.html          (performance benchmarks)
         _site/api/summary.json          (machine readable snapshot)
         _site/static/                   (copy of the static assets)
 
@@ -35,6 +37,7 @@ import sys
 TOPDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(os.path.join(TOPDIR, 'tools'))
 import docsdata
+import perfdata
 import rundata
 
 # a runtest is a run that completed without being checked: the empty circle
@@ -1550,6 +1553,292 @@ def build_trends_page(outdir, summary):
         f.write(page('Test outcome trends', body))
     return len(data)
 
+# ------------------------------------------------------------- performance
+
+# the strips of the performance chart show how far a category is from its
+# references within this many percent either way; a larger deviation is
+# drawn to the edge of its strip and capped
+PERF_SCALE = 5
+
+def perf_percent(percent):
+    return '&mdash;' if percent is None else f'{percent:.1f}%'
+
+def perf_tooltip(day, scores):
+    '''what a stacked bar is made of, for its tooltip'''
+    parts = []
+    for key, short, _, _ in perfdata.CATEGORIES:
+        score = scores.get(key)
+        if score and score['percent'] is not None:
+            carried = '' if score['fresh'] else ' (no new run)'
+            parts.append(f'{short} {score["percent"]:.1f}%{carried}')
+    return f'{day}: ' + ', '.join(parts)
+
+def perf_chart(history, width=234, stack=40, strip=12):
+    '''the performance of the categories over the nights of "history"
+       (perfdata.nightly()), as two charts on the same columns.
+
+       above, one stacked bar per night with one segment per category, each
+       as tall as the percentage of its references it reached: the height of
+       a bar is the performance of all benchmarks together, and how it moves
+       over the weeks is the overall trend.  a bar stands on zero, which is
+       what makes the heights comparable at all, so it cannot show a change
+       of a few percent in one category: that is what the strips below are
+       for, one per category, with a bar up from the line of its references
+       for a night it ran faster and down for one it ran slower, PERF_SCALE
+       percent to the edge.  the strips carry the colors of the segments
+       and their names, which makes them the legend of the bars above.
+
+       a machine runs only when the branch it tests has changed, and on the
+       other nights the results of its last run stand.  those are drawn faded,
+       so that a night without new results does not read as a confirmation'''
+    keys = [key for key, _, _, _ in perfdata.CATEGORIES
+            if any(scores.get(key, {}).get('percent') is not None
+                   for _, _, scores in history)]
+    if not keys:
+        return ''
+    barw = width // len(history)
+    totals = [sum(scores[key]['percent'] for key in keys
+                  if scores.get(key, {}).get('percent') is not None)
+              for _, _, scores in history]
+    top = max(max(totals), 1)
+    svg = (f'<svg width="100%" height="{stack}" viewBox="0 0 {width} {stack}" '
+           f'preserveAspectRatio="none" role="img" '
+           f'aria-label="performance of all categories over the last '
+           f'{len(history)} nights">')
+    for i, (day, _, scores) in enumerate(history):
+        if not totals[i]:
+            continue
+        svg += f'<g><title>{esc(perf_tooltip(day, scores))}</title>'
+        y = stack - 1
+        for key in keys:
+            score = scores.get(key)
+            if not score or score['percent'] is None:
+                continue
+            barh = score['percent'] / top * (stack - 2)
+            y -= barh
+            faded = '' if score['fresh'] else ' old'
+            svg += (f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+                    f'width="{barw - 2}" height="{barh:.2f}"/>')
+        svg += '</g>'
+    svg += f'<line x1="0" y1="{stack - 0.5}" x2="{width}" y2="{stack - 0.5}"/></svg>'
+    latest = history[-1][2]
+    shown = [latest[key]['percent'] for key in keys
+             if latest.get(key, {}).get('percent') is not None]
+    # the mean of the categories, which is what the height of the last bar
+    # stands for: the geometric mean, as within a category
+    overall = perfdata.geometric_mean(shown) if shown else None
+    out = (f'<div class="perf"><div class="lbl">all</div>{svg}'
+           f'<div class="lbl n">{perf_percent(overall)}</div>')
+
+    mid = strip / 2
+    for key, short, title, detail in perfdata.CATEGORIES:
+        if key not in keys:
+            continue
+        svg = (f'<svg width="100%" height="{strip}" viewBox="0 0 {width} {strip}" '
+               f'preserveAspectRatio="none" role="img" '
+               f'aria-label="{esc(title)}, percent of the references per night">')
+        svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
+        for i, (day, _, scores) in enumerate(history):
+            score = scores.get(key)
+            if not score or score['percent'] is None:
+                continue
+            dev = score['percent'] - 100
+            # a night that hit its references exactly would not show at all,
+            # which is not the same as not having run
+            barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
+            y = mid - barh if dev > 0 else mid
+            faded = '' if score['fresh'] else ' old'
+            failed = (f', {score["failed"]} failed' if score['failed'] else '')
+            svg += (f'<g><title>{esc(day)}: {esc(title)} {score["percent"]:.2f}% of'
+                    f' the references ({score["entries"]} benchmarks{failed})'
+                    f'{"" if score["fresh"] else ", no new run"}</title>'
+                    f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+                    f'width="{barw - 2}" height="{barh:.2f}"/>')
+            if abs(dev) > PERF_SCALE:
+                cap = 0 if dev > 0 else strip - 1
+                svg += (f'<rect class="cap" x="{i * barw}" y="{cap}" '
+                        f'width="{barw - 2}" height="1"/>')
+            svg += '</g>'
+        svg += '</svg>'
+        score = latest.get(key, {})
+        out += (f'<div class="lbl" title="{esc(title)}: {esc(detail)}">'
+                f'<span class="sw cat-{key}"></span>{esc(short)}</div>{svg}'
+                f'<div class="lbl n">{perf_percent(score.get("percent"))}</div>')
+    return out + '</div>'
+
+def perf_failures(scores):
+    '''the benchmarks that failed in the newest results, per category'''
+    parts = [f'{short} {scores[key]["failed"]}' for key, short, _, _ in perfdata.CATEGORIES
+             if scores.get(key, {}).get('failed')]
+    if not parts:
+        return ''
+    total = sum(scores[key]['failed'] for key in perfdata.CATEGORY_KEYS
+                if key in scores)
+    return (f'<div class="small mt-1"><span class="delta-bad">{total} failed</span>'
+            f' <span class="text-body-secondary">({esc(", ".join(parts))})</span></div>')
+
+def performance_card(history, machines):
+    '''dashboard card with the performance benchmarks of the last TREND_RUNS
+       nights; the detail is on performance.html'''
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += '<h3 class="h6 card-title"><a href="performance.html">Performance</a></h3>'
+    out += perf_chart(history)
+    out += (f'<div class="text-body-secondary small mt-1">percent of reference, last'
+            f' {len(history)} nights; strips &plusmn;{PERF_SCALE}%</div>')
+    out += perf_failures(history[-1][2])
+    # one line for the three machines: which commit each last ran, with
+    # the branch and the day as the tooltip
+    parts = []
+    for machine, meta in machines.items():
+        ident = f'{meta.get("branch", "")} @ {meta.get("sha", "")[:10]}'
+        parts.append(f'<span title="{esc(ident)}, {esc(meta["day"])}">'
+                     f'{esc(machine)} {esc(meta.get("sha", "")[:10])}</span>')
+    if parts:
+        out += (f'<div class="text-body-secondary small mt-2">'
+                f'{" &middot; ".join(parts)}</div>')
+    return out + '</div></div></div>'
+
+def perf_layout(entry):
+    '''how a benchmark was run, e.g. "4x2" or "1x8, 1 GPU"'''
+    text = f'{entry.get("ranks", "?")}x{entry.get("threads", "?")}'
+    gpus = entry.get('gpus') or 0
+    if gpus:
+        text += f', {gpus} GPU' + ('s' if gpus > 1 else '')
+    return text
+
+def perf_rate(value):
+    '''atom-steps per second, as millions'''
+    return '&mdash;' if not value else f'{value / 1e6:.4g}'
+
+def perf_entry_strip(values, width=125, height=16):
+    '''the history of one benchmark, as a strip of the card: one bar per
+       night, up for faster than its reference and down for slower'''
+    barw = width // max(len(values), 1)
+    mid = height / 2
+    svg = (f'<svg class="perf-strip" width="{width}" height="{height}" '
+           f'viewBox="0 0 {width} {height}" role="img" '
+           f'aria-label="percent of the reference per night">')
+    svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
+    for i, (day, percent, fresh, key) in enumerate(values):
+        if percent is None:
+            continue
+        dev = percent - 100
+        barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
+        y = mid - barh if dev > 0 else mid
+        faded = '' if fresh else ' old'
+        svg += (f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+                f'width="{barw - 1}" height="{barh:.2f}">'
+                f'<title>{esc(day)}: {percent:.2f}%</title></rect>')
+    return svg + '</svg>'
+
+def build_performance_page(datadir, outdir, history, refs):
+    '''page with the performance benchmarks: the chart of the card at a size
+       where it can be read, the machines and what they last ran, and every
+       benchmark of every category with its latest result, its reference, and
+       its own history'''
+    newest = history[-1][1]
+    body = ('<p>Performance benchmarks run nightly on three machines, after their'
+            ' tests, whenever the branch they test has changed. Every benchmark is'
+            ' measured in atom-steps per second and compared with a reference: the'
+            ' result of its first run, until a lasting change of the code, the'
+            ' compilers, or the machine is acknowledged with a new one. Of the'
+            ' copies the GPU machine runs side by side on its four GPUs, the best'
+            ' one counts. A category is the geometric mean of the percentages of'
+            ' its benchmarks, on whichever machines run them; a machine without a'
+            ' new run in a night keeps its last results, drawn faded.</p>')
+    body += perf_chart(history, stack=120, strip=24)
+    body += (f'<p class="text-body-secondary small mt-1">Percent of the references,'
+             f' last {len(history)} nights (UTC days), oldest on the left. The'
+             f' stacked bars are all categories together; the strips below them'
+             f' show each category within &plusmn;{PERF_SCALE}% of its references,'
+             f' up for faster. Hover a bar for its numbers.</p>')
+
+    # the latest run of every machine
+    body += '<h2 class="h5 mt-4">Machines</h2>'
+    body += ('<div class="table-responsive"><table class="table table-sm table-striped '
+             'align-middle"><thead><tr><th>Machine</th><th>Latest run (UTC)</th>'
+             '<th>Branch @ commit</th><th class="n">Benchmarks</th>'
+             '<th class="n">Failed</th><th>Build</th><th>Hardware</th>'
+             '</tr></thead><tbody>')
+    for machine, (runid, _) in newest.items():
+        run = perfdata.load_run(datadir, machine, runid)
+        meta, props = run['metadata'], run['metadata'].get('properties', {})
+        entries = run['entries']
+        failed = sum(1 for entry in entries.values() if entry.get('status') != 'ok')
+        when, _ = runid_parts(runid)
+        build = [props.get(key, '') for key in ('compiler', 'mpi', 'cpu_compiler', 'cpu_mpi')]
+        hardware = [props.get(key, '') for key in ('cpu', 'gpus')]
+        body += (f'<tr><td title="{esc(perfdata.MACHINE_DETAILS.get(machine, ""))}">'
+                 f'{esc(machine)}</td><td>{esc(when)}</td>'
+                 f'<td>{esc(meta.get("branch", ""))} @ <code>{esc(meta.get("sha", "")[:10])}'
+                 f'</code></td><td class="n">{len(entries)}</td>'
+                 f'<td class="n">{failed}</td>'
+                 f'<td class="small">{"<br>".join(esc(part) for part in build if part)}</td>'
+                 f'<td class="small">{"<br>".join(esc(part) for part in hardware if part)}</td>'
+                 '</tr>')
+    body += '</tbody></table></div>'
+
+    # every benchmark, with what each night's results made of it.  the ratios
+    # of a run are worked out once, however many nights it stands for
+    cache = {}
+    def ratios_of(machine, runid):
+        if (machine, runid) not in cache:
+            cache[machine, runid] = {
+                name: (entry, value, ratio) for name, entry, value, ratio
+                in perfdata.ratios(datadir, refs, machine, runid)}
+        return cache[machine, runid]
+
+    rows = {}
+    for machine, (runid, _) in newest.items():
+        runs = perfdata.list_runs(datadir, machine)
+        before = runs[runs.index(runid) - 1] if runs.index(runid) else None
+        for name, (entry, value, ratio) in ratios_of(machine, runid).items():
+            previous = ratios_of(machine, before).get(name) if before else None
+            change = (value / previous[1]) if value and previous and previous[1] else None
+            series = []
+            for day, current, _ in history:
+                found = current.get(machine)
+                got = ratios_of(machine, found[0]).get(name) if found else None
+                series.append((day, 100 * got[2] if got and got[2] else None,
+                               found[1] if found else False, entry.get('category')))
+            rows.setdefault(entry.get('category'), []).append(
+                (machine, name, entry, value, ratio, change, series,
+                 perfdata.reference(refs, machine, name, runid)))
+
+    for key, _, title, detail in perfdata.CATEGORIES:
+        if key not in rows:
+            continue
+        score = history[-1][2].get(key, {})
+        body += (f'<h2 class="h5 mt-4" id="{esc(key)}"><span class="sw cat-{key}"></span>'
+                 f'{esc(title)} &middot; {perf_percent(score.get("percent"))}</h2>')
+        body += f'<p class="text-body-secondary small">{esc(detail)}.</p>'
+        body += ('<div class="table-responsive"><table class="table table-sm '
+                 'table-striped table-hover align-middle perf-table"><thead><tr>'
+                 '<th>Benchmark</th><th>Machine</th><th>Layout</th>'
+                 '<th class="n">Atoms</th><th class="n">Matom-step/s</th>'
+                 '<th class="n">Reference</th><th class="n">% of ref.</th>'
+                 '<th class="n">vs. previous</th><th>Last nights</th>'
+                 '</tr></thead><tbody>')
+        # the failures first, then the slowest against its reference: what
+        # is worth a look comes first
+        ordered = sorted(rows[key], key=lambda row: (row[3] is not None,
+                                                     row[4] if row[4] else 0, row[1]))
+        for machine, name, entry, value, ratio, change, series, ref in ordered:
+            percent = (f'{100 * ratio:.1f}%' if ratio
+                       else status_chip('failed') if value is None else '&mdash;')
+            moved = f'{100 * (change - 1):+.1f}%' if change else '&mdash;'
+            body += (f'<tr><td><code>{esc(name)}</code></td><td>{esc(machine)}</td>'
+                     f'<td>{esc(perf_layout(entry))}</td>'
+                     f'<td class="n">{entry.get("natoms", "&mdash;")}</td>'
+                     f'<td class="n">{perf_rate(value)}</td>'
+                     f'<td class="n">{perf_rate(ref)}</td>'
+                     f'<td class="n">{percent}</td><td class="n">{moved}</td>'
+                     f'<td>{perf_entry_strip(series)}</td></tr>')
+        body += '</tbody></table></div>'
+
+    with open(os.path.join(outdir, 'performance.html'), 'w') as f:
+        f.write(page('Performance benchmarks', body))
+
 def build_index(datadir, outdir, summary):
     stale = stale_chain_parts(summary)
     overdue = overdue_state(summary)
@@ -1628,6 +1917,9 @@ def build_index(datadir, outdir, summary):
                                 entry.get('sha', '') or run_sha, f'{when} UTC',
                                 overdue['suites'].get(entry['suite'], ''))
             body += '</div></div></div>'
+        if summary.get('performance'):
+            body += performance_card(summary['performance'],
+                                     summary['performance_machines'])
         if 'activity' in summary.get('external', {}):
             body += activity_card(summary['external']['activity'],
                                   summary.get('team_page'))
@@ -1777,6 +2069,18 @@ if __name__ == "__main__":
         team = build_team_page(args.outdir, summary['external']['team'])
     # the dashboard only links the page when there is one to link
     summary['team_page'] = bool(team)
+    # the performance benchmarks of the nights the cards cover; the history
+    # of the dashboard and of the page is the same, so it is worked out once
+    refs = perfdata.load_references(args.datadir)
+    summary['performance'] = perfdata.nightly(args.datadir, refs, TREND_RUNS)
+    summary['performance_machines'] = {}
+    if summary['performance']:
+        for machine, (runid, _) in summary['performance'][-1][1].items():
+            meta = perfdata.load_run(args.datadir, machine, runid)['metadata']
+            summary['performance_machines'][machine] = {
+                'runid': runid, 'branch': meta.get('branch', ''),
+                'sha': meta.get('sha', ''), 'day': str(perfdata.night_of(runid))}
+        build_performance_page(args.datadir, args.outdir, summary['performance'], refs)
     build_trends_page(args.outdir, summary)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
@@ -1792,6 +2096,15 @@ if __name__ == "__main__":
     if 'ingest' in summary['external']:
         api['ingest'] = summary['external']['ingest']
     api['overdue'] = overdue_state(summary)['suites']
+    # the newest night of the performance benchmarks: per category the
+    # percentage of its references, and what each machine last ran
+    if summary['performance']:
+        day, _, scores = summary['performance'][-1]
+        api['performance'] = {
+            'night': str(day),
+            'categories': {key: {k: v for k, v in score.items() if k != 'machines'}
+                           for key, score in scores.items()},
+            'machines': summary['performance_machines']}
     for entry in api['suites']:
         if 'diff' in entry:
             entry['diff'] = {k: len(v) for k, v in entry['diff'].items()}
@@ -1801,6 +2114,8 @@ if __name__ == "__main__":
 
     nsuites = len(summary['suites'])
     print(f"Generated site for {nsuites} suite(s) in {args.outdir}/")
+    if summary['performance']:
+        print("Performance: " + ', '.join(sorted(summary['performance_machines'])))
     if spelling:
         print("Spellchecker: " + ', '.join(f"{branch} {count} word(s)"
                                            for branch, count in spelling.items()))

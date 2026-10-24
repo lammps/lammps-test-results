@@ -1,0 +1,1396 @@
+{
+  "metadata": {
+    "title": "Performance gpu",
+    "generated": "2026-10-22T08:58:55Z",
+    "properties": {
+      "compiler": "Compiler: GNU C++ 14.3.0 with OpenMP 4.5",
+      "operating_system": "OS: Linux \"Ubuntu 26.04.1 LTS\" 7.0.0-38-generic x86_64",
+      "mpi": "MPI v3.1: Open MPI v5.0.10, package: Debian OpenMPI, ident: 5.0.10, repo rev: v5.0.10, Feb 23, 2026",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz",
+      "gpus": "4 Tesla V100-SXM2-16GB",
+      "gpu_driver": "580.178.04"
+    },
+    "branch": "develop",
+    "version": "patch_30Sep2026-437-ga0e2bd6efb",
+    "sha": "a0e2bd6efb3d67a29c0c4e4de3b19556ffdb9d5b",
+    "source_url": "https://download.lammps.org/performance/gpu-summary.json"
+  },
+  "entries": {
+    "lj-small-double-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        345456000.0,
+        347510000.0,
+        347293000.0,
+        349248000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.27
+    },
+    "lj-small-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        287474000.0,
+        287663000.0,
+        286621000.0,
+        287554000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "lj-small-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        51516000.0,
+        51809000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "lj-small-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        75469000.0,
+        75819000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "lj-small-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        117995000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.09
+    },
+    "lj-small-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        151273000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "lj-small-mixed-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        433209000.0,
+        435191000.0,
+        434541000.0,
+        436970000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.24
+    },
+    "lj-small-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        306292000.0,
+        306314000.0,
+        305186000.0,
+        306235000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "lj-small-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        58988000.0,
+        59215000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.0
+    },
+    "lj-small-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        84543000.0,
+        85543000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "lj-small-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        142194000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.07
+    },
+    "lj-small-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 15000,
+      "samples": [
+        168332000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "lj-large-double-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1000,
+      "samples": [
+        275691000.0,
+        275755000.0,
+        276076000.0,
+        275353000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "lj-large-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1000,
+      "samples": [
+        151102000.0,
+        151082000.0,
+        151349000.0,
+        151471000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "lj-large-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1000,
+      "samples": [
+        56118000.0,
+        56240000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "lj-large-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1000,
+      "samples": [
+        71818000.0,
+        71573000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "lj-large-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 2000,
+      "samples": [
+        128375000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "lj-large-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 2000,
+      "samples": [
+        144532000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "lj-large-mixed-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        438318000.0,
+        439825000.0,
+        441513000.0,
+        445442000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.19
+    },
+    "lj-large-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        234251000.0,
+        234264000.0,
+        234444000.0,
+        234450000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "lj-large-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        65902000.0,
+        65821000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "lj-large-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        88542000.0,
+        87808000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "lj-large-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 2000,
+      "samples": [
+        151092000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "lj-large-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "lj",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 2000,
+      "samples": [
+        175540000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "eam-small-double-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 4000,
+      "samples": [
+        133088000.0,
+        133790000.0,
+        134207000.0,
+        134480000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.23
+    },
+    "eam-small-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 4000,
+      "samples": [
+        112731000.0,
+        112704000.0,
+        110939000.0,
+        111697000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "eam-small-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 4000,
+      "samples": [
+        32832000.0,
+        32680000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "eam-small-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 4000,
+      "samples": [
+        45558000.0,
+        45443000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-small-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 9500,
+      "samples": [
+        81559000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "eam-small-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 9500,
+      "samples": [
+        95494000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-small-mixed-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 5000,
+      "samples": [
+        175819000.0,
+        176600000.0,
+        176740000.0,
+        177052000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.21
+    },
+    "eam-small-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 5000,
+      "samples": [
+        142250000.0,
+        142359000.0,
+        141026000.0,
+        141320000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "eam-small-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 5000,
+      "samples": [
+        37895000.0,
+        37967000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "eam-small-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 5000,
+      "samples": [
+        54856000.0,
+        54550000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-small-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        97189000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.08
+    },
+    "eam-small-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 10000,
+      "samples": [
+        113838000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "eam-large-double-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 450,
+      "samples": [
+        117927000.0,
+        118502000.0,
+        118142000.0,
+        118198000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.14
+    },
+    "eam-large-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 450,
+      "samples": [
+        93115000.0,
+        93139000.0,
+        93452000.0,
+        93509000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "eam-large-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 450,
+      "samples": [
+        35306000.0,
+        35313000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-large-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 450,
+      "samples": [
+        48444000.0,
+        48744000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-large-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        91175000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "eam-large-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        113088000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-large-mixed-kokkos-cuda-full": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 650,
+      "samples": [
+        172936000.0,
+        173809000.0,
+        174779000.0,
+        176942000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.23
+    },
+    "eam-large-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 650,
+      "samples": [
+        153437000.0,
+        153363000.0,
+        153457000.0,
+        153446000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "eam-large-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 650,
+      "samples": [
+        41722000.0,
+        41629000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "eam-large-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 8192000,
+      "steps": 650,
+      "samples": [
+        67543000.0,
+        67737000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "eam-large-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        107412000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "eam-large-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "eam",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 8192000,
+      "steps": 1500,
+      "samples": [
+        137088000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.05
+    },
+    "rhodo-small-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        8159000.0,
+        8150000.0,
+        8071000.0,
+        8173000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-small-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        1529000.0,
+        1532000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-small-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        5354000.0,
+        5308000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-small-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 128000,
+      "steps": 4500,
+      "samples": [
+        4822000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "rhodo-small-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 128000,
+      "steps": 4500,
+      "samples": [
+        10981000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-small-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        9021000.0,
+        9029000.0,
+        8942000.0,
+        9101000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-small-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        1537000.0,
+        1537000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-small-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 128000,
+      "steps": 2000,
+      "samples": [
+        6172000.0,
+        6135000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-small-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 128000,
+      "steps": 4500,
+      "samples": [
+        4829000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "rhodo-small-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "small",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 128000,
+      "steps": 4500,
+      "samples": [
+        11326000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.04
+    },
+    "rhodo-large-double-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "double",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        7805000.0,
+        7797000.0,
+        7798000.0,
+        7791000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "rhodo-large-double-gpu-cuda": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        1372000.0,
+        1371000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "rhodo-large-double-gpu-opencl": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        5894000.0,
+        5732000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-large-double-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 550,
+      "samples": [
+        4815000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-large-double-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "double",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 550,
+      "samples": [
+        12596000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-large-mixed-kokkos-cuda-half": {
+      "category": "kokkos-cuda",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "mixed",
+      "package": "kokkos",
+      "api": "cuda",
+      "flags": "neigh half newton on",
+      "ranks": 1,
+      "threads": 4,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        8718000.0,
+        8717000.0,
+        8706000.0,
+        8728000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "rhodo-large-mixed-gpu-cuda": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "cuda",
+      "flags": "",
+      "ranks": 1,
+      "threads": 8,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        1383000.0,
+        1379000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.01
+    },
+    "rhodo-large-mixed-gpu-opencl": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 8,
+      "threads": 1,
+      "gpus": 1,
+      "natoms": 1024000,
+      "steps": 250,
+      "samples": [
+        5958000.0,
+        5939000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    },
+    "rhodo-large-mixed-gpu-opencl-4x4": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 4,
+      "threads": 4,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 550,
+      "samples": [
+        4765000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.02
+    },
+    "rhodo-large-mixed-gpu-opencl-16x1": {
+      "category": "gpu",
+      "input": "rhodo",
+      "size": "large",
+      "precision": "mixed",
+      "package": "gpu",
+      "api": "opencl",
+      "flags": "",
+      "ranks": 16,
+      "threads": 1,
+      "gpus": 4,
+      "natoms": 1024000,
+      "steps": 550,
+      "samples": [
+        12579000.0
+      ],
+      "status": "ok",
+      "other_cpu": 0.03
+    }
+  }
+}

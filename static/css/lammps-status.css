@@ -34,6 +34,18 @@
      as the two are - it did run */
   --status-runtest: #1f8a7a;
   --status-skipped: #6c757d;
+
+  /* one color per category of the performance benchmarks, in the order
+     they are stacked: the first six slots of a categorical palette whose
+     order is chosen so that neighbors stay apart for color-blind readers
+     too.  they identify a category, not an outcome, and none of them is
+     shown next to the outcome colors */
+  --cat-gpu: #2a78d6;
+  --cat-kokkos-cuda: #eb6834;
+  --cat-kokkos-omp: #1baf7a;
+  --cat-cpu-mpi: #eda100;
+  --cat-cpu-only: #e87ba4;
+  --cat-intel: #008300;
 }
 [data-bs-theme="dark"] {
   --lammps-accent: #6ea8de;
@@ -49,6 +61,13 @@
   --status-timeout: #6fa8dc;
   --status-runtest: #4fbfae;
   --status-skipped: #9a9a9a;
+
+  --cat-gpu: #3987e5;
+  --cat-kokkos-cuda: #d95926;
+  --cat-kokkos-omp: #199e70;
+  --cat-cpu-mpi: #c98500;
+  --cat-cpu-only: #d55181;
+  --cat-intel: #008300;
 }
 
 /* Rebrand Bootstrap's primary buttons to the LAMMPS blue. */
@@ -191,3 +210,33 @@ tr.hidden { display: none; }
 /* the two summed rows are set apart from the members they sum */
 .team tfoot td { border-top: 2px solid var(--bs-border-color); font-weight: 600; }
 .team tfoot tr + tr td { border-top-width: 1px; font-weight: 400; }
+
+/* performance benchmarks: the stacked bars of all categories and below them
+   one strip per category, in a grid that puts the names on the left, the
+   latest percentage on the right, and the charts of both on the same
+   columns in between.  small print, so that the card is no taller than the
+   others in its row */
+.perf {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 2px .5rem; align-items: center; margin-top: .5rem;
+}
+.perf .lbl { font-size: .7rem; line-height: 1.1; white-space: nowrap; }
+.perf svg { display: block; }
+.perf line, .perf-strip line { stroke: var(--bs-border-color); stroke-width: 1; }
+/* a deviation beyond the scale of a strip is capped at its edge */
+.perf rect.cap { fill: var(--bs-body-color); }
+.sw {
+  display: inline-block; width: .6rem; height: .6rem; border-radius: 2px;
+  margin-right: .3rem; vertical-align: -1px;
+}
+.cat-gpu         { fill: var(--cat-gpu);         background-color: var(--cat-gpu); }
+.cat-kokkos-cuda { fill: var(--cat-kokkos-cuda); background-color: var(--cat-kokkos-cuda); }
+.cat-kokkos-omp  { fill: var(--cat-kokkos-omp);  background-color: var(--cat-kokkos-omp); }
+.cat-cpu-mpi     { fill: var(--cat-cpu-mpi);     background-color: var(--cat-cpu-mpi); }
+.cat-cpu-only    { fill: var(--cat-cpu-only);    background-color: var(--cat-cpu-only); }
+.cat-intel       { fill: var(--cat-intel);       background-color: var(--cat-intel); }
+/* a night that kept the results of an earlier run, because the machine had
+   nothing new to run */
+rect.old { opacity: .4; }
+.perf-table td { padding-top: .1rem; padding-bottom: .1rem; }
+.perf .n { text-align: right; font-variant-numeric: tabular-nums; }
