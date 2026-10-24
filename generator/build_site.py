@@ -1573,7 +1573,7 @@ def perf_tooltip(day, scores):
             parts.append(f'{short} {score["percent"]:.1f}%{carried}')
     return f'{day}: ' + ', '.join(parts)
 
-def perf_chart(history, width=234, stack=40, strip=12):
+def perf_chart(history, width=234, stack=60, strip=12):
     '''the performance of the categories over the nights of "history"
        (perfdata.nightly()), as two charts on the same columns.
 
@@ -1637,7 +1637,7 @@ def perf_chart(history, width=234, stack=40, strip=12):
         svg = (f'<svg width="100%" height="{strip}" viewBox="0 0 {width} {strip}" '
                f'preserveAspectRatio="none" role="img" '
                f'aria-label="{esc(title)}, percent of the references per night">')
-        svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
+        svg += f'<line class="ref" x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
         for i, (day, _, scores) in enumerate(history):
             score = scores.get(key)
             if not score or score['percent'] is None:
