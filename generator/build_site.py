@@ -1573,7 +1573,7 @@ def perf_tooltip(day, scores):
             parts.append(f'{short} {score["percent"]:.1f}%{carried}')
     return f'{day}: ' + ', '.join(parts)
 
-def perf_chart(history, width=234, stack=60, strip=12):
+def perf_chart(history, width=234, stack=60, strip=14):
     '''the performance of the categories over the nights of "history"
        (perfdata.nightly()), as two charts on the same columns.
 
@@ -1642,7 +1642,7 @@ def perf_chart(history, width=234, stack=60, strip=12):
             score = scores.get(key)
             if not score or score['percent'] is None:
                 continue
-            dev = score['percent'] - 100
+            dev = 10*(score['percent'] - 100)
             # a night that hit its references exactly would not show at all,
             # which is not the same as not having run
             barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
