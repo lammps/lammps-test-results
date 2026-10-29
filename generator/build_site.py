@@ -1560,10 +1560,10 @@ def build_trends_page(outdir, summary):
 # drawn to the edge of its strip and capped.  a category is the mean of some
 # 25 to 70 benchmarks, which moves by 0.05-0.2% from one night to the next,
 # and by about 0.3% when one benchmark in 30 changes by 10%
-PERF_SCALE = 0.5
+PERF_SCALE = 1.0
 # the same for the strips of the single benchmarks on performance.html, whose
 # results move by up to a few percent from one night to the next
-PERF_ENTRY_SCALE = 5
+PERF_ENTRY_SCALE = 10
 
 def perf_percent(percent):
     return '&mdash;' if percent is None else f'{percent:.1f}%'
