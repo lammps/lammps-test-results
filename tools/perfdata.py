@@ -61,7 +61,9 @@ MACHINE_DETAILS = {
     'cpu': 'the machine that runs the full regression tests: benchmarks of'
            ' the CPU styles, with GCC and MPICH',
     'intel': 'the machine with Intel Xeon CPUs: the INTEL package with the'
-             ' Intel oneAPI compilers, and GCC builds for comparison',
+             ' Intel oneAPI compilers, and GCC builds of the plain, OPENMP, and'
+             ' KOKKOS/OpenMP styles from one core to both sockets, also with'
+             ' two threads per core',
 }
 
 # the categories a benchmark is reported in, as (key, short label, title,
@@ -77,7 +79,8 @@ CATEGORIES = (
     ('kokkos-omp', 'KK/OpenMP', 'KOKKOS/OpenMP',
      'KOKKOS package on its OpenMP backend'),
     ('cpu-mpi', 'CPU/MPI', 'CPU/MPI',
-     'plain, OPENMP, and OPT styles of the standard benchmark decks with MPI'),
+     'plain, OPENMP, and OPT styles with MPI and OpenMP threads, from one core'
+     ' to a full node'),
     ('cpu-only', 'CPU only', 'CPU only',
      'the benchmark decks of styles only the CPU machines run, any package'),
     ('intel', 'INTEL', 'INTEL package',

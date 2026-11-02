@@ -520,7 +520,9 @@ a prefix of its own: `gpu` (the machine with the V100 GPUs: the GPU package
 through CUDA and OpenCL, KOKKOS through CUDA), `cpu` (the machine of the full
 regression tests: the CPU styles, built with GCC and MPICH), and `intel` (the
 machine with the Intel Xeon CPUs: the INTEL package with the oneAPI
-compilers, and GCC builds of the same decks for comparison). The prefixes
+compilers, and GCC builds of the plain, OPENMP, and KOKKOS/OpenMP styles on
+one core, on both sockets with MPI, with MPI and OpenMP threads, and with two
+threads per core). The prefixes
 name a role rather than a host, since the machine behind one can change.
 `tools/fetch_performance.py` reads the `<prefix>-summary.json` of each and
 archives it as `data/performance/<machine>/<runid>/run.json`; the table of
@@ -549,14 +551,14 @@ history.
 
 The benchmarks are reported in six categories, which the summaries name per
 benchmark: the GPU package, KOKKOS/CUDA, KOKKOS/OpenMP, CPU/MPI (the plain,
-OPENMP, and OPT styles of the standard decks), CPU only (decks of styles only
-the CPU machines run, of any package), and the INTEL package. A category is
-the geometric mean of the ratios of its benchmarks to their references - the
-mean of ratios, so that twice as fast and half as fast cancel out - over
-whichever machines run benchmarks of it: CPU/MPI and KOKKOS/OpenMP merge the
-`cpu` machine with the GCC builds of the `intel` one, even though the latter
-tests a branch of its own. A benchmark that failed is left out of the mean and
-counted apart.
+OPENMP, and OPT styles, from one core to a full node), CPU only (decks of
+styles only the CPU machines run, of any package), and the INTEL package. A
+category is the geometric mean of the ratios of its benchmarks to their
+references - the mean of ratios, so that twice as fast and half as fast
+cancel out - over whichever machines run benchmarks of it: CPU/MPI and
+KOKKOS/OpenMP merge the `cpu` machine with the GCC builds of the `intel` one,
+even though the latter tests a branch of its own. A benchmark that failed is
+left out of the mean and counted apart.
 
 The dashboard card shows the last `TREND_RUNS` (25) nights, by UTC day: the
 machines run one after the other between about 04:00 and 10:00 UTC, so the
@@ -571,14 +573,15 @@ overall trend. A bar standing on zero cannot show a change of a few percent
 in one category, though; that is what the strips below it are for, one per
 category, with a bar up from the line of its references for a night it ran
 faster and down for a night it ran slower, 1.0% to the edge (`PERF_SCALE`):
-a category is the mean of 25 to 70 benchmarks, which moves by 0.05-0.2% from
-one night to the next, and by only about 0.3% when one benchmark in 30 changes
-by 10%. The strips carry the colors and names of the segments, and are the
-legend of the bars above them. `performance.html` draws the same charts at a
-readable size, lists the latest run of each machine with its build and
-hardware, and every benchmark with its latest result, its reference, the
-change since the run before, and its own history, in a strip that goes to
-10% (`PERF_ENTRY_SCALE`), the failures and the slowest first.
+a category is the mean of about 20 to 70 benchmarks, which moves by
+0.05-0.2% from one night to the next, and by only about 0.3% when one
+benchmark in 30 changes by 10%. The strips carry the colors and names of the
+segments, and are the legend of the bars above them. `performance.html`
+draws the same charts at a readable size, lists the latest run of each
+machine with its build and hardware, and every benchmark with its latest
+result, its reference, the change since the run before, and its own history,
+in a strip that goes to 10% (`PERF_ENTRY_SCALE`), the failures and the slowest
+first.
 `api/summary.json` carries the newest night under `performance`.
 
 No threshold is applied yet, and nothing is reported in the status issue:
