@@ -506,10 +506,8 @@ named like `linux-x86_64-gcc` by its platform and compiler, since "intel"
 alone would read as the INTEL package. It is checked, deduplicated, and
 archived by the same rules as the GPU builds.
 
-That machine tests a branch of its own (`collected-small-changes` of a fork)
-until the changes the Intel compilers need are merged into `develop`. That
-branch is not in lammps/lammps, so it has no pushes there, and its results
-are not judged as overdue (see above).
+Like the other test machines, it tests `develop`, so its results are judged
+as overdue by the same rule (see above).
 
 ## Performance benchmarks
 
@@ -556,9 +554,8 @@ styles only the CPU machines run, of any package), and the INTEL package. A
 category is the geometric mean of the ratios of its benchmarks to their
 references - the mean of ratios, so that twice as fast and half as fast
 cancel out - over whichever machines run benchmarks of it: CPU/MPI and
-KOKKOS/OpenMP merge the `cpu` machine with the GCC builds of the `intel` one,
-even though the latter tests a branch of its own. A benchmark that failed is
-left out of the mean and counted apart.
+KOKKOS/OpenMP merge the `cpu` machine with the GCC builds of the `intel` one.
+A benchmark that failed is left out of the mean and counted apart.
 
 The dashboard card shows the last `TREND_RUNS` (25) nights, by UTC day: the
 machines run one after the other between about 04:00 and 10:00 UTC, so the
