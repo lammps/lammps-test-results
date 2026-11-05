@@ -1595,13 +1595,17 @@ def perf_chart(history, width=234, stack=60, strip=14):
 
        a machine runs only when the branch it tests has changed, and on the
        other nights the results of its last run stand.  those are drawn faded,
-       so that a night without new results does not read as a confirmation'''
+       so that they do not read as a confirmation; a night in which no
+       machine ran is not in "history" at all.  the bars keep their pitch
+       while the archive fills, with the newest night at the right edge, as
+       in history_bars()'''
     keys = [key for key, _, _, _ in perfdata.CATEGORIES
             if any(scores.get(key, {}).get('percent') is not None
                    for _, _, scores in history)]
     if not keys:
         return ''
-    barw = width // len(history)
+    barw = width // TREND_RUNS
+    first = TREND_RUNS - len(history)
     totals = [sum(scores[key]['percent'] for key in keys
                   if scores.get(key, {}).get('percent') is not None)
               for _, _, scores in history]
@@ -1609,7 +1613,7 @@ def perf_chart(history, width=234, stack=60, strip=14):
     svg = (f'<svg width="100%" height="{stack}" viewBox="0 0 {width} {stack}" '
            f'preserveAspectRatio="none" role="img" '
            f'aria-label="performance of all categories over the last '
-           f'{len(history)} nights">')
+           f'{len(history)} nights with new runs">')
     for i, (day, _, scores) in enumerate(history):
         if not totals[i]:
             continue
@@ -1622,7 +1626,7 @@ def perf_chart(history, width=234, stack=60, strip=14):
             barh = score['percent'] / top * (stack - 2)
             y -= barh
             faded = '' if score['fresh'] else ' old'
-            svg += (f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+            svg += (f'<rect class="cat-{key}{faded}" x="{(first + i) * barw}" y="{y:.2f}" '
                     f'width="{barw - 2}" height="{barh:.2f}"/>')
         svg += '</g>'
     svg += f'<line x1="0" y1="{stack - 0.5}" x2="{width}" y2="{stack - 0.5}"/></svg>'
@@ -1657,11 +1661,11 @@ def perf_chart(history, width=234, stack=60, strip=14):
             svg += (f'<g><title>{esc(day)}: {esc(title)} {score["percent"]:.2f}% of'
                     f' the references ({score["entries"]} benchmarks{failed})'
                     f'{"" if score["fresh"] else ", no new run"}</title>'
-                    f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+                    f'<rect class="cat-{key}{faded}" x="{(first + i) * barw}" y="{y:.2f}" '
                     f'width="{barw - 2}" height="{barh:.2f}"/>')
             if abs(dev) > PERF_SCALE:
                 cap = 0 if dev > 0 else strip - 1
-                svg += (f'<rect class="cap" x="{i * barw}" y="{cap}" '
+                svg += (f'<rect class="cap" x="{(first + i) * barw}" y="{cap}" '
                         f'width="{barw - 2}" height="1"/>')
             svg += '</g>'
         svg += '</svg>'
@@ -1689,7 +1693,7 @@ def performance_card(history, machines):
     out += '<h3 class="h6 card-title"><a href="performance.html">Performance</a></h3>'
     out += perf_chart(history)
     out += (f'<div class="text-body-secondary small mt-1">percent of reference, last'
-            f' {len(history)} nights; strips &plusmn;{PERF_SCALE}%</div>')
+            f' {len(history)} nights with new runs; strips &plusmn;{PERF_SCALE}%</div>')
     out += perf_failures(history[-1][2])
     # one line for the three machines: which commit each last ran, with
     # the branch and the day as the tooltip
@@ -1717,8 +1721,10 @@ def perf_rate(value):
 
 def perf_entry_strip(values, width=125, height=16):
     '''the history of one benchmark, as a strip of the card: one bar per
-       night, up for faster than its reference and down for slower'''
-    barw = width // max(len(values), 1)
+       night, up for faster than its reference and down for slower, on the
+       columns of perf_chart()'''
+    barw = width // TREND_RUNS
+    first = TREND_RUNS - len(values)
     mid = height / 2
     svg = (f'<svg class="perf-strip" width="{width}" height="{height}" '
            f'viewBox="0 0 {width} {height}" role="img" '
@@ -1731,7 +1737,7 @@ def perf_entry_strip(values, width=125, height=16):
         barh = max(min(abs(dev), PERF_ENTRY_SCALE) / PERF_ENTRY_SCALE * (mid - 0.5), 0.6)
         y = mid - barh if dev > 0 else mid
         faded = '' if fresh else ' old'
-        svg += (f'<rect class="cat-{key}{faded}" x="{i * barw}" y="{y:.2f}" '
+        svg += (f'<rect class="cat-{key}{faded}" x="{(first + i) * barw}" y="{y:.2f}" '
                 f'width="{barw - 1}" height="{barh:.2f}">'
                 f'<title>{esc(day)}: {percent:.2f}%</title></rect>')
     return svg + '</svg>'
@@ -1750,10 +1756,11 @@ def build_performance_page(datadir, outdir, history, refs):
             ' copies the GPU machine runs side by side on its four GPUs, the best'
             ' one counts. A category is the geometric mean of the percentages of'
             ' its benchmarks, on whichever machines run them; a machine without a'
-            ' new run in a night keeps its last results, drawn faded.</p>')
+            ' new run in a night keeps its last results, drawn faded, and a night'
+            ' without any new run is left out.</p>')
     body += perf_chart(history, stack=120, strip=24)
     body += (f'<p class="text-body-secondary small mt-1">Percent of the references,'
-             f' last {len(history)} nights (UTC days), oldest on the left. The'
+             f' last {len(history)} nights with new runs (UTC days), oldest on the left. The'
              f' stacked bars are all categories together; the strips below them'
              f' show each category within &plusmn;{PERF_SCALE}% of its references,'
              f' up for faster, and those of the single benchmarks in the tables'

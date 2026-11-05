@@ -176,15 +176,17 @@ def ratios(datadir, refs, machine, runid):
     return out
 
 def nightly(datadir, refs, nights):
-    '''the performance of every category over the last "nights" days, as a
-       list of (day, {machine: (runid, fresh)}, {category: score}) from the
-       oldest day to the newest, which is the newest day any machine ran.
+    '''the performance of every category over the last "nights" nights in
+       which any machine ran, as a list of (day, {machine: (runid, fresh)},
+       {category: score}) from the oldest night to the newest.
 
        a machine runs only when the branch it tests has changed, so on a
        night without a run of its own the results of its last run stand: the
        code did not change.  a category therefore always merges the newest
        results of every machine that runs benchmarks of it, and "fresh"
-       tells a run of that very night from one carried over.  a score is
+       tells a run of that very night from one carried over.  a night in
+       which no machine ran would only repeat the one before, and is left
+       out.  a score is
 
            {"percent": <geometric mean of the ratios to the references>,
             "entries": <benchmarks measured>, "failed": <benchmarks that
@@ -195,13 +197,9 @@ def nightly(datadir, refs, nights):
        runs twice as fast and one that runs half as fast cancel out'''
     runs = {machine: [(night_of(runid), runid) for runid in list_runs(datadir, machine)]
             for machine in list_machines(datadir)}
-    days = [day for listed in runs.values() for day, _ in listed if day]
-    if not days:
-        return []
-    newest = max(days)
+    days = sorted({day for listed in runs.values() for day, _ in listed if day})
     out = []
-    for back in range(nights - 1, -1, -1):
-        day = newest - datetime.timedelta(days=back)
+    for day in days[-nights:]:
         current = {}
         for machine, listed in runs.items():
             older = [(when, runid) for when, runid in listed if when and when <= day]

@@ -557,12 +557,15 @@ cancel out - over whichever machines run benchmarks of it: CPU/MPI and
 KOKKOS/OpenMP merge the `cpu` machine with the GCC builds of the `intel` one.
 A benchmark that failed is left out of the mean and counted apart.
 
-The dashboard card shows the last `TREND_RUNS` (25) nights, by UTC day: the
-machines run one after the other between about 04:00 and 10:00 UTC, so the
-runs of one night share their day. A machine without a run in a night keeps
-the results of its last one, since the code it tests did not change; those
-are drawn faded, so that a night without new results does not read as a
-confirmation. The card has two charts on the same columns. Above, one bar
+The dashboard card shows the last `TREND_RUNS` (25) nights in which any
+machine ran, by UTC day: the machines run one after the other between about
+04:00 and 10:00 UTC, so the runs of one night share their day. A night in
+which no machine ran would only repeat the one before, and is left out. A
+machine without a run in a night keeps the results of its last one, since
+the code it tests did not change; those are drawn faded, so that they do not
+read as a confirmation. The bars keep their width while the archive fills,
+with the newest night at the right edge, as on the cards of the test suites.
+The card has two charts on the same columns. Above, one bar
 per night stacked from one segment per category, each as tall as the
 percentage of its references it reached, so that the height of a bar is the
 performance of all benchmarks together and its course over the weeks the
