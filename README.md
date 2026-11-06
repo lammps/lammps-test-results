@@ -49,6 +49,11 @@ website and a rolling GitHub status issue.
   and publish them on download.lammps.org (`tools/fetch_performance.py`, see
   below); the dashboard shows how they compare with a reference per
   benchmark, by category.
+- The nightly builds of the LAMMPS and LAMMPS-GUI packages publish how each of
+  their tasks went (`tools/fetch_nightly.py`, see below), which is archived
+  here since only the newest build is published.
+- The lines of code of LAMMPS are counted once a week and published as well
+  (`tools/fetch_codesize.py`, see below).
 - Summaries of the server-side reports (code coverage, static analysis) can
   be ingested as `data/external/*.json`; the state of the Coverity Scan is
   collected from two sources, the analysis metrics of the project overview
@@ -85,6 +90,8 @@ scripts that talk to GitHub):
     python3 tools/fetch_regression.py --dry-run # latest regression results
     python3 tools/fetch_performance.py --dry-run  # latest benchmark results
     python3 tools/perf_reference.py --machine <m> --match <regex> --note <why>
+    python3 tools/fetch_nightly.py --dry-run    # newest nightly package build
+    python3 tools/fetch_codesize.py --dry-run   # newest count of the lines of code
     python3 tools/fetch_pushes.py               # pushes to the tested branches
     python3 tools/fetch_docs.py                 # manual build status
     python3 tools/fetch_team.py                 # core developer activity
@@ -587,6 +594,61 @@ first.
 No threshold is applied yet, and nothing is reported in the status issue:
 which change is worth a notification is to be decided once the benchmarks
 have run unchanged for a while.
+
+## Nightly package builds
+
+The scripts of the lammps-release repository build the packages of LAMMPS and
+LAMMPS-GUI every night, whenever develop has changed since the last build, and
+upload them to a dated folder under <https://download.lammps.org/nightly/>.
+The build is made of tasks: `boot` and `shutdown` start and stop the containers
+and the virtual machine it runs in, and `macos`, `linux`, `static`, `flatpak`,
+and `windows` each build one kind of package. How long each took and whether it
+succeeded is published as <https://download.lammps.org/coverage/nightly.json>,
+together with the branch, commit, and version of LAMMPS that was built.
+
+Only the status of the newest build is published, so `tools/fetch_nightly.py`
+archives it as `data/nightly/<folder>.json` (the layout is documented in
+`tools/nightlydata.py`). A folder is replaced when a build is repeated on the
+same day, and so is its file. A night without a build adds nothing, since
+there is nothing new to report, and a status file that is unreachable or not
+usable is skipped with a warning.
+
+The dashboard card shows how the newest build went, and one strip per task
+over the last 25 builds: a bar as tall as the time the task took against the
+longest of them, since the tasks take anything from seconds to more than an
+hour. A task that failed usually stopped early, so its time says nothing and a
+short bar would hide the failure: its bar fills the strip, in red, with the time
+as its tooltip. A task added on the build machine shows up by itself, after the
+ones `tools/nightlydata.py` knows the order and the name of.
+
+The builds are judged for being overdue like the results of the test machines
+(see above), by the branch and commit in the status file. `api/summary.json`
+carries the newest build under `nightly`, and lists it as `nightly-builds` under
+`overdue`. Nothing is reported in the status issue.
+
+## Code size
+
+`codesize.py` in the lammps-analyze repository counts the lines of code of the
+develop branch once a week, per folder below `src/` and `lib/`, and publishes
+them as <https://download.lammps.org/analysis/codesize.json>. It reports on the
+last full week, from Sunday to Saturday as the weekly commits of the activity
+card. A line counts unless it is blank or holds nothing but a comment, as the
+"code" column of `cloc`.
+
+Only the newest week is published, so `tools/fetch_codesize.py` archives it as
+`data/codesize/<week>.json` (the layout is documented in
+`tools/codesizedata.py`). The weeks before the first run of the job were filled
+in once from a local clone, as described in `codesize.py`.
+
+The dashboard card puts the folders into groups, with the presets of the newest
+week for all of the history, so that a change of the groups in
+`tools/codesizedata.py` needs no new count. It shows one stacked bar per week
+for the last 26 weeks, and below it one strip per group with the lines gained
+or lost in each week. The size of the code changes too slowly for the bars to
+show more than the larger steps, and the groups change by very different
+amounts, so that each strip is scaled to its own largest change. The footer
+turns red when no new week has come in for 14 days. Nothing is reported in the
+status issue.
 
 ## Documentation build status
 

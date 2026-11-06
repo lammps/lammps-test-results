@@ -208,9 +208,12 @@ def list_suites(datadir):
         return suites
     for entry in sorted(os.listdir(datadir), key=suite_sort_key):
         path = os.path.join(datadir, entry)
-        # the report summaries and the performance benchmarks are kept beside
-        # the suites, but are not test runs (tools/perfdata.py)
-        if not os.path.isdir(path) or entry in ('external', 'performance'):
+        # the report summaries, the performance benchmarks, and the status of
+        # the package builds and the code size are kept beside the suites, but
+        # are not test runs (tools/perfdata.py, tools/nightlydata.py,
+        # tools/codesizedata.py)
+        if not os.path.isdir(path) or entry in ('external', 'performance', 'nightly',
+                                                'codesize'):
             continue
         # runs directly below the suite directory: a single configuration.
         # both layouts are recognized side by side, so a suite can grow

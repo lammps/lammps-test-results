@@ -4,6 +4,8 @@ Generate the static LAMMPS test status website from the archived run data.
 
 Reads:  data/<suite>/<runid>/run.json   (see tools/rundata.py for the layout)
         data/performance/               (see tools/perfdata.py)
+        data/nightly/                   (see tools/nightlydata.py)
+        data/codesize/                  (see tools/codesizedata.py)
         data/external/*.json            (optional summaries, e.g. coverage)
         static/                         (vendored Bootstrap, brand CSS, logo)
 Writes: _site/index.html                (dashboard)
@@ -36,7 +38,9 @@ import sys
 
 TOPDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(os.path.join(TOPDIR, 'tools'))
+import codesizedata
 import docsdata
+import nightlydata
 import perfdata
 import rundata
 
@@ -420,6 +424,10 @@ OVERDUE_HOURS = 24
 # built by the scheduled job has just rewritten it, so this is only ever
 # seen on a site rebuilt after a push to this repository
 INGEST_STALE_HOURS = 50
+# the nightly package builds are not a suite, but are judged like one, by the
+# branch and commit they report.  they are listed under this name
+NIGHTLY_SUITE = 'nightly-builds'
+NIGHTLY_URL = 'https://download.lammps.org/nightly/'
 
 def runid_time(runid):
     '''the time a run id is stamped with, as an aware datetime, or None'''
@@ -484,6 +492,17 @@ def overdue_state(summary, now=None):
                 f" {moved:%Y-%m-%d %H:%M} UTC")
         state['suites'][entry['suite']] = text
         state['entries'].append((text, run_link(entry['suite'], entry['latest'])))
+    builds = summary.get('nightly')
+    latest = builds[-1] if builds else {}
+    branch, sha = latest.get('branch', ''), latest.get('commit', '')
+    finished = docsdata.parse_iso(latest.get('date'))
+    moved = moved_on(branches.get(branch, []), sha, finished) if finished else None
+    if moved and (now - max(moved, finished)).total_seconds() > OVERDUE_HOURS * 3600:
+        text = (f"nightly package builds: the newest build is of {branch} @ {sha[:10]}"
+                f" from {finished:%Y-%m-%d %H:%M} UTC, and {branch} moved on"
+                f" {moved:%Y-%m-%d %H:%M} UTC")
+        state['suites'][NIGHTLY_SUITE] = text
+        state['entries'].append((text, latest.get('url', NIGHTLY_URL)))
     notes = []
     report = external.get('ingest')
     if report:
@@ -596,6 +615,98 @@ def activity_card(activity, team_page=False):
     if team_page:
         out += ('<div class="mt-2 small"><a href="team.html">'
                 'Core developer activity</a></div>')
+    return out + '</div></div></div>'
+
+CODE_WEEKS = 26
+# two runs of the weekly count in a row would have to be missing
+CODE_STALE_DAYS = 14
+# a group that hardly changes should not look as busy as one that does
+CODE_MIN_SCALE = 100
+
+def lines_text(lines):
+    '''a number of lines in the few digits a card has room for'''
+    if lines >= 1000000:
+        return f'{lines / 1000000:.2f} M'
+    return f'{lines / 1000:.0f} k' if lines >= 1000 else str(lines)
+
+def code_size_card(weeks, now=None, width=234, stack=60, strip=14):
+    '''dashboard card with the lines of code over the last CODE_WEEKS weeks,
+       as two charts on the same columns like the performance card.
+
+       above, one stacked bar per week with one segment per group: the height
+       of a bar is the size of the code.  a bar stands on zero, and the code
+       grows by a percent or so in a month, so it can only show the larger
+       steps.  the strips below it show what happened in a week, one per
+       group, with a bar up for the lines it gained and down for those it
+       lost, each to its largest change, since they differ by orders of
+       magnitude: a week without a bar is one in which nothing changed.  the
+       strips carry the colors and the names of the segments, which makes them
+       the legend of the bars above.  "weeks" may hold one more week than is
+       drawn, for the change in the first one'''
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    latest = weeks[-1]
+    presets = latest.get('presets', {})
+    groups = [codesizedata.group_lines(week, presets) for week in weeks]
+    first = max(len(weeks) - CODE_WEEKS, 0)
+    keys = [key for key, _, _ in codesizedata.GROUPS]
+    barw = width // CODE_WEEKS
+    left = CODE_WEEKS - (len(weeks) - first)
+    totals = [sum(lines.values()) for lines in groups]
+    top = max(max(totals), 1)
+    svg = (f'<svg width="100%" height="{stack}" viewBox="0 0 {width} {stack}" '
+           f'preserveAspectRatio="none" role="img" aria-label="lines of code of the'
+           f' last {len(weeks) - first} weeks">')
+    for i in range(first, len(weeks)):
+        detail = ', '.join(f'{label} {groups[i][key]:,}'
+                           for key, label, _ in codesizedata.GROUPS)
+        svg += (f'<g><title>week of {esc(weeks[i].get("week", ""))}: {totals[i]:,} lines'
+                f' ({esc(detail)})</title>')
+        y = stack - 1
+        for key in keys:
+            barh = groups[i][key] / top * (stack - 2)
+            y -= barh
+            svg += (f'<rect class="code-{key}" x="{(left + i - first) * barw}" y="{y:.2f}" '
+                    f'width="{barw - 2}" height="{barh:.2f}"/>')
+        svg += '</g>'
+    svg += f'<line x1="0" y1="{stack - 0.5}" x2="{width}" y2="{stack - 0.5}"/></svg>'
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += (f'<h3 class="h6 card-title"><a href="https://github.com/{CI_REPO}/tree/'
+            f'{esc(latest.get("branch", CI_BRANCH))}">Code size</a></h3>')
+    out += (f'<div class="perf"><div class="lbl">all</div>{svg}'
+            f'<div class="lbl n" title="{totals[-1]:,} lines">{lines_text(totals[-1])}</div>')
+
+    mid = strip / 2
+    for key, label, detail in codesizedata.GROUPS:
+        changes = [groups[i][key] - groups[i - 1][key] if i else 0
+                   for i in range(len(weeks))]
+        scale = max(max(abs(change) for change in changes[first:]), CODE_MIN_SCALE)
+        svg = (f'<svg width="100%" height="{strip}" viewBox="0 0 {width} {strip}" '
+               f'preserveAspectRatio="none" role="img" '
+               f'aria-label="{esc(label)}, lines of code gained or lost per week">')
+        svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
+        for i in range(first, len(weeks)):
+            if not changes[i]:
+                continue
+            barh = max(abs(changes[i]) / scale * (mid - 0.5), 0.6)
+            y = mid - barh if changes[i] > 0 else mid
+            svg += (f'<g><title>week of {esc(weeks[i].get("week", ""))}: {esc(label)}'
+                    f' {groups[i][key]:,} lines ({changes[i]:+,})</title>'
+                    f'<rect class="code-{key}" x="{(left + i - first) * barw}" y="{y:.2f}" '
+                    f'width="{barw - 2}" height="{barh:.2f}"/></g>')
+        svg += '</svg>'
+        out += (f'<div class="lbl" title="{esc(detail)}">'
+                f'<span class="sw code-{key}"></span>{esc(label)}</div>{svg}'
+                f'<div class="lbl n" title="{groups[-1][key]:,} lines">'
+                f'{lines_text(groups[-1][key])}</div>')
+    out += '</div>'
+    out += (f'<div class="text-body-secondary small mt-1">lines of code, last'
+            f' {len(weeks) - first} weeks; strips: change per week, each to its largest</div>')
+    ended = datetime.date.fromisoformat(latest['week']) + datetime.timedelta(days=7)
+    stale = ''
+    if (now.date() - ended).days > CODE_STALE_DAYS:
+        stale = f'the lines of code were last counted for the week of {latest["week"]}'
+    out += card_footer(latest.get('branch', ''), latest.get('commit', ''),
+                       utc_stamp(latest.get('date', '')), stale)
     return out + '</div></div></div>'
 
 def coverity_body(coverity):
@@ -717,6 +828,88 @@ def docs_card(docs):
     if notes:
         out += (f'<div class="text-body-secondary small">'
                 f'{" &middot; ".join(notes)}</div>')
+    return out + '</div></div></div>'
+
+def duration_text(seconds):
+    '''a time as readable as the place it is shown in allows: seconds where
+       they are all there is, and minutes from there on'''
+    if seconds < 60:
+        return f'{seconds} s'
+    minutes = round(seconds / 60)
+    return f'{minutes // 60} h {minutes % 60} min' if minutes >= 60 else f'{minutes} min'
+
+def nightly_strip(builds, task, label, width=234, strip=14):
+    '''one task of the nightly package builds over the last TREND_RUNS builds:
+       a bar per build as tall as the time it took, against the longest of
+       them, since the tasks take anything from seconds to more than an hour.
+       a task that failed usually stopped early, so its time says nothing and
+       a short bar would hide the failure: it fills the strip.  the bars keep
+       their pitch while the archive fills, with the newest build at the right
+       edge, as in history_bars()'''
+    barw = width // TREND_RUNS
+    first = TREND_RUNS - len(builds)
+    top = max(max(nightlydata.seconds(build, task) for build in builds), 1)
+    svg = (f'<svg class="trend" width="100%" height="{strip}" '
+           f'viewBox="0 0 {width} {strip}" preserveAspectRatio="none" role="img" '
+           f'aria-label="{esc(label)}, outcome and time of the last {len(builds)} builds">')
+    for i, build in enumerate(builds):
+        if task not in (build.get('tasks') or {}):
+            continue
+        seconds = nightlydata.seconds(build, task)
+        passed = nightlydata.passed(build, task)
+        barh = max(seconds / top * (strip - 1), 1) if passed else strip - 1
+        svg += (f'<g><title>{esc(build.get("folder", ""))}: {esc(label)}'
+                f' {"passed" if passed else "failed"} after {duration_text(seconds)}'
+                f'</title><rect class="st-{"passed" if passed else "failed"}"'
+                f' x="{(first + i) * barw}" y="{strip - 1 - barh:.2f}"'
+                f' width="{barw - 2}" height="{barh:.2f}"/></g>')
+    return svg + f'<line x1="0" y1="{strip - 0.5}" x2="{width}" y2="{strip - 0.5}"/></svg>'
+
+def nightly_card(builds, overdue):
+    '''dashboard card with the nightly package builds: how the newest one went,
+       and each of its tasks over the last TREND_RUNS builds.  a night without
+       a build has nothing to show, since develop did not change, and is not
+       in the archive at all'''
+    latest = builds[-1]
+    url = latest.get('url', NIGHTLY_URL)
+    tasks = latest.get('tasks') or {}
+    failed = sum(1 for task in tasks if not nightlydata.passed(latest, task))
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += (f'<h3 class="h6 card-title"><a href="{esc(url)}">Nightly package builds</a>'
+            f'{overdue_mark(overdue, NIGHTLY_SUITE)}</h3>')
+    out += '<div class="d-flex flex-wrap gap-3 my-2">'
+    for label, num, cls in (('Tasks', len(tasks), ''),
+                            ('Passed', len(tasks) - failed, 'st-passed'),
+                            ('Failed', failed, 'st-failed'),
+                            ('Time', duration_text(nightlydata.total_seconds(latest)), '')):
+        out += (f'<div class="tile {cls}"><div class="num">{esc(num)}</div>'
+                f'<div class="lbl">{label}</div></div>')
+    out += '</div><div class="perf">'
+    labels = {key: (label, detail) for key, label, detail in nightlydata.TASKS}
+    for task in nightlydata.task_order(builds):
+        label, detail = labels.get(task, (task, ''))
+        out += f'<div class="lbl" title="{esc(detail)}">{esc(label)}</div>'
+        out += nightly_strip(builds, task, label)
+        # a task of an earlier build that the newest one no longer has
+        if task in tasks:
+            seconds = nightlydata.seconds(latest, task)
+            status = 'passed' if nightlydata.passed(latest, task) else 'failed'
+            out += (f'<div class="lbl n" title="{esc(LABELS[status])}, {seconds} s">'
+                    f'{duration_text(seconds)} <span class="status st-{status}">'
+                    f'<span class="ico">{ICONS[status]}</span></span></div>')
+        else:
+            out += '<div class="lbl n">&mdash;</div>'
+    out += '</div>'
+    out += (f'<div class="text-body-secondary small mt-1">time per task, each to its'
+            f' longest, last {len(builds)} build(s)</div>')
+    folder = latest.get('folder', '')
+    out += (f'<div class="mt-2 small"><a href="{esc(url)}{esc(folder)}/">'
+            f'Packages of {esc(folder)}</a></div>')
+    out += (f'<div title="LAMMPS version: {esc(latest.get("version", ""))}">'
+            + card_footer(latest.get('branch', ''), latest.get('commit', ''),
+                          utc_stamp(latest.get('date', '')),
+                          overdue['suites'].get(NIGHTLY_SUITE, ''))
+            + '</div>')
     return out + '</div></div></div>'
 
 SPELLING_LIMIT = 1000
@@ -1613,7 +1806,7 @@ def perf_chart(history, width=234, stack=60, strip=14):
     svg = (f'<svg width="100%" height="{stack}" viewBox="0 0 {width} {stack}" '
            f'preserveAspectRatio="none" role="img" '
            f'aria-label="performance of all categories over the last '
-           f'{len(history)} nights with new runs">')
+           f'{len(history)} nightly runs">')
     for i, (day, _, scores) in enumerate(history):
         if not totals[i]:
             continue
@@ -1933,11 +2126,10 @@ def build_index(datadir, outdir, summary):
         if summary.get('performance'):
             body += performance_card(summary['performance'],
                                      summary['performance_machines'])
-        if 'activity' in summary.get('external', {}):
-            body += activity_card(summary['external']['activity'],
-                                  summary.get('team_page'))
-        if 'docs' in summary.get('external', {}):
-            body += docs_card(summary['external']['docs'])
+        if summary.get('codesize'):
+            body += code_size_card(summary['codesize'])
+        if summary.get('nightly'):
+            body += nightly_card(summary['nightly'], overdue)
         body += '</div>'
 
     # external report summaries (coverage, static analysis)
@@ -1988,7 +2180,13 @@ def build_index(datadir, outdir, summary):
     else:
         body += ('<div class="text-body-secondary small">summary not collected yet;'
                  ' see scan.coverity.com</div>')
-    body += '</div></div></div></div>'
+    body += '</div></div></div>'
+    # how the repository is doing, and the builds of the manual
+    if 'activity' in external:
+        body += activity_card(external['activity'], summary.get('team_page'))
+    if 'docs' in external:
+        body += docs_card(external['docs'])
+    body += '</div>'
 
     with open(os.path.join(outdir, 'index.html'), 'w') as f:
         f.write(page('Dashboard', body))
@@ -2094,6 +2292,8 @@ if __name__ == "__main__":
                 'runid': runid, 'branch': meta.get('branch', ''),
                 'sha': meta.get('sha', ''), 'day': str(perfdata.night_of(runid))}
         build_performance_page(args.datadir, args.outdir, summary['performance'], refs)
+    summary['nightly'] = nightlydata.load_builds(args.datadir, TREND_RUNS)
+    summary['codesize'] = codesizedata.load_weeks(args.datadir, CODE_WEEKS + 1)
     build_trends_page(args.outdir, summary)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)
@@ -2118,6 +2318,9 @@ if __name__ == "__main__":
             'categories': {key: {k: v for k, v in score.items() if k != 'machines'}
                            for key, score in scores.items()},
             'machines': summary['performance_machines']}
+    # the newest of the nightly package builds, as it was published
+    if summary['nightly']:
+        api['nightly'] = summary['nightly'][-1]
     for entry in api['suites']:
         if 'diff' in entry:
             entry['diff'] = {k: len(v) for k, v in entry['diff'].items()}
@@ -2129,6 +2332,10 @@ if __name__ == "__main__":
     print(f"Generated site for {nsuites} suite(s) in {args.outdir}/")
     if summary['performance']:
         print("Performance: " + ', '.join(sorted(summary['performance_machines'])))
+    if summary['nightly']:
+        print(f"Nightly package builds: {len(summary['nightly'])}")
+    if summary['codesize']:
+        print(f"Weeks of code size: {len(summary['codesize'])}")
     if spelling:
         print("Spellchecker: " + ', '.join(f"{branch} {count} word(s)"
                                            for branch, count in spelling.items()))
