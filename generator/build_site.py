@@ -102,6 +102,7 @@ def page(title, body, root=''):
     </a>
     <span class="navbar-text text-white me-auto">Test Status</span>
     <ul class="navbar-nav flex-row gap-3 me-3">
+      <li class="nav-item"><a class="nav-link" href="https://ci.lammps.org/">Buildbot</a></li>
       <li class="nav-item"><a class="nav-link" href="{root}index.html">Dashboard</a></li>
       <li class="nav-item"><a class="nav-link" href="{root}trends.html">Trends</a></li>
       <li class="nav-item"><a class="nav-link" href="https://www.lammps.org/">lammps.org</a></li>
