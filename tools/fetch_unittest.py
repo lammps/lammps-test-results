@@ -88,12 +88,15 @@ GPU_SUMMARY_URL = 'https://download.lammps.org/gpu-results/{}-summary.json'
 ONEAPI_CONFIG = 'linux-x86_64-oneapi'
 ONEAPI_URL = 'https://download.lammps.org/intel-results/intel-junit.xml'
 ONEAPI_SUMMARY_URL = 'https://download.lammps.org/intel-results/intel-summary.json'
+MACOS_CONFIG = 'macos-x86_64'
+MACOS_URL = 'https://download.lammps.org/coverage/macos-x86_64-junit.xml'
+MACOS_SUMMARY_URL = 'https://download.lammps.org/coverage/macos-x86_64-summary.json'
 # every published run as (config, JUnit URL, summary URL)
-SOURCES = [(CONFIG, URL, SUMMARY_URL)] + [
+SOURCES = [(CONFIG, URL, SUMMARY_URL), (MACOS_CONFIG, MACOS_URL, MACOS_SUMMARY_URL)] + [
     (f'{api}-{precision}', GPU_URL.format(f'{api}-{precision}'),
      GPU_SUMMARY_URL.format(f'{api}-{precision}'))
     for api in ('cuda', 'opencl') for precision in ('single', 'mixed', 'double')] + [
-    (ONEAPI_CONFIG, ONEAPI_URL, ONEAPI_SUMMARY_URL)]
+            (ONEAPI_CONFIG, ONEAPI_URL, ONEAPI_SUMMARY_URL)]
 SUITE = 'unit-tests'
 # the banner every LAMMPS run prints, quoted in the captured test output
 GIT_INFO = re.compile(r'Git info \([^)]*\)')
