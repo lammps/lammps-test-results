@@ -19,8 +19,8 @@ The branches are those named by the newest run of each suite a test machine
 publishes (the runs that record a source_url).  A branch that is not on
 GitHub - the machines are pointed at branches of their own while their setup
 is being worked on - comes back without any pushes, and a result of it is
-not judged.  The judgment itself is made by the site generator
-(OVERDUE_HOURS there), since it depends on the time the site is built.
+not judged.  The judgment itself is made when the site is built and the status
+issue updated (OVERDUE_HOURS in tools/rundata.py), since it depends on the time.
 
 A branch whose activity cannot be fetched keeps what the previous file held
 for it, and the file is left alone where nothing could be fetched at all.

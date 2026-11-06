@@ -417,7 +417,7 @@ def stale_chain_parts(summary):
 # when the branch moved is taken from the pushes GitHub records for it
 # (tools/fetch_pushes.py); a branch that is not on GitHub has none, and a
 # result of it is not judged
-OVERDUE_HOURS = 24
+OVERDUE_HOURS = rundata.OVERDUE_HOURS
 # the collectors are polled once a day, so a report of tools/ingest_actions.py
 # that has not been rewritten in two days means the collection itself
 # stopped, and every result on the page may be older than it looks.  a site
@@ -440,29 +440,7 @@ def runid_time(runid):
             pass
     return None
 
-def same_commit_id(one, other):
-    '''whether two commit hashes name the same commit, either abbreviated'''
-    return bool(one and other) and (one.startswith(other) or other.startswith(one))
-
-def moved_on(pushes, sha, since):
-    '''when a branch moved on from the commit a run of it tested, or None
-       where it has not as far as the pushes recorded for it (newest first)
-       go.  that is the last push that took the branch away from the commit,
-       which can predate the run where the branch moved while it ran, or
-       failing that the first push after the run, for a commit that never was
-       a branch head of its own (several commits pushed at once)'''
-    if not pushes or same_commit_id(pushes[0].get('after', ''), sha):
-        return None
-    moves = []
-    away = next((push for push in pushes
-                 if same_commit_id(push.get('before', ''), sha)), None)
-    if away:
-        moves.append(docsdata.parse_iso(away.get('timestamp')))
-    if since:
-        moves += [when for when in (docsdata.parse_iso(push.get('timestamp'))
-                                    for push in pushes) if when and when > since]
-    moves = [when for when in moves if when]
-    return min(moves) if moves else None
+moved_on = rundata.moved_on
 
 def overdue_state(summary, now=None):
     '''what the dashboard warns about, as a dict with
@@ -494,10 +472,10 @@ def overdue_state(summary, now=None):
         state['entries'].append((text, run_link(entry['suite'], entry['latest'])))
     builds = summary.get('nightly')
     latest = builds[-1] if builds else {}
-    branch, sha = latest.get('branch', ''), latest.get('commit', '')
-    finished = docsdata.parse_iso(latest.get('date'))
-    moved = moved_on(branches.get(branch, []), sha, finished) if finished else None
-    if moved and (now - max(moved, finished)).total_seconds() > OVERDUE_HOURS * 3600:
+    moved = nightlydata.overdue_since(latest, branches, now)
+    if moved:
+        branch, sha = latest.get('branch', ''), latest.get('commit', '')
+        finished = docsdata.parse_iso(latest.get('date'))
         text = (f"nightly package builds: the newest build is of {branch} @ {sha[:10]}"
                 f" from {finished:%Y-%m-%d %H:%M} UTC, and {branch} moved on"
                 f" {moved:%Y-%m-%d %H:%M} UTC")
@@ -830,13 +808,7 @@ def docs_card(docs):
                 f'{" &middot; ".join(notes)}</div>')
     return out + '</div></div></div>'
 
-def duration_text(seconds):
-    '''a time as readable as the place it is shown in allows: seconds where
-       they are all there is, and minutes from there on'''
-    if seconds < 60:
-        return f'{seconds} s'
-    minutes = round(seconds / 60)
-    return f'{minutes // 60} h {minutes % 60} min' if minutes >= 60 else f'{minutes} min'
+duration_text = nightlydata.duration_text
 
 def nightly_strip(builds, task, label, width=234, strip=14):
     '''one task of the nightly package builds over the last TREND_RUNS builds:

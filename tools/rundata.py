@@ -49,6 +49,8 @@ import json
 import os
 import re
 
+import docsdata
+
 # statuses that count as broken; a timeout is not among them, see above
 BAD = ('failed', 'error')
 # statuses a test can be classified as (status_of()), in the order they are
@@ -577,3 +579,31 @@ def verdicts_moved(datadir, suite, runid, tests):
     now = verdicts(tests)
     return sum(1 for key in set(before) | set(now)
                if before.get(key) != now.get(key))
+
+# how long a result may lag behind the branch it tests before it counts as
+# overdue (generator/build_site.py says why)
+OVERDUE_HOURS = 24
+
+def same_commit_id(one, other):
+    '''whether two commit hashes name the same commit, either abbreviated'''
+    return bool(one and other) and (one.startswith(other) or other.startswith(one))
+
+def moved_on(pushes, sha, since):
+    '''when a branch moved on from the commit a run of it tested, or None
+       where it has not as far as the pushes recorded for it (newest first)
+       go.  that is the last push that took the branch away from the commit,
+       which can predate the run where the branch moved while it ran, or
+       failing that the first push after the run, for a commit that never was
+       a branch head of its own (several commits pushed at once)'''
+    if not pushes or same_commit_id(pushes[0].get('after', ''), sha):
+        return None
+    moves = []
+    away = next((push for push in pushes
+                 if same_commit_id(push.get('before', ''), sha)), None)
+    if away:
+        moves.append(docsdata.parse_iso(away.get('timestamp')))
+    if since:
+        moves += [when for when in (docsdata.parse_iso(push.get('timestamp'))
+                                    for push in pushes) if when and when > since]
+    moves = [when for when in moves if when]
+    return min(moves) if moves else None

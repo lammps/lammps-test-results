@@ -21,6 +21,13 @@ stays broken is announced once rather than every night. The words the
 spellchecker flagged in the development version are counted in the body as
 well, but never announced: they are a to-do list, not a broken build.
 
+The nightly package builds (tools/fetch_nightly.py) are reported like that, too:
+the body shows the newest build, and a comment is posted when the tasks that
+failed change, when a build is overdue, and when the builds recover.  What was
+announced last is recorded in a hidden marker, the same way as for the manuals,
+so that a task that stays broken is announced once.  A build that fails before
+it gets to publish its status can only show up as being overdue.
+
 Comments are deleted again once they are older than a month: by then an
 announcement is no longer news, and the website keeps the history. A comment
 that a later update still depends on to recognize what was announced already
@@ -37,11 +44,13 @@ from argparse import ArgumentParser
 import datetime
 import json
 import os
+import re
 import subprocess
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import docsdata
+import nightlydata
 import rundata
 
 LABEL = 'test-status'
@@ -53,6 +62,8 @@ MARKER = '<!-- test-status -->'
 KEEP_DAYS = 30
 # the last line of every comment posted by this script (build_comment())
 FOOTER = 'Full details on the [test status website]('
+# the hidden record of what was last announced about the nightly package builds
+NIGHTLY_MARKER = re.compile(r'<!-- nightly-status: (.*?) -->')
 
 def gh(args_list, check=True):
     result = subprocess.run(['gh'] + args_list, capture_output=True, text=True)
@@ -133,10 +144,47 @@ def docs_table(docs, site_url='', now=None):
                  f" a typo, so this is a to-do list rather than a failure.\n")
     return body
 
-def build_body(snapshot, docs, site_url):
+def load_pushes(datadir):
+    '''the recorded pushes per branch, as far as they have been fetched'''
+    try:
+        with open(os.path.join(datadir, 'external', 'pushes.json')) as f:
+            return json.load(f).get('branches', {})
+    except (OSError, ValueError):
+        return {}
+
+def nightly_ident(build):
+    '''which code a package build was of, as markdown'''
+    return ' @ '.join(f"`{part}`" for part in (build.get('branch', ''),
+                                               build.get('commit', '')[:10]) if part)
+
+def nightly_table(build, pushes, now=None):
+    '''how the newest package build went'''
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    failed = nightlydata.failed_tasks(build)
+    moved = nightlydata.overdue_since(build, pushes, now)
+    icon = ':x:' if failed else ':warning:' if moved else ':white_check_mark:'
+    status = 'passed'
+    if failed:
+        status = 'failed: ' + ', '.join(nightlydata.TASK_LABELS.get(task, task)
+                                        for task in failed)
+    if moved:
+        status += (f"; no newer build since {build.get('branch', '')} moved on"
+                   f" {moved:%Y-%m-%d %H:%M} UTC")
+    folder = build.get('folder', '?')
+    tasks = build.get('tasks') or {}
+    return ("\n### Nightly package builds\n\n"
+            "| Packages | Status | Commit | Tasks passed | Time | Finished |\n"
+            "|---|---|---|---:|---:|---|\n"
+            f"| {icon} [{folder}]({build.get('url', '')}{folder}/) | {status} |"
+            f" {nightly_ident(build)} | {len(tasks) - len(failed)} of {len(tasks)} |"
+            f" {nightlydata.duration_text(nightlydata.total_seconds(build))} |"
+            f" {docsdata.fmt_utc(build.get('date'))} |\n")
+
+def build_body(snapshot, docs, site_url, nightly=''):
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    body = (f"{MARKER}\nCurrent status of the automated LAMMPS test runs and manual"
-            f" builds. Full details on the [test status website]({site_url}).\n\n"
+    body = (f"{MARKER}\nCurrent status of the automated LAMMPS test runs, manual"
+            f" builds, and package builds. Full details on the"
+            f" [test status website]({site_url}).\n\n"
             f"This status table is updated in place (no notifications); a comment is posted"
             f" only when new failures appear or failures are fixed - subscribe to this"
             f" issue to be notified about regressions.\n\n")
@@ -185,6 +233,7 @@ def build_body(snapshot, docs, site_url):
                  " nor skipped.\n")
     if docs:
         body += docs_table(docs, site_url)
+    body += nightly
     body += f"\n_Last updated: {now}_\n"
     return body
 
@@ -287,6 +336,40 @@ def docs_sections(docs, posted, now=None):
         sections.append({'heading': heading, 'text': text})
     return sections
 
+def nightly_sections(build, pushes, posted, now=None):
+    '''a markdown section when the state of the newest package build differs
+       from what was announced last.  nothing announced counts as all being
+       well, so that a build that has only ever passed is never mentioned'''
+    if not build:
+        return []
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    failed = nightlydata.failed_tasks(build)
+    moved = nightlydata.overdue_since(build, pushes, now)
+    state = ','.join(failed + (['overdue'] if moved else [])) or 'ok'
+    announced = NIGHTLY_MARKER.findall(posted)
+    if state == (announced[-1] if announced else 'ok'):
+        return []
+
+    heading = "### Nightly package builds"
+    text = f"{heading}\n<!-- nightly-status: {state} -->\n\n"
+    ident = nightly_ident(build)
+    tasks = build.get('tasks') or {}
+    if failed:
+        names = ', '.join(f"`{nightlydata.TASK_LABELS.get(task, task)}`" for task in failed)
+        text += (f"The nightly package build of {ident} **failed** in {len(failed)}"
+                 f" of {len(tasks)} tasks: {names}.\n")
+    if moved:
+        text += (f"{'It' if failed else f'The nightly package build of {ident}'} is"
+                 f" **overdue**: {build.get('branch', '')} moved on"
+                 f" {moved:%Y-%m-%d %H:%M} UTC, and no newer build has come in.\n")
+    if state == 'ok':
+        text += f"The nightly package build of {ident} passed all {len(tasks)} tasks again.\n"
+    folder = build.get('folder', '?')
+    text += (f"\n- packages: [{folder}]({build.get('url', '')}{folder}/)\n"
+             f"- finished {docsdata.fmt_utc(build.get('date'))}"
+             f" ({nightlydata.duration_text(nightlydata.total_seconds(build))})\n")
+    return [{'heading': heading, 'text': text}]
+
 def build_comment(sections, site_url):
     return ('\n'.join(s['text'] for s in sections)
             + f"\n{FOOTER}{site_url}).\n")
@@ -302,8 +385,9 @@ def stale_comments(comments, snapshot, docs, now=None):
        later update depends on. two kinds stay however old they are: the one
        announcing the changes in the latest run of a suite, which
        drop_announced() would post again until a newer run of the suite
-       arrives, and the last one carrying the marker of a manual, without
-       which a build that stays broken would be announced again'''
+       arrives, and the last one carrying the marker of a manual or of the
+       package builds, without which a build that stays broken would be
+       announced again'''
     now = now or datetime.datetime.now(datetime.timezone.utc)
     cutoff = now - datetime.timedelta(days=KEEP_DAYS)
     headings = [s['heading'] for s in build_sections(snapshot)]
@@ -316,6 +400,9 @@ def stale_comments(comments, snapshot, docs, now=None):
                     if any(marker in c['body'] for marker in markers)]
         if carriers:
             needed.add(carriers[-1])
+    carriers = [c['id'] for c in comments if NIGHTLY_MARKER.search(c['body'])]
+    if carriers:
+        needed.add(carriers[-1])
     return [c for c in comments
             if own_comment(c['body']) and c['id'] not in needed
             and datetime.datetime.fromisoformat(
@@ -353,7 +440,11 @@ if __name__ == "__main__":
         print("no run data, nothing to do")
         sys.exit(0)
 
-    body = build_body(snapshot, docs, args.site_url)
+    builds = nightlydata.load_builds(args.datadir, 1)
+    build = builds[-1] if builds else None
+    pushes = load_pushes(args.datadir)
+    body = build_body(snapshot, docs, args.site_url,
+                      nightly_table(build, pushes) if build else '')
 
     if args.dry_run:
         print("=== issue body ===")
@@ -361,7 +452,8 @@ if __name__ == "__main__":
         print("=== comment (before dedup against posted comments) ===")
         # nothing announced yet, so this shows every section that a state
         # change could produce
-        sections = build_sections(snapshot) + docs_sections(docs, '')
+        sections = (build_sections(snapshot) + docs_sections(docs, '')
+                    + nightly_sections(build, pushes, ''))
         if sections:
             print(build_comment(sections, args.site_url))
         else:
@@ -395,6 +487,7 @@ if __name__ == "__main__":
     posted = '\n'.join(c['body'] for c in comments)
     sections = drop_announced(build_sections(snapshot), posted)
     sections += docs_sections(docs, posted)
+    sections += nightly_sections(build, pushes, posted)
     if sections:
         gh(['issue', 'comment', str(number), '--repo', args.repo,
             '--body', build_comment(sections, args.site_url)])

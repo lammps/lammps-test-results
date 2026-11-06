@@ -80,6 +80,9 @@ recovers. Each of those is announced once, not on every update, which is
 tracked per manual with a hidden marker in the comment rather than with the
 run id used for the test suites.
 
+The nightly package builds work the same way: a comment goes out when the tasks
+that failed change, when a build is overdue, and when the builds recover.
+
 ## Local use
 
 Everything only needs the Python standard library (plus the `gh` CLI for the
@@ -624,7 +627,10 @@ ones `tools/nightlydata.py` knows the order and the name of.
 The builds are judged for being overdue like the results of the test machines
 (see above), by the branch and commit in the status file. `api/summary.json`
 carries the newest build under `nightly`, and lists it as `nightly-builds` under
-`overdue`. Nothing is reported in the status issue.
+`overdue`. The status issue shows the newest build, and a comment goes out when
+the tasks that failed change, when a build is overdue, and when the builds
+recover (see Notifications). Being overdue is also the only way a build that
+fails before it gets to publish its status can show up.
 
 ## Code size
 

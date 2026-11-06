@@ -25,6 +25,7 @@ import os
 import re
 
 import docsdata
+import rundata
 
 NIGHTLYDIR = 'nightly'
 FOLDER = re.compile(r'\d{4}-\d{2}-\d{2}')
@@ -41,6 +42,7 @@ TASKS = (
     ('shutdown', 'shutdown', 'stop the virtual machine and the containers'),
 )
 TASK_KEYS = tuple(key for key, _, _ in TASKS)
+TASK_LABELS = {key: label for key, label, _ in TASKS}
 
 def usable(status):
     '''what is wrong with a published status file, or an empty string.  the
@@ -91,3 +93,29 @@ def task_order(builds):
     found = [task for build in builds for task in build.get('tasks') or {}]
     return ([task for task in TASK_KEYS if task in found]
             + [task for task in dict.fromkeys(found) if task not in TASK_KEYS])
+
+def failed_tasks(build):
+    '''the tasks of a build that failed, in the order they are run'''
+    return [task for task in task_order([build]) if not passed(build, task)]
+
+def overdue_since(build, pushes, now):
+    '''when the branch of a build moved on from it, where no newer build has
+       come in for OVERDUE_HOURS since, or None.  "pushes" are those of all
+       branches, as recorded by tools/fetch_pushes.py'''
+    finished = docsdata.parse_iso(build.get('date'))
+    if not finished:
+        return None
+    moved = rundata.moved_on(pushes.get(build.get('branch', ''), []),
+                             build.get('commit', ''), finished)
+    # a push made while the build was going could not be in it
+    if moved and (now - max(moved, finished)).total_seconds() > rundata.OVERDUE_HOURS * 3600:
+        return moved
+    return None
+
+def duration_text(seconds):
+    '''a time as readable as the place it is shown in allows: seconds where
+       they are all there is, and minutes from there on'''
+    if seconds < 60:
+        return f'{seconds} s'
+    minutes = round(seconds / 60)
+    return f'{minutes // 60} h {minutes % 60} min' if minutes >= 60 else f'{minutes} min'
