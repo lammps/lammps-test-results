@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
 '''
-Fetch the results of the example input check from the LAMMPS buildbot
-(https://ci.lammps.org) and archive them under
-data/check-examples/<runid>/run.json.
+Fetch the test results and the statistics of the LAMMPS buildbot
+(https://ci.lammps.org) through its public REST API, which needs no token.
 
-The check - every input script of the examples tree run with "-skiprun" on 2
-MPI tasks, see "Example input check" in the README - moved from the GitHub
-Actions workflow check-examples.yml to the builder check-examples of the
-buildbot, which runs it for every merge into develop and maintenance (and for
-pull requests, in a builder of its own that is not looked at here).  Its step
-"examples" keeps the JUnit XML of run_tests.py as a second log, "junit", which
-the public REST API of the buildbot serves without a token.
+Test results: for every builder of buildbotdata.RESULTS, the JUnit XML that
+one step of its builds keeps as the log "junit", archived under
+data/<suite>/<runid>/run.json:
+
+- check-examples, step "examples": the example input check - every input
+  script of the examples tree run with "-skiprun" on 2 MPI tasks, see
+  "Example input check" in the README - which moved there from the GitHub
+  Actions workflow check-examples.yml, as data/check-examples/
+- the unit test builders of buildbotdata.UNITTEST_BUILDERS, step "ctest": the
+  "ctest --output-junit" file, as data/unit-tests/<config>/, partly under the
+  names of the GitHub Actions configurations they replace, so that their
+  history goes on
 
 A build is archived when it is complete, of the develop branch of
 lammps/lammps - forced builds of develop included, as the manually dispatched
-runs of the workflow were, but not those of a fork or of another branch - and
-has that log.  A build that failed before the check, e.g. in its compile, has
-none, and there is nothing to archive.  The run directory is named as the ones
-of the workflow runs (tools/ingest_actions.py), from the time the build started
-and the commit it built; the run links to the build page and records the log
-it came from as its source_url.  Ingestion is keyed on the run directory, so
-this script can run as often as necessary.
+runs of the workflows were, but not those of a fork or of another branch, nor
+the builds of pull requests, which have builders of their own - and has that
+log.  A build that ended before the step, e.g. in its compile, has none, and
+there is nothing to archive.  The run directory is named as the ones of the
+workflow runs (tools/ingest_actions.py), from the time the build started and
+the commit it built; the run links to the build page and records the log it
+came from as its source_url.  Ingestion is keyed on the run directory, so this
+script can run as often as necessary.
 
 The API serves a log with three lines in front of it (builder, build number,
 worker), which are dropped up to the XML declaration.
@@ -28,8 +33,8 @@ worker), which are dropped up to the XML declaration.
 An unreachable buildbot, or a log that does not parse or has no test cases,
 is skipped with a warning, leaving the archived runs untouched.
 
-The same API gives the statistics of the buildbot card of the dashboard: one
-file per day in New York time, data/buildbot/<day>.json, and the live state,
+Statistics, for the buildbot card of the dashboard: one file per day in New
+York time, data/buildbot/<day>.json, and the live state,
 data/external/buildbot.json (both documented in tools/buildbotdata.py).  A day
 is archived once it is over and nothing of it is still running - no build
 that ran in it, and no CPU or VM build of a merge of that day - and never
@@ -61,11 +66,7 @@ import junit_to_json
 
 BUILDBOT = 'https://ci.lammps.org'
 API = BUILDBOT + '/api/v2'
-BUILDER = 'check-examples'
-STEP = 'examples'
 LOG = 'junit'
-SUITE = 'check-examples'
-TITLE = 'Example input -skiprun check'
 BRANCH = 'develop'
 # the builds of the scheduler carry the repository of its poller; a forced
 # build carries none, unless a fork was named in the force dialog
@@ -96,13 +97,13 @@ def api(path):
     with urllib.request.urlopen(request, timeout=60) as response:
         return response.read()
 
-def candidate_builds(days):
-    '''the builder id and the complete builds of develop of the last days,
-       newest first'''
-    builders = json.loads(api(f'/builders?name={BUILDER}&field=name&field=builderid'))['builders']
-    if not builders:
-        raise RuntimeError(f'the buildbot has no builder {BUILDER}')
-    builderid = builders[0]['builderid']
+def builder_ids():
+    '''the ids of the builders by name'''
+    return {b['name']: b['builderid'] for b in
+            json.loads(api('/builders?field=name&field=builderid'))['builders']}
+
+def candidate_builds(builderid, days):
+    '''the complete builds of develop of a builder of the last days, newest first'''
     since = int(time.time() - days * 86400)
     # the API refuses a filter on a field that is not selected, and returns
     # no properties unless they are selected as a field as well
@@ -117,26 +118,29 @@ def candidate_builds(days):
            and props.get('got_revision'):
             build['sha'] = props['got_revision']
             builds.append(build)
-    return builderid, builds
+    return builds
 
-def ingest(builderid, build, datadir, dry_run=False):
-    '''archive the JUnit log of one build; returns 1 if it was new'''
+def ingest(builder, builderid, build, datadir, dry_run=False):
+    '''archive the JUnit log of one build of a builder of buildbotdata.RESULTS;
+       returns 1 if it was new'''
+    step, suite, title = buildbotdata.RESULTS[builder]
     started = datetime.datetime.fromtimestamp(build['started_at'], datetime.timezone.utc)
     runid = f"{started.strftime('%Y-%m-%dT%H-%M-%SZ')}_{build['sha'][:10]}"
-    rundir = os.path.join(datadir, SUITE, runid)
+    rundir = os.path.join(datadir, suite, runid)
     if os.path.isdir(rundir):
         return 0
-    path = f"/builds/{build['buildid']}/steps/{STEP}/logs/{LOG}/raw"
+    what = f"build {build['number']} of {builder}"
+    path = f"/builds/{build['buildid']}/steps/{step}/logs/{LOG}/raw"
     try:
         raw = api(path)
     except urllib.error.HTTPError as err:
         if err.code == 404:
-            print(f"build {build['number']} of {BUILDER} has no {LOG} log: nothing to archive")
+            print(f"{what} has no {LOG} log: nothing to archive")
             return 0
-        print(f"WARNING: skipping build {build['number']}: {API}{path}: {err}", file=sys.stderr)
+        print(f"WARNING: skipping {what}: {API}{path}: {err}", file=sys.stderr)
         return 0
     except Exception as err:
-        print(f"WARNING: skipping build {build['number']}: {API}{path}: {err}", file=sys.stderr)
+        print(f"WARNING: skipping {what}: {API}{path}: {err}", file=sys.stderr)
         return 0
     start = raw.find(b'<?xml')
     if start < 0:
@@ -146,17 +150,16 @@ def ingest(builderid, build, datadir, dry_run=False):
             raise ET.ParseError('no XML in the log')
         properties, tests = junit_to_json.parse_junit(io.BytesIO(raw[start:]))
     except ET.ParseError as err:
-        print(f"WARNING: skipping build {build['number']}: {API}{path}: {err}", file=sys.stderr)
+        print(f"WARNING: skipping {what}: {API}{path}: {err}", file=sys.stderr)
         return 0
     if not tests:
-        print(f"WARNING: skipping build {build['number']}: {API}{path}: no test cases",
-              file=sys.stderr)
+        print(f"WARNING: skipping {what}: {API}{path}: no test cases", file=sys.stderr)
         return 0
     if dry_run:
-        print(f"would ingest {SUITE}/{runid} from build {build['number']}")
+        print(f"would ingest {suite}/{runid} from {what}")
         return 1
     data = junit_to_json.run_json(
-        properties, tests, TITLE, started.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        properties, tests, title, started.strftime('%Y-%m-%dT%H:%M:%SZ'),
         sha=build['sha'], branch=BRANCH,
         run_url=f"{BUILDBOT}/#/builders/{builderid}/builds/{build['number']}",
         source_url=API + path)
@@ -164,8 +167,24 @@ def ingest(builderid, build, datadir, dry_run=False):
     with open(os.path.join(rundir, 'run.json'), 'w') as f:
         json.dump(data, f, indent=2)
         f.write('\n')
-    print(f"ingested {SUITE}/{runid} from build {build['number']}")
+    print(f"ingested {suite}/{runid} from {what}")
     return 1
+
+def ingest_results(datadir, days, dry_run=False):
+    '''archive the new results of all builders of buildbotdata.RESULTS'''
+    ids = builder_ids()
+    created = 0
+    for builder in buildbotdata.RESULTS:
+        if builder not in ids:
+            print(f"WARNING: the buildbot has no builder {builder}", file=sys.stderr)
+            continue
+        try:
+            builds = candidate_builds(ids[builder], days)
+        except Exception as err:
+            print(f"WARNING: skipping {builder}: {API}: {err}", file=sys.stderr)
+            continue
+        created += sum(ingest(builder, ids[builder], build, datadir, dry_run) for build in builds)
+    return created
 
 def get(path):
     return json.loads(api(path))
@@ -335,11 +354,11 @@ def snapshot(path, dry_run=False):
         f.write('\n')
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Fetch the example input check and the statistics"
-                                        " from the LAMMPS buildbot")
+    parser = ArgumentParser(description="Fetch the test results and the statistics"
+                                        " of the LAMMPS buildbot")
     parser.add_argument("--datadir", default="data", help="Data directory")
     parser.add_argument("--days", type=int, default=LOOKBACK_DAYS,
-                        help="How many days back to look for builds of the example input check")
+                        help="How many days back to look for builds with test results")
     parser.add_argument("--stats-days", type=int, default=STATS_DAYS,
                         help="How many days back to fill in missing statistics")
     parser.add_argument("--dry-run", action='store_true', default=False,
@@ -347,11 +366,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        builderid, builds = candidate_builds(args.days)
-        created = sum(ingest(builderid, build, args.datadir, args.dry_run) for build in builds)
-        print(f"{created} new {SUITE} run(s) of {len(builds)} build(s) of {BRANCH}")
+        print(f"{ingest_results(args.datadir, args.days, args.dry_run)} new run(s) of"
+              f" builds of {BRANCH}")
     except Exception as err:
-        print(f"WARNING: skipping {SUITE}: {API}: {err}", file=sys.stderr)
+        print(f"WARNING: no test results: {API}: {err}", file=sys.stderr)
     print(f"{archive_days(args.datadir, args.stats_days, args.dry_run)} new day(s) of statistics")
     try:
         snapshot(os.path.join(args.datadir, 'external', 'buildbot.json'), args.dry_run)

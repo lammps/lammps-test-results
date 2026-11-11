@@ -54,6 +54,36 @@ DAY = re.compile(r'\d{4}-\d{2}-\d{2}\.json$')
 # the days the card averages over
 WEEK = 7
 
+# the unit test results taken from builds of develop (tools/fetch_buildbot.py):
+# builder -> configuration of the unit-tests suite.  the first ones continue
+# the configurations that came from GitHub Actions until November 2026, under
+# the same names, so that their history goes on (tools/ingest_actions.py takes
+# them from there no more); the others are covered by no other source.  the
+# builders that another source covers more broadly are left out: those of the
+# GPU machine (its nightly runs, six builds), kokkos-openmp-* (the OpenCL
+# builds of the GPU machine), intel-mkl (the oneAPI run of rstudio, with Intel
+# MPI), macos-x86_64 (the macOS 12 VM with OpenMP of the coverage machine)
+UNITTEST_BUILDERS = {
+    'kokkos-serial-double': 'kokkos-serial-double',
+    'kokkos-serial-mixed': 'kokkos-serial-mixed',
+    'kokkos-serial-single': 'kokkos-serial-single',
+    'gcc-bigbig': 'linux-x86_64-bigbig',
+    'gcc-fftsingle': 'linux-x86_64-fftsingle',
+    'windows-msvc': 'windows-msvc',
+    'gcc-basic': 'linux-x86_64-basic',
+    'gcc11-alma9': 'linux-x86_64-alma9',
+    'clang-cxx17': 'linux-x86_64-clang',
+    'cpp23-gcc': 'linux-x86_64-cpp23-gcc',
+    'cpp23-clang': 'linux-x86_64-cpp23-clang',
+    'macos26-x86_64': 'macos26-x86_64',
+    'freebsd-x86_64': 'freebsd-x86_64',
+}
+# everything taken from builds of develop: builder -> (step, suite, title of
+# the run).  the step keeps the JUnit file as its log "junit"
+RESULTS = {'check-examples': ('examples', 'check-examples', 'Example input -skiprun check')}
+RESULTS.update({builder: ('ctest', f'unit-tests/{config}', f'Unit Tests {config}')
+                for builder, config in UNITTEST_BUILDERS.items()})
+
 def list_days(datadir):
     folder = os.path.join(datadir, BUILDBOTDIR)
     if not os.path.isdir(folder):

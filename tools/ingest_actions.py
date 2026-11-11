@@ -47,6 +47,7 @@ import time
 import zipfile
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import buildbotdata
 import junit_to_json
 
 # the workflows are told apart by their file name in .github/workflows,
@@ -86,6 +87,11 @@ UNITTEST_WORKFLOWS = (
 RETIRED_CONFIGS = {
     'kokkos-openmp-double', 'kokkos-openmp-mixed', 'kokkos-openmp-single',
 }
+# junit-<config> artifacts of configurations that the LAMMPS buildbot took
+# over (buildbotdata.UNITTEST_BUILDERS, tools/fetch_buildbot.py): their
+# history goes on with the builds there, and the runs of the workflows, while
+# they still exist, would put a second run of every merge into it
+BUILDBOT_CONFIGS = set(buildbotdata.UNITTEST_BUILDERS.values())
 # workflows that upload the JUnit XML of run_tests.py as it is, without the
 # merge_results.py pass that produces a run.json: workflow file -> (suite,
 # artifact name, title of the run).  the example input check that was the
@@ -423,7 +429,7 @@ def ingest_run(repo, run, datadir, report, dry_run=False):
         configs = [a for a in artifacts if a['name'].startswith('junit-')]
         for artifact in configs:
             config = artifact['name'][len('junit-'):]
-            if config in RETIRED_CONFIGS:
+            if config in RETIRED_CONFIGS or config in BUILDBOT_CONFIGS:
                 continue
             created += ingest_junit(repo, run, artifact, datadir,
                                     f'unit-tests/{config}', f'Unit Tests {config}',

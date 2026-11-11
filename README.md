@@ -11,8 +11,8 @@ website and a rolling GitHub status issue.
   tests: one `junit-<config>` artifact per platform/configuration).
 - The example input check runs on the [LAMMPS buildbot](https://ci.lammps.org)
   for every merge, and its results are taken from the public REST API of the
-  buildbot (`tools/fetch_buildbot.py`, see below), as are the statistics of
-  the buildbot card.
+  buildbot (`tools/fetch_buildbot.py`, see below), as are the unit tests of
+  13 of its builders and the statistics of the buildbot card.
 - The full regression tests are no longer run in GitHub Actions but on a
   dedicated machine with a much more complete LAMMPS configuration, and
   published on download.lammps.org (`tools/fetch_regression.py`, see below).
@@ -531,6 +531,35 @@ archived by the same rules as the GPU builds.
 
 Like the other test machines, it tests `develop`, so its results are judged
 as overdue by the same rule (see above).
+
+### Unit tests of the buildbot
+
+The builders of the [LAMMPS buildbot](https://ci.lammps.org) run the unit tests
+for every merge into `develop`, and the step `ctest` of each build keeps the
+JUnit file of `ctest --output-junit` as its log `junit`.
+`tools/fetch_buildbot.py` archives it, like the example input check (see
+above), for the builders in `buildbotdata.UNITTEST_BUILDERS`:
+
+- under the names of the GitHub Actions configurations they replaced in
+  November 2026, so that their history goes on: `kokkos-serial-double`,
+  `-mixed`, and `-single` (builders of the same names), `linux-x86_64-bigbig`
+  (`gcc-bigbig`), `linux-x86_64-fftsingle` (`gcc-fftsingle`), and
+  `windows-msvc`.  The builds are not the same as on GitHub Actions (Rocky
+  Linux 10 with GCC 14, MPI in some of them; see the guide of the buildbot),
+  so the first run of the buildbot in each of them lists tests that came or
+  went.  `tools/ingest_actions.py` no longer takes these configurations from
+  the workflows (`BUILDBOT_CONFIGS`), so that a workflow that still runs does
+  not add a second run of each merge;
+- and the ones no other source covers: `linux-x86_64-basic` (`gcc-basic`, the
+  packages of the basic preset only), `linux-x86_64-alma9` (`gcc11-alma9`,
+  AlmaLinux 9 with GCC 11 and the oldest CMake LAMMPS accepts),
+  `linux-x86_64-clang` (`clang-cxx17`), `linux-x86_64-cpp23-gcc` and
+  `linux-x86_64-cpp23-clang` (C++23), `macos26-x86_64`, and `freebsd-x86_64`.
+
+The builders that another source covers more broadly are left out: those of
+the GPU machine (its nightly runs above), the KOKKOS/OpenMP ones (the OpenCL
+builds of the GPU machine), `intel-mkl` (the oneAPI run above), and
+`macos-x86_64` (the macOS 12 VM of the coverage machine, which has OpenMP).
 
 ## Performance benchmarks
 
