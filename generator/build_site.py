@@ -39,6 +39,7 @@ import sys
 
 TOPDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(os.path.join(TOPDIR, 'tools'))
+import buildbotdata
 import codesizedata
 import docsdata
 import nightlydata
@@ -629,6 +630,129 @@ def activity_card(activity, team_page=False):
     if team_page:
         out += ('<div class="mt-2 small"><a href="team.html">'
                 'Core developer activity</a></div>')
+    return out + '</div></div></div>'
+
+BUILDBOT_URL = 'https://ci.lammps.org'
+# a day is archived on the morning after; none for two days means that the
+# fetch does not work
+BUILDBOT_STALE_DAYS = 2
+
+def per_day(value, days):
+    return f'{value / days:.1f}' if days else '&ndash;'
+
+def minutes_text(minutes):
+    return duration_text(round(minutes * 60)) if minutes is not None else '&ndash;'
+
+def busy_text(sums, pool):
+    share = buildbotdata.utilization(sums, pool)
+    if share is None:
+        return '&ndash;'
+    return (f'<span title="{sums["busy_hours"].get(pool, 0):.0f} of'
+            f' {sums["available_hours"][pool]:.0f} worker hours">{share:.0f}%</span>')
+
+def buildbot_card(days, live, today=None):
+    '''dashboard card with the work of the buildbot (ci.lammps.org): the
+       numbers of the last complete day next to the means of the last
+       buildbotdata.WEEK days (tools/fetch_buildbot.py), and the live state of
+       its builders, workers, and machines.  the days are those of New York,
+       where the build windows are set, and only complete ones, so that every
+       update on the next day shows the same numbers, at whatever time it runs.
+       there are no charts: merges and pushes come in bursts, so a day says
+       little, and the week is the mean'''
+    live = live or {}
+    url = live.get('url', BUILDBOT_URL)
+    out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
+    out += f'<h3 class="h6 card-title"><a href="{esc(url)}">Buildbot</a></h3>'
+    if days:
+        last = days[-1]
+        one = buildbotdata.totals([last])
+        week = buildbotdata.totals(days)
+        n = week['days']
+        out += '<div class="d-flex flex-wrap gap-3 my-2">'
+        for label, num, cls in (('Merges', one['merges'], ''),
+                                ('PR pushes', one['pr_pushes'], ''),
+                                ('Builds', one['branch'] + one['pr'], ''),
+                                ('Failed', one['failed'],
+                                 'st-failed' if one['failed'] else 'st-passed')):
+            out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
+                    f'<div class="lbl">{label}</div></div>')
+        out += '</div>'
+        when = buildbotdata.newest_day(days)
+        heading = when.strftime('%b %d') if when else esc(last.get('day', ''))
+        out += ('<table class="table table-sm table-borderless small mb-1"><thead><tr>'
+                f'<th></th><th class="n">{heading}</th>'
+                f'<th class="n" title="the mean of the last {n} day(s)">per day, {n} d</th>'
+                '</tr></thead><tbody>')
+        rows = (
+            ('merges tested', 'merges into develop and maintenance',
+             one['merges'], per_day(week['merges'], n)),
+            ('PR pushes tested', 'new head commits of pull requests that were built',
+             one['pr_pushes'], per_day(week['pr_pushes'], n)),
+            ('builds of branches', 'builds of develop and maintenance, forced builds and rebuilds',
+             one['branch'], per_day(week['branch'], n)),
+            ('of them failed', 'failed or broken builds of branches (those of pull'
+             ' requests fail whenever the pull request does)',
+             one['failed'], per_day(week['failed'], n)),
+            ('builds of PRs', 'builds of pull requests, of them failed: last day'
+             f' {one["pr_failed"]}, {n} days {week["pr_failed"]}',
+             one['pr'], per_day(week['pr'], n)),
+            ('merge to results', 'median time from a merge to the end of its last CPU'
+             ' and VM build (the GPU builds wait for their time window); longest: last'
+             f' day {minutes_text(max(one["merge_minutes"], default=None))},'
+             f' {n} days {minutes_text(max(week["merge_minutes"], default=None))}',
+             minutes_text(buildbotdata.median(one['merge_minutes'])),
+             minutes_text(buildbotdata.median(week['merge_minutes']))),
+            ('CPU worker wait', '90% of the CPU builds started within this time after'
+             ' they were requested: the CPU workers are short when it grows',
+             minutes_text(None if not one['queue_seconds'] else
+                          buildbotdata.percentile(one['queue_seconds'], 0.9) / 60),
+             minutes_text(None if not week['queue_seconds'] else
+                          buildbotdata.percentile(week['queue_seconds'], 0.9) / 60)),
+            ('GPU busy', 'share of the hours the GPU workers may build (07:00-21:00)'
+             ' that they did', busy_text(one, 'gpu'), busy_text(week, 'gpu')),
+            ('CPU busy', 'share of the hours the CPU workers of compute, c01-c08, and'
+             ' rstudio may build that they did', busy_text(one, 'cpu'), busy_text(week, 'cpu')),
+        )
+        for label, tip, value, mean in rows:
+            out += (f'<tr><td title="{esc(tip)}">{esc(label)}</td>'
+                    f'<td class="n">{value}</td><td class="n">{mean}</td></tr>')
+        out += '</tbody></table>'
+        failing = {}
+        for day in days:
+            for builderid, name in day.get('failed_builders', []):
+                failing[name] = builderid
+        if failing:
+            links = ', '.join(f'<a href="{esc(url)}/#/builders/{builderid}">{esc(name)}</a>'
+                              for name, builderid in sorted(failing.items()))
+            out += f'<div class="small mt-1">failed in {n} days: {links}</div>'
+    else:
+        out += '<div class="text-body-secondary small">no day archived yet</div>'
+
+    if live.get('workers'):
+        missing = live.get('disconnected', [])
+        state = (f', <span class="stale" title="{esc(", ".join(missing))}">{len(missing)}'
+                 f' not connected</span>' if missing else ', all connected')
+        out += (f'<div class="small mt-2">{live.get("builders", 0)} builders'
+                f' (+{live.get("pr_builders", 0)} for pull requests) on'
+                f' {live["workers"]} workers{state}</div>')
+    machines = [m for m in live.get('hardware', {}).get('machines', {}).values()
+                if not m.get('master')]
+    if machines:
+        memory = sum(m.get('memory_gib', 0) for m in machines) / 1024
+        gpus = sum(m.get('gpus', 0) for m in machines)
+        out += (f'<div class="text-body-secondary small">'
+                f'<a href="{esc(url)}/monitor/">{len(machines)}'
+                f' machine{"" if len(machines) == 1 else "s"}</a>:'
+                f' {sum(m.get("cores", 0) for m in machines)} cores /'
+                f' {sum(m.get("threads", 0) for m in machines)} threads,'
+                f' {memory:.1f} TiB memory, {gpus} GPU{"" if gpus == 1 else "s"}</div>')
+    if days:
+        today = today or datetime.datetime.now(datetime.timezone.utc).date()
+        when = buildbotdata.newest_day(days)
+        stale = ''
+        if when and (today - when).days > BUILDBOT_STALE_DAYS:
+            stale = f'no new day of statistics for {(today - when).days - 1} days'
+        out += card_footer('', '', f'{when.isoformat() if when else ""} (New York time)', stale)
     return out + '</div></div></div>'
 
 CODE_WEEKS = 26
@@ -2196,6 +2320,9 @@ def build_index(datadir, outdir, summary):
         body += activity_card(external['activity'], summary.get('team_page'))
     if 'docs' in external:
         body += docs_card(external['docs'])
+    # what the buildbot did, and with what
+    if summary.get('buildbot') or 'buildbot' in external:
+        body += buildbot_card(summary.get('buildbot', []), external.get('buildbot'))
     body += '</div>'
 
     with open(os.path.join(outdir, 'index.html'), 'w') as f:
@@ -2304,6 +2431,7 @@ if __name__ == "__main__":
         build_performance_page(args.datadir, args.outdir, summary['performance'], refs)
     summary['nightly'] = nightlydata.load_builds(args.datadir, TREND_RUNS)
     summary['codesize'] = codesizedata.load_weeks(args.datadir, CODE_WEEKS + 1)
+    summary['buildbot'] = buildbotdata.load_days(args.datadir)
     build_trends_page(args.outdir, summary)
     build_index(args.datadir, args.outdir, summary)
     # machine readable snapshot (also used for gating nightly runs upstream)

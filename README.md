@@ -11,7 +11,8 @@ website and a rolling GitHub status issue.
   tests: one `junit-<config>` artifact per platform/configuration).
 - The example input check runs on the [LAMMPS buildbot](https://ci.lammps.org)
   for every merge, and its results are taken from the public REST API of the
-  buildbot (`tools/fetch_buildbot.py`, see below).
+  buildbot (`tools/fetch_buildbot.py`, see below), as are the statistics of
+  the buildbot card.
 - The full regression tests are no longer run in GitHub Actions but on a
   dedicated machine with a much more complete LAMMPS configuration, and
   published on download.lammps.org (`tools/fetch_regression.py`, see below).
@@ -667,6 +668,37 @@ show more than the larger steps, and the groups change by very different
 amounts, so that each strip is scaled to its own largest change. The footer
 turns red when no new week has come in for 14 days. Nothing is reported in the
 status issue.
+
+## Buildbot
+
+The [LAMMPS buildbot](https://ci.lammps.org) builds and tests every merge into
+`develop` and `maintenance` and the pull requests on machines of its own.
+`tools/fetch_buildbot.py` takes its statistics from the public REST API, one
+file per day, `data/buildbot/<day>.json` (the layout is documented in
+`tools/buildbotdata.py`). The days are those of New York, where the time
+windows of the build machines are set, and a day is only archived once it is
+over and nothing of it still runs: no build that ran in it, and no CPU or VM
+build of a merge of that day. It is never written again, so the card shows the
+same numbers on every update of the following day, at whatever time the update
+runs; a day that was missed is filled in from the API on the next update, up
+to 14 days back. The live state at the time of the update - the builders and
+workers, and the hardware of the machines from `hosts.json` of the monitor page
+of the buildbot - is `data/external/buildbot.json`.
+
+The card shows the last complete day next to the mean per day of the last 7:
+the merges and the pull request pushes that were tested, the builds of branches
+(develop and maintenance, forced builds, rebuilds) and how many of them failed,
+the builds of pull requests (which fail by design whenever the pull request
+does, and are counted apart), the median time from a merge to the end of its
+last CPU and VM build (the GPU builds wait for their time window), the time
+within which 90% of the CPU builds found a worker, which grows when the CPU
+workers are short, and how much of the hours the GPU and CPU workers may build
+they did. Below it are the builders that failed on a branch in those days,
+the numbers of builders and workers (in red the ones not connected), and the
+machines with their cores, memory, and GPUs (the build master not counted).
+There are no charts: merges and pushes come in bursts, and a day says little
+beyond its numbers. The footer turns red when no new day has come in for two
+days. Nothing is reported in the status issue.
 
 ## Documentation build status
 
