@@ -28,6 +28,7 @@ Usage:  python3 generator/build_site.py [--datadir data] [--outdir _site]
 '''
 
 from argparse import ArgumentParser
+from urllib.parse import quote
 import datetime
 import html
 import json
@@ -508,7 +509,7 @@ def overdue_banner(state):
         for text, url in state['entries']:
             body += f'<li><a href="{esc(url)}">{esc(text)}</a></li>'
         body += '</ul>'
-    return body + '</div>'
+    return body + '</div><hr class="my-4">'
 
 def overdue_mark(state, suite):
     '''the warning glyph an overdue suite carries, with the reason as the
@@ -522,35 +523,68 @@ def overdue_mark(state, suite):
 # website (update both when a workflow file is renamed)
 CI_REPO = 'lammps/lammps'
 CI_BRANCH = 'develop'
-CI_BADGES = (
-    ('Linux', 'unittest-linux.yml'),
-    ('Windows', 'compile-msvc.yml'),
-    ('macOS', 'unittest-macos.yml'),
+CI_BADGES_GITHUB = (
+    ('macOS ARM64', 'unittest-macos.yml'),
     ('Linux ARM64', 'unittest-arm64.yml'),
-    ('Linux single-FFT', 'unittest-single.yml'),
     ('Linux FFTW3 MPI', 'unittest-fftw.yaml'),
-    ('KOKKOS precision', 'unittest-kokkos.yml'),
     ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
     ('Example inputs', 'check-examples.yml'),
     ('Style check', 'style-check.yml'),
-    ('C++23', 'check-cpp23.yml'),
     ('GNU make', 'check-gnu-make.yml'),
-    ('No VLA', 'check-vla.yml'),
     ('CodeQL', 'codeql-analysis.yml'),
     ('LAMMPS-GUI flatpak', 'lammps-gui-flatpak.yml'),
 )
 
-def ci_badges_html():
+# live Worker status badges from the buildbot CI at Temple
+CI_BUILDBOT = 'https://ci.lammps.org'
+CI_BADGES_BUILDBOT = (
+    (20, 'Linux Clang 21 w/ C++17', 'clang-cxx17'),
+    (15, 'Linux Clang 21 w/ C++23', 'cpp23-clang'),
+    (18, 'Linux GCC 14 w/ C++23', 'cpp23-gcc'),
+    (24, 'Linux GCC 14 Basic preset', 'gcc-basic'),
+    (17, 'Linux GCC 14 w/ BIGBIG', 'gcc-bigbig'),
+    (19, 'Linux GCC 14 w/ FFT_SINGLE', 'gcc-fftsingle'),
+    (25, 'Linux GCC 11 on RHEL 9', 'gcc11-alma9'),
+    (16, 'Linux Intel oneAPI & MKL', 'intel-mkl'),
+    ( 6, 'Linux GPU/CUDA 12.9, double precision', 'gpu-cuda-double'),
+    ( 4, 'Linux GPU/OpenCL, mixed precision', 'gpu-opencl-mixed'),
+    ( 5, 'Linux KOKKOS/CUDA 12.9, double precision', 'kokkos-cuda-double'),
+    ( 7, 'Linux KOKKOS/CUDA 12.9, mixed precision', 'kokkos-cuda-mixed'),
+    ( 9, 'Linux KOKKOS/OpenMP, double precision', 'kokkos-openmp-double'),
+    (12, 'Linux KOKKOS/OpenMP, mixed precision', 'kokkos-openmp-mixed'),
+    ( 8, 'Linux KOKKOS/OpenMP, single precision', 'kokkos-openmp-single'),
+    (13, 'Linux KOKKOS/Serial, double precision', 'kokkos-serial-double'),
+    (11, 'Linux KOKKOS/Serial, mixed precision', 'kokkos-serial-mixed'),
+    (14, 'Linux KOKKOS/Serial, single precision', 'kokkos-serial-single'),
+    (27, 'Windows 11, MSVC 19.51', 'windows-msvc'),
+    (23, 'macOS 12, Clang 14', 'macos-x86_64'),
+    (26, 'macOS 26, Clang 21', 'macos26-x86_64'),
+    (22, 'FreeBSD 15, Clang 19 ', 'freebsd-x86_64'),
+)
+
+def ci_badges_github_html():
     '''row of live workflow status badges served by GitHub; they reflect
        the latest post-merge run at view time, complementing the archived
        results below'''
     out = '<div class="d-flex flex-wrap gap-2 my-2">'
-    for label, file in CI_BADGES:
+    for label, file in CI_BADGES_GITHUB:
         out += (f'<a href="https://github.com/{CI_REPO}/actions/workflows/{file}'
                 f'?query=branch%3A{CI_BRANCH}" target="_blank" rel="noopener" '
                 f'title="{esc(label)} - {CI_BRANCH} branch">'
                 f'<img src="https://github.com/{CI_REPO}/actions/workflows/{file}'
                 f'/badge.svg?branch={CI_BRANCH}" alt="{esc(label)} build status" '
+                f'height="20" loading="lazy"></a>')
+    return out + '</div>'
+
+def ci_badges_buildbot_html():
+    '''row of live buildbot status badges served by Buildbot@Temple; they reflect
+       the latest post-merge run at view time, complementing the archived
+       results below'''
+    out = '<div class="d-flex flex-wrap gap-2 my-2">'
+    for num, label, builder in CI_BADGES_BUILDBOT:
+        out += (f'<a href="{CI_BUILDBOT}/#/builders/{num}" target="_blank" rel="noopener"> '
+                f'<img src="{CI_BUILDBOT}/plugins/badges/{builder}.svg'
+                f'?left_text={quote(label)}" alt="{esc(label)} build status" '
                 f'height="20" loading="lazy"></a>')
     return out + '</div>'
 
@@ -2019,13 +2053,15 @@ def build_performance_page(datadir, outdir, history, refs):
         f.write(page('Performance benchmarks', body))
 
 def build_index(datadir, outdir, summary):
+    body = '<hr class="my-4">'
     stale = stale_chain_parts(summary)
     overdue = overdue_state(summary)
     # what is out of date is said before anything else: a reader who takes a
     # verdict off this dashboard needs to know that it is old first
-    body = overdue_banner(overdue)
+    body += overdue_banner(overdue)
     body += '<h2 class="h5 mt-2">Live build status (post-merge, develop branch)</h2>'
-    body += ci_badges_html()
+    body += ci_badges_github_html()
+    body += ci_badges_buildbot_html()
 
     # unit test matrix as a table
     matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
