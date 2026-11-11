@@ -41,6 +41,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 tools/ingest_actions.py --repo lammps/lammps --datadir data
+          python3 tools/fetch_buildbot.py --datadir data
           python3 tools/fetch_regression.py --datadir data
           python3 tools/fetch_unittest.py --datadir data
           python3 tools/fetch_performance.py --datadir data

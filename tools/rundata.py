@@ -120,9 +120,10 @@ SUITE_ORDER = ('full-regression', 'quick-regression', 'kokkos-regression',
 # say (CONFIG_DETAILS is the same for the configurations of a suite), and
 # the title to give it where the name reads badly as one
 SUITE_DETAILS = {
-    'check-examples': 'every example input run with "-skiprun" on 2 MPI tasks in'
-                      ' the GitHub Actions build: parsed, set up, and taken one'
-                      ' step, with nothing checked numerically',
+    'check-examples': 'every example input run with "-skiprun" on 2 MPI tasks'
+                      ' (by the LAMMPS buildbot since November 2026, before in'
+                      ' GitHub Actions): parsed, set up, and taken one step,'
+                      ' with nothing checked numerically',
     'kokkos-regression': 'the regression inputs run through the KOKKOS package on'
                          ' its OpenMP host backend in the GitHub Actions build,'
                          ' against the same reference logs as the other suites',

@@ -13,9 +13,11 @@ skipped, so this script can run from a nightly schedule.
 
 Three kinds of workflow are read: the regression workflows upload a merged
 run.json (REGRESSION_WORKFLOWS), the unit test workflows one JUnit XML file
-per configuration named junit-<config> (UNITTEST_WORKFLOWS), and the example
-input check the JUnit XML of run_tests.py as it is (JUNIT_WORKFLOWS); the
-two latter are converted with tools/junit_to_json.py.
+per configuration named junit-<config> (UNITTEST_WORKFLOWS), and workflows
+like the former example input check the JUnit XML of run_tests.py as it is
+(JUNIT_WORKFLOWS, empty since that check moved to the buildbot, see
+tools/fetch_buildbot.py); the two latter are converted with
+tools/junit_to_json.py.
 
 Nothing that goes wrong during a pass aborts it.  What could not be taken
 in is written to data/external/ingest.json instead, and to the job log: a
@@ -86,13 +88,13 @@ RETIRED_CONFIGS = {
 }
 # workflows that upload the JUnit XML of run_tests.py as it is, without the
 # merge_results.py pass that produces a run.json: workflow file -> (suite,
-# artifact name, title of the run).  the example input check runs every
-# input with "-skiprun", so its results are runtests and skips by design;
-# what it reports is the inputs that crash before the first step
-JUNIT_WORKFLOWS = {
-    'check-examples.yml': ('check-examples', 'check-examples-results',
-                           'Example input -skiprun check'),  # Check example inputs /w -skiprun
-}
+# artifact name, title of the run).  the example input check that was the
+# only one, check-examples.yml ('check-examples', 'check-examples-results',
+# 'Example input -skiprun check'), runs on the buildbot now and comes in
+# through tools/fetch_buildbot.py; it is not taken from here any more, so
+# that the runs of the workflow, while it still exists, do not put a second
+# run of every merge into the suite
+JUNIT_WORKFLOWS = {}
 # trigger events whose runs are ingested (all restricted to develop)
 INGEST_EVENTS = ('push', 'workflow_dispatch', 'schedule')
 

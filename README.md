@@ -8,9 +8,10 @@ website and a rolling GitHub status issue.
 - GitHub Actions workflows in [lammps/lammps](https://github.com/lammps/lammps)
   upload JUnit XML test results as artifacts for post-merge runs on the
   `develop` branch (regression tests: merged `run.json` + JUnit XML; unit
-  tests: one `junit-<config>` artifact per platform/configuration; the
-  example input check: the JUnit XML of the test harness as it is, see
-  below).
+  tests: one `junit-<config>` artifact per platform/configuration).
+- The example input check runs on the [LAMMPS buildbot](https://ci.lammps.org)
+  for every merge, and its results are taken from the public REST API of the
+  buildbot (`tools/fetch_buildbot.py`, see below).
 - The full regression tests are no longer run in GitHub Actions but on a
   dedicated machine with a much more complete LAMMPS configuration, and
   published on download.lammps.org (`tools/fetch_regression.py`, see below).
@@ -34,7 +35,8 @@ website and a rolling GitHub status issue.
   INTEL package and KOKKOS/OpenMP, and publishes them the same way
   (`tools/fetch_unittest.py`, see below).
 - The [update workflow](.github/workflows/update.yml) in this repository
-  ingests new artifacts (`tools/ingest_actions.py`) and the latest published
+  ingests new artifacts (`tools/ingest_actions.py`), the example input checks
+  of the buildbot (`tools/fetch_buildbot.py`), and the latest published
   regression and unit test results (`tools/fetch_regression.py`,
   `tools/fetch_unittest.py`), records when the branches those were run on
   last moved (`tools/fetch_pushes.py`), archives one `run.json`
@@ -374,20 +376,30 @@ is only ever seen on a site rebuilt after a push to this repository.
 
 ## Example input check
 
+The builder `check-examples` of the [LAMMPS buildbot](https://ci.lammps.org)
+runs every input script of the examples tree with `-skiprun` appended, on 2
+MPI tasks: the whole script is parsed, every style instantiated, the system
+set up, and one step taken - the loops of all `run` and `minimize` commands
+end after one step. That finds inputs that no longer parse or crash in setup
+at a small fraction of the cost of the regression runs, and on every merge
+rather than once a day; it checks nothing numerically. The build's own
+verdict is the `failure.yaml` it stops on; what is archived here is the JUnit
+XML of the test harness, which the step `examples` keeps as its log `junit`.
+`tools/fetch_buildbot.py` takes it through the public REST API of the
+buildbot from every complete build of `develop` of the last 7 days (forced
+builds of `develop` included, but not those of forks or other branches),
+converts it with `tools/junit_to_json.py` into
+`data/check-examples/<runid>/run.json`, and records the commit the build
+checked out, the time it started, and links to the build page and the log.
+A build that ended before the check, e.g. in its compile, has no such log
+and leaves nothing to archive.
+
+Until November 2026 the same check ran in GitHub Actions, as
 `check-examples.yml` in lammps/lammps (*Check example inputs /w -skiprun*,
-added with the same pull request as the `runtest` status) runs every input
-script of the examples tree with `-skiprun` appended, on 2 MPI tasks of a
-GitHub Actions build: the whole script is parsed, every style instantiated,
-the system set up, and one step taken - the loops of all `run` and `minimize`
-commands end after one step. That finds inputs that no longer parse or crash
-in setup at a small fraction of the cost of the regression runs, and on every
-push rather than once a day; it checks nothing numerically. The workflow's
-own verdict is the `failure.yaml` it stops on; what is archived here is the
-JUnit XML it uploads in `check-examples-results`, converted by
-`tools/junit_to_json.py` into `data/check-examples/<runid>/run.json`
-(`ingest_actions.JUNIT_WORKFLOWS`; the commit, the branch and the time are
-those of the workflow run, since the `git_info` the harness records is the
-detached HEAD of the checkout).
+added with the same pull request as the `runtest` status), in the same
+build configuration; those runs were ingested from the JUnit XML it
+uploaded in `check-examples-results`, with the commit, the branch and the
+time of the workflow run, and they stay in the archive.
 
 By design, every input that completes is a `runtest` (*only a -skiprun
 check*) and none passes, so the card of the suite shows zero passed and zero
@@ -397,7 +409,7 @@ excluded in `config_skiprun.yaml`, the ones whose post-run analysis cannot
 work with a run cut short (*cannot be checked with -skiprun*, an error
 message that names a variable or a tally that needs the full run), the
 multi-partition inputs, and the ones that use a package or feature the
-Actions build lacks. The dashboard sorts the suite after the full regression
+build lacks. The dashboard sorts the suite after the full regression
 cards (`rundata.SUITE_ORDER`), names it *Example Input Check*
 (`rundata.SUITE_TITLES`), and spells out on its run pages what it runs
 (`rundata.SUITE_DETAILS`), since the name of the suite says neither.
