@@ -528,7 +528,7 @@ CI_BADGES_GITHUB = (
     ('Linux ARM64', 'unittest-arm64.yml'),
     ('Linux FFTW3 MPI', 'unittest-fftw.yaml'),
     ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
-    ('Example inputs', 'check-examples.yml'),
+    ('No VLA', 'check-vla.yml'),
     ('Style check', 'style-check.yml'),
     ('GNU make', 'check-gnu-make.yml'),
     ('CodeQL', 'codeql-analysis.yml'),
@@ -545,7 +545,7 @@ CI_BADGES_BUILDBOT = (
     (17, 'Linux GCC 14 w/ BIGBIG', 'gcc-bigbig'),
     (19, 'Linux GCC 14 w/ FFT_SINGLE', 'gcc-fftsingle'),
     (25, 'Linux GCC 11 on RHEL 9', 'gcc11-alma9'),
-    (16, 'Linux Intel oneAPI & MKL', 'intel-mkl'),
+    (16, 'Linux Intel oneAPI w/ MKL', 'intel-mkl'),
     ( 6, 'Linux GPU/CUDA 12.9, double precision', 'gpu-cuda-double'),
     ( 4, 'Linux GPU/OpenCL, mixed precision', 'gpu-opencl-mixed'),
     ( 5, 'Linux KOKKOS/CUDA 12.9, double precision', 'kokkos-cuda-double'),
@@ -560,6 +560,7 @@ CI_BADGES_BUILDBOT = (
     (23, 'macOS 12, Clang 14', 'macos-x86_64'),
     (26, 'macOS 26, Clang 21', 'macos26-x86_64'),
     (22, 'FreeBSD 15, Clang 19 ', 'freebsd-x86_64'),
+    (51, 'Check examples with -skiprun', 'check-examples'),
 )
 
 def ci_badges_github_html():
