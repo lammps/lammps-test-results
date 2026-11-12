@@ -525,7 +525,6 @@ def overdue_mark(state, suite):
 CI_REPO = 'lammps/lammps'
 CI_BRANCH = 'develop'
 CI_BADGES_GITHUB = (
-    ('macOS ARM64', 'unittest-macos.yml'),
     ('Linux ARM64', 'unittest-arm64.yml'),
     ('Linux FFTW3 MPI', 'unittest-fftw.yaml'),
     ('KOKKOS OpenMP', 'kokkos-regression.yaml'),
