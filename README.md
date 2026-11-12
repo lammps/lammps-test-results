@@ -707,7 +707,9 @@ file per day, `data/buildbot/<day>.json` (the layout is documented in
 `tools/buildbotdata.py`). The days are those of New York, where the time
 windows of the build machines are set, and a day is only archived once it is
 over and nothing of it still runs: no build that ran in it, and no CPU or VM
-build of a merge of that day. It is never written again, so the card shows the
+build of a merge of that day - or, so that a worker that cannot connect
+does not hold back every day, two days after it ended at the latest, with what
+had finished then. It is never written again, so the card shows the
 same numbers on every update of the following day, at whatever time the update
 runs; a day that was missed is filled in from the API on the next update, up
 to 14 days back. The live state at the time of the update - the builders and

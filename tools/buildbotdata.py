@@ -10,9 +10,10 @@ windows of the CI:
     data/buildbot/<day>.json
 
 <day> is "YYYY-MM-DD", so that the files sort chronologically.  A day is only
-written once it is over and nothing of it is still running, and it is never
-written again, so every update of the website on the following days shows the
-same numbers for it:
+written once it is over and nothing of it is still running (or two days after
+it ended at the latest, see "unfinished" below), and it is never written again,
+so every update of the website on the following days shows the same numbers
+for it:
 
     {"day": <day>, "timezone": "America/New_York",
      "merges": {"develop": <n>, "maintenance": <n>},
@@ -23,7 +24,13 @@ same numbers for it:
      "merge_minutes": [<minutes from a merge to its last CPU and VM build>, ...],
      "queue_seconds": [<seconds a CPU build waited for a worker>, ...],
      "busy_hours": {<pool>: <hours of builds>},
-     "available_hours": {<pool>: <hours the workers of the pool may build>}}
+     "available_hours": {<pool>: <hours the workers of the pool may build>},
+     "unfinished": {"builds": <n>, "merges": <n>}}
+
+"unfinished" is only there for a day that was archived before everything of it
+had finished, two days after it ended (tools/fetch_buildbot.py, FINAL_DAYS):
+the builds still running then, and the merges whose CPU and VM builds had not
+all finished, which have no time from merge to results.
 
 "branch" builds are those of develop and maintenance, forced builds, and
 rebuilds; "failed" counts those that failed or broke (pull request builds

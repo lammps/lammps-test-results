@@ -37,9 +37,11 @@ Statistics, for the buildbot card of the dashboard: one file per day in New
 York time, data/buildbot/<day>.json, and the live state,
 data/external/buildbot.json (both documented in tools/buildbotdata.py).  A day
 is archived once it is over and nothing of it is still running - no build
-that ran in it, and no CPU or VM build of a merge of that day - and never
-again, so the card shows the same numbers on every update of the following
-day, at whatever time it runs.  Days that are missing are filled in from the
+that ran in it, and no CPU or VM build of a merge of that day - or at the
+latest FINAL_DAYS after it ended, with what has finished by then (and how much
+has not, as "unfinished"), so that a worker that cannot connect does not hold
+back every day.  It is never written again, so the card shows the same numbers
+on every update of the following day, at whatever time it runs.  Days that are missing are filled in from the
 API as far back as --stats-days, but not before FIRST_DAY.
 
 Usage: python3 tools/fetch_buildbot.py [--datadir data] [--days 7]
@@ -81,6 +83,11 @@ MAX_BUILDS = 200
 TIMEZONE = 'America/New_York'
 FIRST_DAY = datetime.date(2026, 11, 10)
 STATS_DAYS = 14
+# a day is archived at the latest this many days after it ended, with what
+# has finished by then: a worker that cannot connect (a machine that is down,
+# or a new one before it is on the network) would otherwise hold back every
+# day from then on, since the builds of each merge wait for it
+FINAL_DAYS = 2
 # the hours a day a worker may build, as DAY_HOURS (gpu), CPU_HOURS (rstudio)
 # and VM_START (the Windows VM) in master.cfg of lammps-buildbot; 24 elsewhere
 WINDOW_HOURS = {'gpu': 14, 'rstudio': 16, 'compute-windows': 17}
@@ -200,8 +207,9 @@ def pool_of(worker):
 def window_hours(worker):
     return WINDOW_HOURS.get(worker, WINDOW_HOURS.get(worker.rsplit('-', 1)[0], 24))
 
-def day_stats(day, tz):
-    '''the statistics of one day, or None while something of it still runs'''
+def day_stats(day, tz, force=False):
+    '''the statistics of one day, or None while something of it still runs;
+       with force, those of what has finished, and how much has not'''
     t0 = int(datetime.datetime.combine(day, datetime.time(), tz).timestamp())
     t1 = int(datetime.datetime.combine(day + datetime.timedelta(days=1), datetime.time(),
                                        tz).timestamp())
@@ -232,7 +240,8 @@ def day_stats(day, tz):
             return None
         return 'pr' if 'pr' in builder['tags'] else 'branch'
 
-    if any(not b['complete'] for b in builds if kind(b)):
+    running = sum(1 for b in builds if kind(b) and not b['complete'])
+    if running and not force:
         return None
     merges = [c for c in changes if not (c['category'] or '').startswith('pr-')
               and c['branch'] in ('develop', 'maintenance')]
@@ -256,6 +265,7 @@ def day_stats(day, tz):
     # for their window and are left out.  the set of a merge has its commit
     merge_of = {c['sourcestamp']['ssid']: c for c in merges if c.get('sourcestamp')}
     stats['merge_minutes'] = []
+    unfinished = 0
     for bs in buildsets:
         if not ("named 'develop'" in bs['reason'] or "named 'maintenance'" in bs['reason']):
             continue
@@ -268,7 +278,10 @@ def day_stats(day, tz):
         if not mine:
             continue
         if not all(r['complete'] for r in mine):
-            return None
+            if not force:
+                return None
+            unfinished += 1
+            continue
         last = max(r['complete_at'] for r in mine)
         stats['merge_minutes'].append(round((last - change['when_timestamp']) / 60, 1))
 
@@ -290,6 +303,8 @@ def day_stats(day, tz):
             available[pool_of(w['name'])] += window_hours(w['name'])
     stats['busy_hours'] = {pool: round(hours, 2) for pool, hours in sorted(busy.items())}
     stats['available_hours'] = dict(sorted(available.items()))
+    if running or unfinished:
+        stats['unfinished'] = {'builds': running, 'merges': unfinished}
     return stats
 
 def archive_days(datadir, back, dry_run=False):
@@ -304,7 +319,7 @@ def archive_days(datadir, back, dry_run=False):
         if day < FIRST_DAY or os.path.exists(path):
             continue
         try:
-            stats = day_stats(day, tz)
+            stats = day_stats(day, tz, force=offset > FINAL_DAYS)
         except Exception as err:
             print(f"WARNING: skipping the statistics of {day}: {API}: {err}", file=sys.stderr)
             continue
