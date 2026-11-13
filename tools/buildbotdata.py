@@ -77,6 +77,7 @@ UNITTEST_BUILDERS = {
     'gcc-bigbig': 'linux-x86_64-bigbig',
     'gcc-fftsingle': 'linux-x86_64-fftsingle',
     'windows-msvc': 'windows-msvc',
+    'macos-arm64': 'macos-arm64',
     'gcc-basic': 'linux-x86_64-basic',
     'gcc11-alma9': 'linux-x86_64-alma9',
     'clang-cxx17': 'linux-x86_64-clang',
