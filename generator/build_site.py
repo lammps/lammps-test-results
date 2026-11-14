@@ -668,15 +668,6 @@ def buildbot_card(days, live, today=None):
         one = buildbotdata.totals([last])
         week = buildbotdata.totals(days)
         n = week['days']
-        out += '<div class="d-flex flex-wrap gap-3 my-2">'
-        for label, num, cls in (('Merges', one['merges'], ''),
-                                ('PR pushes', one['pr_pushes'], ''),
-                                ('Builds', one['branch'] + one['pr'], ''),
-                                ('Failed', one['failed'],
-                                 'st-failed' if one['failed'] else 'st-passed')):
-            out += (f'<div class="tile {cls}"><div class="num">{num}</div>'
-                    f'<div class="lbl">{label}</div></div>')
-        out += '</div>'
         when = buildbotdata.newest_day(days)
         heading = when.strftime('%b %d') if when else esc(last.get('day', ''))
         out += ('<table class="table table-sm table-borderless small mb-1"><thead><tr>'
@@ -714,8 +705,8 @@ def buildbot_card(days, live, today=None):
              ' rstudio may build that they did', busy_text(one, 'cpu'), busy_text(week, 'cpu')),
         )
         for label, tip, value, mean in rows:
-            out += (f'<tr><td title="{esc(tip)}">{esc(label)}</td>'
-                    f'<td class="n">{value}</td><td class="n">{mean}</td></tr>')
+            out += (f'<tr><td title="{esc(tip)}" style="padding: 0;">{esc(label)}</td>'
+                    f'<td class="n" style="padding: 0;">{value}</td><td class="n" style="padding: 0;">{mean}</td></tr>')
         out += '</tbody></table>'
         failing = {}
         for day in days:
@@ -732,9 +723,8 @@ def buildbot_card(days, live, today=None):
         missing = live.get('disconnected', [])
         state = (f', <span class="stale" title="{esc(", ".join(missing))}">{len(missing)}'
                  f' not connected</span>' if missing else ', all connected')
-        out += (f'<div class="small mt-2">{live.get("builders", 0)} builders'
-                f' (+{live.get("pr_builders", 0)} for pull requests) on'
-                f' {live["workers"]} workers{state}</div>')
+        out += (f'<div class="small mt-2"> {live.get("builders", 0)+live.get("pr_builders", 0)} '
+                f'builders  on {live["workers"]} workers{state}</div>')
     machines = [m for m in live.get('hardware', {}).get('machines', {}).values()
                 if not m.get('master')]
     if machines:
@@ -743,8 +733,7 @@ def buildbot_card(days, live, today=None):
         out += (f'<div class="text-body-secondary small">'
                 f'<a href="{esc(url)}/monitor/">{len(machines)}'
                 f' machine{"" if len(machines) == 1 else "s"}</a>:'
-                f' {sum(m.get("cores", 0) for m in machines)} cores /'
-                f' {sum(m.get("threads", 0) for m in machines)} threads,'
+                f' {sum(m.get("cores", 0) for m in machines)} CPU cores '
                 f' {memory:.1f} TiB memory, {gpus} GPU{"" if gpus == 1 else "s"}</div>')
     if days:
         today = today or datetime.datetime.now(datetime.timezone.utc).date()
@@ -752,7 +741,7 @@ def buildbot_card(days, live, today=None):
         stale = ''
         if when and (today - when).days > BUILDBOT_STALE_DAYS:
             stale = f'no new day of statistics for {(today - when).days - 1} days'
-        out += card_footer('', '', f'{when.isoformat() if when else ""} (New York time)', stale)
+        out += card_footer('', '', f'{when.isoformat() if when else ""} ', stale)
     return out + '</div></div></div>'
 
 CODE_WEEKS = 26
