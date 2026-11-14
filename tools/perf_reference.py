@@ -3,7 +3,8 @@
 Set new references for archived performance benchmarks.
 
 A benchmark is measured against the reference it was given from its first
-successful run (tools/fetch_performance.py).  When a change of the code, the
+successful run, or from its first one since the latest feature release
+(tools/fetch_performance.py).  When a change of the code, the
 compilers, or the machine makes it faster or slower for good, that is
 acknowledged here: the benchmarks named take their value of the run given as
 their new reference, from that run on.  The runs before it keep being

@@ -1891,7 +1891,27 @@ def perf_tooltip(day, scores):
         if score and score['percent'] is not None:
             carried = '' if score['fresh'] else ' (no new run)'
             parts.append(f'{short} {score["percent"]:.1f}%{carried}')
-    return f'{day}: ' + ', '.join(parts)
+    resets = sorted({score['release'] for score in scores.values() if score['reset']},
+                    key=perfdata.release_date)
+    reset = f'; references reset for LAMMPS {", ".join(resets)}' if resets else ''
+    return f'{day}: ' + ', '.join(parts) + reset
+
+def perf_releases(history):
+    '''the versions of LAMMPS whose references the nights of "history" are
+       measured against, oldest first'''
+    return sorted({score['release'] for _, _, scores in history
+                   for score in scores.values() if score['release']},
+                  key=perfdata.release_date)
+
+def perf_reset_mark(x, barw, height, title):
+    '''the night a strip's references were taken anew for a release: its
+       results are 100% of them by definition, so instead of a bar it gets a
+       dashed line over the height of the strip, which lines up with those
+       of the strips below and above it'''
+    mid = x + barw / 2
+    return (f'<g><title>{esc(title)}</title>'
+            f'<rect class="hit" x="{x}" y="0" width="{barw}" height="{height}"/>'
+            f'<line class="reset" x1="{mid:.2f}" y1="0" x2="{mid:.2f}" y2="{height}"/></g>')
 
 def perf_chart(history, width=234, stack=60, strip=14):
     '''the performance of the categories over the nights of "history"
@@ -1911,9 +1931,11 @@ def perf_chart(history, width=234, stack=60, strip=14):
        a machine runs only when the branch it tests has changed, and on the
        other nights the results of its last run stand.  those are drawn faded,
        so that they do not read as a confirmation; a night in which no
-       machine ran is not in "history" at all.  the bars keep their pitch
-       while the archive fills, with the newest night at the right edge, as
-       in history_bars()'''
+       machine ran is not in "history" at all.  the night a category's
+       references were reset for a new release has a dashed line in its
+       strip instead of a bar.  the bars keep their pitch while the archive
+       fills, with the newest night at the right edge, as in
+       history_bars()'''
     keys = [key for key, _, _, _ in perfdata.CATEGORIES
             if any(scores.get(key, {}).get('percent') is not None
                    for _, _, scores in history)]
@@ -1966,13 +1988,19 @@ def perf_chart(history, width=234, stack=60, strip=14):
             score = scores.get(key)
             if not score or score['percent'] is None:
                 continue
+            failed = (f', {score["failed"]} failed' if score['failed'] else '')
+            if score['reset']:
+                svg += perf_reset_mark(
+                    (first + i) * barw, barw - 2, strip,
+                    f'{day}: {title} {score["percent"]:.2f}% of the references, reset'
+                    f' for LAMMPS {score["release"]} ({score["entries"]} benchmarks{failed})')
+                continue
             dev = score['percent'] - 100
             # a night that hit its references exactly would not show at all,
             # which is not the same as not having run
             barh = max(min(abs(dev), PERF_SCALE) / PERF_SCALE * (mid - 0.5), 0.6)
             y = mid - barh if dev > 0 else mid
             faded = '' if score['fresh'] else ' old'
-            failed = (f', {score["failed"]} failed' if score['failed'] else '')
             svg += (f'<g><title>{esc(day)}: {esc(title)} {score["percent"]:.2f}% of'
                     f' the references ({score["entries"]} benchmarks{failed})'
                     f'{"" if score["fresh"] else ", no new run"}</title>'
@@ -2007,8 +2035,13 @@ def performance_card(history, machines):
     out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
     out += '<h3 class="h6 card-title"><a href="performance.html">Performance</a></h3>'
     out += perf_chart(history)
-    out += (f'<div class="text-body-secondary small mt-1">percent of reference, last'
-            f' {len(history)} nights with new runs; strips &plusmn;{PERF_SCALE}%</div>')
+    # the versions the references were taken for, of which there are two
+    # in the nights shown for some weeks after a release: the strips change
+    # from one to the next at their dashed line
+    releases = ' &rarr; '.join(esc(release) for release in perf_releases(history))
+    out += (f'<div class="text-body-secondary small mt-1">percent of reference'
+            f'{" " + releases if releases else ""};<br>last {len(history)} nights with'
+            f' new runs; strips &plusmn;{PERF_SCALE}%</div>')
     out += perf_failures(history[-1][2])
     # one line for the three machines: which commit each last ran, with
     # the branch and the day as the tooltip
@@ -2036,8 +2069,9 @@ def perf_rate(value):
 
 def perf_entry_strip(values, width=125, height=16):
     '''the history of one benchmark, as a strip of the card: one bar per
-       night, up for faster than its reference and down for slower, on the
-       columns of perf_chart()'''
+       night, up for faster than its reference and down for slower, and a
+       dashed line for the night of a release its reference was reset for
+       (the release named by "reset"), on the columns of perf_chart()'''
     barw = width // TREND_RUNS
     first = TREND_RUNS - len(values)
     mid = height / 2
@@ -2045,8 +2079,13 @@ def perf_entry_strip(values, width=125, height=16):
            f'viewBox="0 0 {width} {height}" role="img" '
            f'aria-label="percent of the reference per night">')
     svg += f'<line x1="0" y1="{mid}" x2="{width}" y2="{mid}"/>'
-    for i, (day, percent, fresh, key) in enumerate(values):
+    for i, (day, percent, fresh, key, reset) in enumerate(values):
         if percent is None:
+            continue
+        if reset:
+            svg += perf_reset_mark((first + i) * barw, barw - 1, height,
+                                   f'{day}: {percent:.2f}%, new reference for'
+                                   f' LAMMPS {reset}')
             continue
         dev = percent - 100
         barh = max(min(abs(dev), PERF_ENTRY_SCALE) / PERF_ENTRY_SCALE * (mid - 0.5), 0.6)
@@ -2066,20 +2105,26 @@ def build_performance_page(datadir, outdir, history, refs):
     body = ('<p>Performance benchmarks run nightly on three machines, after their'
             ' tests, whenever the branch they test has changed. Every benchmark is'
             ' measured in atom-steps per second and compared with a reference: the'
-            ' result of its first run, until a lasting change of the code, the'
-            ' compilers, or the machine is acknowledged with a new one. Of the'
+            ' result of its first run, taken anew from the first run of every'
+            ' feature release of LAMMPS, and in between whenever a lasting change'
+            ' of the code, the compilers, or the machine is acknowledged with a new'
+            ' one. Of the'
             ' copies the GPU machine runs side by side on its four GPUs, the best'
             ' one counts. A category is the geometric mean of the percentages of'
             ' its benchmarks, on whichever machines run them; a machine without a'
             ' new run in a night keeps its last results, drawn faded, and a night'
             ' without any new run is left out.</p>')
     body += perf_chart(history, stack=120, strip=24)
-    body += (f'<p class="text-body-secondary small mt-1">Percent of the references,'
-             f' last {len(history)} nights with new runs (UTC days), oldest on the left. The'
-             f' stacked bars are all categories together; the strips below them'
-             f' show each category within &plusmn;{PERF_SCALE}% of its references,'
-             f' up for faster, and those of the single benchmarks in the tables'
-             f' within &plusmn;{PERF_ENTRY_SCALE}%. Hover a bar for its numbers.</p>')
+    releases = ', then '.join(esc(release) for release in perf_releases(history))
+    versions = f' for LAMMPS {releases}' if releases else ''
+    body += (f'<p class="text-body-secondary small mt-1">Percent of the references'
+             f'{versions}, last {len(history)} nights with new runs (UTC days), oldest on'
+             f' the left. The stacked bars are all categories together; the strips'
+             f' below them show each category within &plusmn;{PERF_SCALE}% of its'
+             f' references, up for faster, and those of the single benchmarks in the'
+             f' tables within &plusmn;{PERF_ENTRY_SCALE}%. The night the references'
+             f' were reset for a release, where every result is 100% by definition,'
+             f' has a dashed line instead of a bar. Hover a bar for its numbers.</p>')
 
     # the latest run of every machine
     body += '<h2 class="h5 mt-4">Machines</h2>'
@@ -2088,7 +2133,7 @@ def build_performance_page(datadir, outdir, history, refs):
              '<th>Branch @ commit</th><th class="n">Benchmarks</th>'
              '<th class="n">Failed</th><th>Build</th><th>Hardware</th>'
              '</tr></thead><tbody>')
-    for machine, (runid, _) in newest.items():
+    for machine, (runid, _, _) in newest.items():
         run = perfdata.load_run(datadir, machine, runid)
         meta, props = run['metadata'], run['metadata'].get('properties', {})
         entries = run['entries']
@@ -2117,18 +2162,20 @@ def build_performance_page(datadir, outdir, history, refs):
         return cache[machine, runid]
 
     rows = {}
-    for machine, (runid, _) in newest.items():
+    for machine, (runid, _, _) in newest.items():
         runs = perfdata.list_runs(datadir, machine)
         before = runs[runs.index(runid) - 1] if runs.index(runid) else None
         for name, (entry, value, ratio) in ratios_of(machine, runid).items():
             previous = ratios_of(machine, before).get(name) if before else None
             change = (value / previous[1]) if value and previous and previous[1] else None
             series = []
-            for day, current, _ in history:
+            key = entry.get('category')
+            for day, current, scores in history:
                 found = current.get(machine)
                 got = ratios_of(machine, found[0]).get(name) if found else None
+                reset = scores.get(key, {}).get('release') if found and found[2] else None
                 series.append((day, 100 * got[2] if got and got[2] else None,
-                               found[1] if found else False, entry.get('category')))
+                               found[1] if found else False, key, reset))
             rows.setdefault(entry.get('category'), []).append(
                 (machine, name, entry, value, ratio, change, series,
                  perfdata.reference(refs, machine, name, runid)))
@@ -2413,7 +2460,7 @@ if __name__ == "__main__":
     summary['performance'] = perfdata.nightly(args.datadir, refs, TREND_RUNS)
     summary['performance_machines'] = {}
     if summary['performance']:
-        for machine, (runid, _) in summary['performance'][-1][1].items():
+        for machine, (runid, _, _) in summary['performance'][-1][1].items():
             meta = perfdata.load_run(args.datadir, machine, runid)['metadata']
             summary['performance_machines'][machine] = {
                 'runid': runid, 'branch': meta.get('branch', ''),

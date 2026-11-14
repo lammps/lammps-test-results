@@ -23,9 +23,13 @@ archived are skipped, and results of a commit that is already archived
 replace the run archived for it.  A commit is benchmarked twice only when the
 run was repeated by hand, because the first one was disturbed or broke off.
 
-A benchmark that has no reference yet is given one from the run it first
-succeeds in (perfdata.REFERENCES): it is what its later runs are measured
-against, until a new reference is set with tools/perf_reference.py.
+A benchmark that has no reference in the current release cycle of its
+machine (perfdata.cycles()) is given one from the run it first succeeds in
+within that cycle (perfdata.REFERENCES): from its first run at all, and from
+the first run of each feature release, "patch_<date>" in the version the
+summary records.  It is what its later runs are measured against, until the
+next release or a new reference set with tools/perf_reference.py.  This is
+checked for the archived runs on every call, not only for new ones.
 
 A source that is unreachable or does not deliver a usable summary is skipped
 with a warning, leaving the archived runs untouched.
@@ -141,20 +145,39 @@ def ingest(url, datadir, machine, dry_run=False):
         shutil.rmtree(os.path.join(perfdata.perfdir(datadir), machine, old))
         print(f"{suite}: replaced {old}, same commit {sha[:10]}")
     perfdata.load_run.cache_clear()
-
-    # the first successful run of a benchmark is its reference
-    refs = perfdata.load_references(datadir)
-    added = 0
-    for name, entry in entries.items():
-        value = perfdata.entry_value(entry)
-        known = refs.setdefault(machine, {}).setdefault(name, [])
-        if value and not known:
-            known.append({'run': runid, 'value': value, 'note': 'first run'})
-            added += 1
-    if added:
-        perfdata.save_references(datadir, refs)
-        print(f"{suite}: {added} new reference(s) from {runid}")
     return 1
+
+def add_references(datadir, machine, dry_run=False):
+    '''give every benchmark of a machine without a reference in its current
+       release cycle one from its first successful run in that cycle; returns
+       how many were added.  only the current cycle is looked at: the ones
+       before it were completed while they were current, and a reference
+       added to them now would change how their runs compare'''
+    cycles = perfdata.cycles(datadir, machine)
+    starts = [i for i, (_, _, start) in enumerate(cycles) if start]
+    current = cycles[starts[-1] if starts else 0:]
+    if not current:
+        return 0
+    first, release, _ = current[0]
+    refs = perfdata.load_references(datadir)
+    known = refs.setdefault(machine, {})
+    added = {}
+    for runid, _, _ in current:
+        for name, entry in sorted(perfdata.load_run(datadir, machine, runid)['entries'].items()):
+            value = perfdata.entry_value(entry)
+            listed = known.get(name, [])
+            if not value or any(ref['run'] >= first for ref in listed):
+                continue
+            note = f'release {release}' if listed else 'first run'
+            known.setdefault(name, []).append({'run': runid, 'value': value, 'note': note})
+            added[runid] = added.get(runid, 0) + 1
+    suite = f'{perfdata.PERFDIR}/{machine}'
+    for runid, count in added.items():
+        print(f"{suite}: {'would set' if dry_run else 'set'} {count} new"
+              f" reference(s) from {runid}, release cycle {release}")
+    if added and not dry_run:
+        perfdata.save_references(datadir, refs)
+    return sum(added.values())
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fetch the published performance benchmarks")
@@ -175,4 +198,5 @@ if __name__ == "__main__":
     total = 0
     for machine, url in sources:
         total += ingest(url, args.datadir, machine, args.dry_run)
+        add_references(args.datadir, machine, args.dry_run)
     print(f"ingested {total} new benchmark run(s)")

@@ -225,6 +225,15 @@ tr.hidden { display: none; }
 .perf line, .perf-strip line { stroke: var(--bs-border-color); stroke-width: 1; }
 /* a deviation beyond the scale of a strip is capped at its edge */
 .perf rect.cap { fill: var(--bs-body-color); }
+/* the night the references were reset for a release, which would be 100%
+   by definition: a dashed line through the strips, as thin on the wide
+   charts of performance.html as on the card, with a column wide area to
+   hover for its tooltip */
+.perf line.reset, .perf-strip line.reset {
+  stroke: var(--bs-secondary-color); stroke-width: 1.5; stroke-dasharray: 2 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.perf rect.hit, .perf-strip rect.hit { fill: transparent; }
 .sw {
   display: inline-block; width: .6rem; height: .6rem; border-radius: 2px;
   margin-right: .3rem; vertical-align: -1px;

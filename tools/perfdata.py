@@ -36,9 +36,11 @@ measured against, as a list of the references it had over time:
 A reference holds from the run it names on, until the next one in the list:
 a code change that makes a benchmark permanently faster or slower is
 acknowledged by a new reference, without rewriting how the runs before it
-compared to the one they were measured against.  A benchmark is given its
-first reference automatically, from its first successful run
-(tools/fetch_performance.py); later ones are set by hand
+compared to the one they were measured against.  The references are taken
+anew with every feature release of LAMMPS: the runs of a machine fall into
+release cycles (cycles()), and a benchmark is given a reference
+automatically from its first successful run in each of them
+(tools/fetch_performance.py).  Within a cycle, further ones are set by hand
 (tools/perf_reference.py).
 '''
 
@@ -47,6 +49,7 @@ import functools
 import json
 import math
 import os
+import re
 
 PERFDIR = 'performance'
 REFERENCES = 'references.json'
@@ -87,6 +90,12 @@ CATEGORIES = (
      'INTEL package with the Intel oneAPI compilers, mixed and double precision'),
 )
 CATEGORY_KEYS = tuple(key for key, _, _, _ in CATEGORIES)
+
+# the "version" of a run is what "git describe" printed for the commit it
+# ran: the tag of a feature release, "patch_13Nov2026", for the release
+# itself, and with the distance and the commit appended,
+# "patch_13Nov2026-12-g0123456789", for one after it
+RELEASE = re.compile(r'patch_(\d{1,2}[A-Z][a-z]{2}\d{4})(?:-\d+-g[0-9a-f]+)?')
 
 def perfdir(datadir):
     return os.path.join(datadir, PERFDIR)
@@ -150,6 +159,43 @@ def reference(refs, machine, name, runid):
             found = ref
     return found['value'] if found else None
 
+def release_of(version):
+    '''the feature release a "git describe" string names, e.g. "13Nov2026",
+       or None'''
+    found = RELEASE.fullmatch(version or '')
+    return found.group(1) if found else None
+
+def release_date(release):
+    '''the day of a release as release_of() names it, for comparing them;
+       None is older than any release'''
+    if not release:
+        return datetime.date.min
+    return datetime.datetime.strptime(release, '%d%b%Y').date()
+
+def cycles(datadir, machine):
+    '''the release cycles of the runs of a machine, as a list of (runid,
+       release, start) from the oldest run to the newest.
+
+       a new cycle starts with the first run whose version names a newer
+       feature release than any run before it: the release itself, unless
+       the machine did not get to run it.  "start" marks those runs, where
+       the references are taken anew, which makes every result of the run
+       100% by definition.  the first cycle starts with the first run of the
+       archive, whose references are the first ones, and is not marked.  a
+       run whose version names no feature release, or an older one (a
+       branch that has not merged the release yet), stays in the cycle it
+       falls in'''
+    out = []
+    current = None
+    for runid in list_runs(datadir, machine):
+        release = release_of(load_run(datadir, machine, runid)['metadata'].get('version'))
+        start = False
+        if release and release_date(release) > release_date(current):
+            start = current is not None
+            current = release
+        out.append((runid, current, start))
+    return out
+
 def night_of(runid):
     '''the UTC day a run belongs to.  the machines run in the night between
        04:00 and 10:00 UTC, one after the other, so the runs of one night
@@ -177,26 +223,31 @@ def ratios(datadir, refs, machine, runid):
 
 def nightly(datadir, refs, nights):
     '''the performance of every category over the last "nights" nights in
-       which any machine ran, as a list of (day, {machine: (runid, fresh)},
-       {category: score}) from the oldest night to the newest.
+       which any machine ran, as a list of (day, {machine: (runid, fresh,
+       reset)}, {category: score}) from the oldest night to the newest.
 
        a machine runs only when the branch it tests has changed, so on a
        night without a run of its own the results of its last run stand: the
        code did not change.  a category therefore always merges the newest
        results of every machine that runs benchmarks of it, and "fresh"
-       tells a run of that very night from one carried over.  a night in
-       which no machine ran would only repeat the one before, and is left
-       out.  a score is
+       tells a run of that very night from one carried over.  "reset" tells
+       a night in which the machine started a new release cycle (cycles()).
+       a night in which no machine ran would only repeat the one before, and
+       is left out.  a score is
 
            {"percent": <geometric mean of the ratios to the references>,
             "entries": <benchmarks measured>, "failed": <benchmarks that
             failed>, "fresh": <any of those runs is of that night>,
+            "reset": <any of those machines started a release cycle that
+            night>, "release": <the newest release cycle of those runs>,
             "machines": {machine: runid}}
 
        the geometric mean, since the numbers are ratios: a benchmark that
        runs twice as fast and one that runs half as fast cancel out'''
     runs = {machine: [(night_of(runid), runid) for runid in list_runs(datadir, machine)]
             for machine in list_machines(datadir)}
+    cycle = {machine: {runid: (release, start) for runid, release, start
+                       in cycles(datadir, machine)} for machine in runs}
     days = sorted({day for listed in runs.values() for day, _ in listed if day})
     out = []
     for day in days[-nights:]:
@@ -204,14 +255,19 @@ def nightly(datadir, refs, nights):
         for machine, listed in runs.items():
             older = [(when, runid) for when, runid in listed if when and when <= day]
             if older:
-                current[machine] = (older[-1][1], older[-1][0] == day)
+                reset = any(cycle[machine][runid][1] for when, runid in older if when == day)
+                current[machine] = (older[-1][1], older[-1][0] == day, reset)
         scores = {}
-        for machine, (runid, fresh) in current.items():
+        for machine, (runid, fresh, reset) in current.items():
+            release = cycle[machine][runid][0]
             for _, entry, value, ratio in ratios(datadir, refs, machine, runid):
                 score = scores.setdefault(entry.get('category', ''), {
-                    'ratios': [], 'failed': 0, 'fresh': False, 'machines': {}})
+                    'ratios': [], 'failed': 0, 'fresh': False, 'reset': False,
+                    'release': None, 'machines': {}})
                 score['machines'][machine] = runid
                 score['fresh'] = score['fresh'] or fresh
+                score['reset'] = score['reset'] or reset
+                score['release'] = max(score['release'], release, key=release_date)
                 if value is None:
                     score['failed'] += 1
                 elif ratio is not None:

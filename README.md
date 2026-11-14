@@ -591,7 +591,15 @@ the first one was disturbed or broke off, and the repeat replaces it.
 Every benchmark is compared with a reference, recorded per machine and
 benchmark in `data/performance/references.json`
 (`tools/perfdata.py` documents the layout). A benchmark gets its first
-reference from the first run it succeeds in. A change that makes it faster
+reference from the first run it succeeds in. The references are taken anew
+with every feature release of LAMMPS: the first run of a machine whose
+`git describe` names a newer release than its runs before, which is the
+release itself (`patch_13Nov2026`) unless the machine did not get to run
+it, starts a new release cycle, and every benchmark gets a new reference
+from its first successful run in it. `tools/fetch_performance.py` sets them,
+checking the whole current cycle on every call. The first cycle is that of
+30Sep2026, the release the first archived runs came after. Within a cycle,
+a change that makes a benchmark faster
 or slower for good - of the code, the compilers, or the machine - is
 acknowledged with a new reference, set by hand with `tools/perf_reference.py`
 from one run, or from the median of the runs since one. A reference holds
@@ -628,7 +636,12 @@ faster and down for a night it ran slower, 1.0% to the edge (`PERF_SCALE`):
 a category is the mean of about 20 to 70 benchmarks, which moves by
 0.05-0.2% from one night to the next, and by only about 0.3% when one
 benchmark in 30 changes by 10%. The strips carry the colors and names of the
-segments, and are the legend of the bars above them. `performance.html`
+segments, and are the legend of the bars above them. The night in which the
+references were reset for a release, where every result is 100% by
+definition, has a dashed line in the strips instead of a bar, and the line
+below the chart names the versions the references of the nights shown
+belong to, joined by an arrow: "30Sep2026 -> 13Nov2026"; with a feature
+release every six weeks or so there are at most two. `performance.html`
 draws the same charts at a readable size, lists the latest run of each
 machine with its build and hardware, and every benchmark with its latest
 result, its reference, the change since the run before, and its own history,
