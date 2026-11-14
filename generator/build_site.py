@@ -662,7 +662,6 @@ def buildbot_card(days, live, today=None):
     live = live or {}
     url = live.get('url', BUILDBOT_URL)
     out = '<div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body">'
-    out += f'<h3 class="h6 card-title"><a href="{esc(url)}">Buildbot</a></h3>'
     if days:
         last = days[-1]
         one = buildbotdata.totals([last])
@@ -671,7 +670,7 @@ def buildbot_card(days, live, today=None):
         when = buildbotdata.newest_day(days)
         heading = when.strftime('%b %d') if when else esc(last.get('day', ''))
         out += ('<table class="table table-sm table-borderless small mb-1"><thead><tr>'
-                f'<th></th><th class="n">{heading}</th>'
+                f'<th class="h6 card-title" style="padding-left: 0;"><a style="font-size: 105%;" href="{esc(url)}">Buildbot</a></th><th class="n">{heading}</th>'
                 f'<th class="n" title="the mean of the last {n} day(s)">per day, {n} d</th>'
                 '</tr></thead><tbody>')
         rows = (
@@ -708,14 +707,16 @@ def buildbot_card(days, live, today=None):
             out += (f'<tr><td title="{esc(tip)}" style="padding: 0;">{esc(label)}</td>'
                     f'<td class="n" style="padding: 0;">{value}</td><td class="n" style="padding: 0;">{mean}</td></tr>')
         out += '</tbody></table>'
-        failing = {}
-        for day in days:
-            for builderid, name in day.get('failed_builders', []):
-                failing[name] = builderid
-        if failing:
-            links = ', '.join(f'<a href="{esc(url)}/#/builders/{builderid}">{esc(name)}</a>'
-                              for name, builderid in sorted(failing.items()))
-            out += f'<div class="small mt-1">failed in {n} days: {links}</div>'
+        # disabled for now. not sure it is useful here
+        if False:
+            failing = {}
+            for day in days:
+                for builderid, name in day.get('failed_builders', []):
+                    failing[name] = builderid
+            if failing:
+                links = ', '.join(f'<a href="{esc(url)}/#/builders/{builderid}">{esc(name)}</a>'
+                                  for name, builderid in sorted(failing.items()))
+                out += f'<div class="small mt-1">failed in {n} days: {links}</div>'
     else:
         out += '<div class="text-body-secondary small">no day archived yet</div>'
 
@@ -741,7 +742,7 @@ def buildbot_card(days, live, today=None):
         stale = ''
         if when and (today - when).days > BUILDBOT_STALE_DAYS:
             stale = f'no new day of statistics for {(today - when).days - 1} days'
-        out += card_footer('', '', f'{when.isoformat() if when else ""} ', stale)
+            out += card_footer('', '', f'{when.isoformat() if when else ""} ', stale)
     return out + '</div></div></div>'
 
 CODE_WEEKS = 26
