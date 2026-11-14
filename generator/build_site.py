@@ -2177,54 +2177,6 @@ def build_index(datadir, outdir, summary):
     body += ci_badges_github_html()
     body += ci_badges_buildbot_html()
 
-    # unit test matrix as a table
-    matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
-    if matrix:
-        body += '<hr class="my-4">'
-        body += '<h2 class="h5">Unit tests (per platform / configuration)</h2>'
-        body += ('<div class="table-responsive"><table class="table table-striped '
-                 'table-hover align-middle">'
-                 '<thead><tr><th>Configuration</th><th>Status</th>'
-                 '<th class="n">Tests</th><th class="n">Passed</th><th class="n">Failed</th>'
-                 '<th class="n">Errors</th><th class="n">Skipped</th>'
-                 '<th>Commit</th><th>Latest run (UTC)</th>'
-                 '<th>Last all-OK (UTC)</th></tr></thead><tbody>')
-        for entry in matrix:
-            counts = entry['counts']
-            status = status_chip('passed' if rundata.broken(counts) == 0 else 'failed')
-            config = entry['suite'].split('/', 1)[1]
-            sha = esc(entry.get('sha', '')[:10]) if entry.get('sha') else '&mdash;'
-            # the commit hash embedded in the latest run id already has its
-            # own column, so only the timestamp is shown here
-            latest = esc(runid_parts(entry['latest'])[0])
-            if entry.get('last_all_ok'):
-                when, ok_sha = runid_parts(entry['last_all_ok'])
-                all_ok = esc(f'{when} / {ok_sha}') if ok_sha else esc(when)
-            else:
-                all_ok = '&mdash;'
-            # this run is a part of the analysis/coverage cron job: where it
-            # fell behind the static analysis, its commit and timestamp turn
-            # red (stale_chain_parts), and so do those of an overdue result
-            if entry['suite'] in overdue['suites']:
-                behind = (f' class="stale"'
-                          f' title="{esc(overdue["suites"][entry["suite"]])}"')
-            elif entry['suite'] == CHAIN_SUITE and 'unittest' in stale:
-                behind = f' class="stale" title="{esc(STALE_NOTE)}"'
-            else:
-                behind = ''
-            body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
-                     f'{esc(config)}</a>{overdue_mark(overdue, entry["suite"])}</td>'
-                     f'<td>{status}</td>'
-                     f'<td class="n">{counts["tests"]}</td>'
-                     f'<td class="n">{counts["passed"]}</td>'
-                     f'<td class="n">{counts["failed"]}</td>'
-                     f'<td class="n">{counts["error"]}</td>'
-                     f'<td class="n">{counts["skipped"]}</td>'
-                     f'<td{behind}>{sha}</td>'
-                     f'<td{behind}>{latest}</td>'
-                     f'<td>{all_ok}</td></tr>')
-        body += '</tbody></table></div>'
-
     # regression suites as cards
     regression = [s for s in summary['suites'] if not s['suite'].startswith('unit-tests/')]
     if regression:
@@ -2313,6 +2265,54 @@ def build_index(datadir, outdir, summary):
     if summary.get('buildbot') or 'buildbot' in external:
         body += buildbot_card(summary.get('buildbot', []), external.get('buildbot'))
     body += '</div>'
+
+    # unit test matrix as a table
+    matrix = [s for s in summary['suites'] if s['suite'].startswith('unit-tests/')]
+    if matrix:
+        body += '<hr class="my-4">'
+        body += '<h2 class="h5">Unit tests (per platform / configuration)</h2>'
+        body += ('<div class="table-responsive"><table class="table table-striped '
+                 'table-hover align-middle">'
+                 '<thead><tr><th>Configuration</th><th>Status</th>'
+                 '<th class="n">Tests</th><th class="n">Passed</th><th class="n">Failed</th>'
+                 '<th class="n">Errors</th><th class="n">Skipped</th>'
+                 '<th>Commit</th><th>Latest run (UTC)</th>'
+                 '<th>Last all-OK (UTC)</th></tr></thead><tbody>')
+        for entry in matrix:
+            counts = entry['counts']
+            status = status_chip('passed' if rundata.broken(counts) == 0 else 'failed')
+            config = entry['suite'].split('/', 1)[1]
+            sha = esc(entry.get('sha', '')[:10]) if entry.get('sha') else '&mdash;'
+            # the commit hash embedded in the latest run id already has its
+            # own column, so only the timestamp is shown here
+            latest = esc(runid_parts(entry['latest'])[0])
+            if entry.get('last_all_ok'):
+                when, ok_sha = runid_parts(entry['last_all_ok'])
+                all_ok = esc(f'{when} / {ok_sha}') if ok_sha else esc(when)
+            else:
+                all_ok = '&mdash;'
+            # this run is a part of the analysis/coverage cron job: where it
+            # fell behind the static analysis, its commit and timestamp turn
+            # red (stale_chain_parts), and so do those of an overdue result
+            if entry['suite'] in overdue['suites']:
+                behind = (f' class="stale"'
+                          f' title="{esc(overdue["suites"][entry["suite"]])}"')
+            elif entry['suite'] == CHAIN_SUITE and 'unittest' in stale:
+                behind = f' class="stale" title="{esc(STALE_NOTE)}"'
+            else:
+                behind = ''
+            body += (f'<tr><td><a href="{run_link(entry["suite"], entry["latest"])}">'
+                     f'{esc(config)}</a>{overdue_mark(overdue, entry["suite"])}</td>'
+                     f'<td>{status}</td>'
+                     f'<td class="n">{counts["tests"]}</td>'
+                     f'<td class="n">{counts["passed"]}</td>'
+                     f'<td class="n">{counts["failed"]}</td>'
+                     f'<td class="n">{counts["error"]}</td>'
+                     f'<td class="n">{counts["skipped"]}</td>'
+                     f'<td{behind}>{sha}</td>'
+                     f'<td{behind}>{latest}</td>'
+                     f'<td>{all_ok}</td></tr>')
+        body += '</tbody></table></div>'
 
     with open(os.path.join(outdir, 'index.html'), 'w') as f:
         f.write(page('Dashboard', body))
