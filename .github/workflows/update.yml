@@ -53,6 +53,15 @@ jobs:
           python3 tools/fetch_activity.py --output data/external/activity.json
           python3 tools/fetch_docs.py --output data/external/docs.json
 
+      - name: Ingest SAI test results
+        if: ${{ github.event_name != 'push' && vars.SAI_TEST_REPORT_URL != '' }}
+        env:
+          SAI_TEST_REPORT_URL: ${{ vars.SAI_TEST_REPORT_URL }}
+        run: |
+          python3 tools/fetch_unittest.py --datadir data --config sai-mpi-gpu-regression \
+                 --url "${SAI_TEST_REPORT_URL%/}/junit.xml" \
+                 --summary-url "${SAI_TEST_REPORT_URL%/}/summary.json"
+
       - name: Ingest core developer activity
         if: ${{ github.event_name != 'push' }}
         env:
