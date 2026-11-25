@@ -557,11 +557,13 @@ CI_BADGES_BUILDBOT = (
     (11, 'Linux KOKKOS/Serial, mixed precision', 'kokkos-serial-mixed'),
     (14, 'Linux KOKKOS/Serial, single precision', 'kokkos-serial-single'),
     (27, 'Windows 11, MSVC 19.51', 'windows-msvc'),
-    (23, 'macOS 12, Clang 14', 'macos-x86_64'),
-    (26, 'macOS 26, Clang 21', 'macos26-x86_64'),
+    (23, 'macOS 12 on Intel, Clang 14', 'macos-x86_64'),
+    (26, 'macOS 26 on Intel, Clang 21', 'macos26-x86_64'),
     (53, 'macOS 27 on Apple M1, Clang 21', 'macos-arm64'),
     (22, 'FreeBSD 15, Clang 19 ', 'freebsd-x86_64'),
     (51, 'Check examples with -skiprun', 'check-examples'),
+    (56, 'Build and load plugins', 'plugins'),
+    (57, 'Build Windows installers', 'windows-installer'),
 )
 
 def ci_badges_github_html():
